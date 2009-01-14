@@ -3,28 +3,34 @@
 -compile(export_all).
 
 main() -> 
-	#template { file="./wwwroot/template.html"}.
+    #template { file="./wwwroot/template.html" }.
 
 title() ->
-	"Jabber.se".
+    "Jabber.se".
 
 box() ->
-	#panel {
-	id=theDiv,
-	class=effects_target,
-	body=[
-	    "Jabber.se"
-		        ]}.
+    #panel{
+        id=theDiv,
+        class=effects_target,
+        body=[
+            "Jabber.se"
+        ]}.
 
 body() ->
-	Event = #event { target=theDiv, type=click },
-	[#literal{text="Weclome to "},
-	 #link { text="Jabber.se", actions=Event#event { 
-	       actions=#effect{ effect=highlight }
-	           }},
-	 #literal{text="."},
-	 #br{},
-	 #br{},
-	 box()].
-	
+    Event = #event { target=theDiv, type=click },
+    [#literal{text = "Weclome to "},
+     #link{
+        text = "Jabber.se",
+        actions = Event#event{ 
+            actions=#effect{effect=highlight}}},
+     #literal{text="."},
+     #br{},
+     box(),
+     #br{},
+     #literal{text = "For more information see "},
+     #link{
+        text = "about",
+        link = "/web/about"},
+     #literal{text = "."}].
+
 event(_) -> ok.
