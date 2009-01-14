@@ -30,7 +30,7 @@ body() ->
      #literal{text = "For more information see "},
      #link{
         text = "about",
-        link = "/web/about"},
+        url = "/web/about"},
      #literal{text = "."}].
 
 event(_) -> ok.
