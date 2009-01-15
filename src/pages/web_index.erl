@@ -31,6 +31,7 @@ body() ->
      #link{
         text = "about",
         url = "/web/about"},
-     #literal{text = "."}].
+     #literal{text = "."},
+    ].
 
 event(_) -> ok.
