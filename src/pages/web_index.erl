@@ -11,7 +11,8 @@ title() ->
 box() ->
     #panel{
         id=theDiv,
-        class=effects_target,
+        %class=effects_target,
+	class=woho,
         body=[
             "Jabber.se"
         ]}.
@@ -22,12 +23,16 @@ body() ->
      #link{
         text = "Jabber.se",
         actions = Event#event{ 
-            actions=#effect{effect=highlight}}},
+            actions=#effect{effect=highlight, options = [{"color", "black"}]}}},
      #literal{text="."},
      #br{},
      box(),
      #br{},
-     #literal{text = "For more information see "},
+     #link{
+        text = "news",
+        url = "/web/cms"},
+     #literal{
+	text = " | "},
      #link{
         text = "about",
         url = "/web/about"},

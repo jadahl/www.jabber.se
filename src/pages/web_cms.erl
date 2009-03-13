@@ -7,7 +7,7 @@ main() ->
   #template{file="./wwwroot/template.html"}.
 
 title() ->
-  "Jabber.se".
+  "Jabber.se - News".
 
 render_blog_post(#content{
     authors = Authors,
@@ -17,14 +17,15 @@ render_blog_post(#content{
       tags = _Tags}}) ->
   [#rounded_panel{
       body=
-      [#label{text = Title},
-	#span{text = Body},
-	#br{},
-	#literal{text = "By: " ++
+      [#label{class = blog_title, text = Title},
+	#span{class = blog_by,
+                 text = "By: " ++
 	  case Authors of
 	    [Author] -> Author;
 	    _ -> "unknown"
-	  end}]},
+	  end},
+	#br{},
+	#span{class = blog_body, text = Body}]},
     #br{}].
 
 render_content(#content{content = #blog_post{}} = Content) ->

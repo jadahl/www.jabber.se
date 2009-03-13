@@ -1,0 +1,44 @@
+body {
+    font-family: verdana,helvetica,arial,sans-serif;
+    text-align: center;
+    margin: 0 auto;
+}
+
+table.rounded_panel {
+    width: 50em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1, p {
+    font-family: verdana,helvetica,arial,sans-serif;
+}
+
+p.about {
+    width=50%;
+}
+
+span.blog_title {
+    font-family: verdana,helvetica,arial,sans-serif;
+    font-size: 140%;
+}
+
+span.blog_body {
+    font-family: verdana,helvetica,arial,sans-serif;
+    font-size: 100%;
+}
+
+span.blog_by {
+    font-family: verdana,helvetica,arial,sans-serif;
+    font-style: italic;
+    font-size: 75%;
+}
+
+div.woho {
+    width: 20em;
+    height: 2em;
+    color: white;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+}
