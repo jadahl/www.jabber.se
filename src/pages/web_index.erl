@@ -19,7 +19,7 @@ box() ->
 
 body() ->
     Event = #event { target=theDiv, type=click },
-    [#literal{text = "Weclome to "},
+    [#literal{text = "Welcome to "},
      #link{
         text = "Jabber.se",
         actions = Event#event{ 

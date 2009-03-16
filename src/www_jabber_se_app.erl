@@ -23,6 +23,7 @@ stop(_) -> nitrogen:stop().
 %%
 %% route("/web/newroute/" ++ PathInfo) -> {web_index, PathInfo};
 
+route("/") -> nitrogen:route("/web/index");
 route(Path) -> nitrogen:route(Path).
 
 
