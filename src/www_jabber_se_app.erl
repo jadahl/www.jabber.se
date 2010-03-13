@@ -1,9 +1,16 @@
 -module (www_jabber_se_app).
+-include("src/pages/config.hrl").
 -export ([start/2, stop/1, route/1, request/1]).
 -behavior(application).
 
-start(_, _) -> nitrogen:start().
-stop(_) -> nitrogen:stop().
+start(_, _) ->
+    lists:foreach(fun(Module) -> {Module, start}() end, ?MODULES),
+    Ret = nitrogen:start(www_jabber_se),
+    io:format("Ret ~p~n", [Ret]),
+    Ret.
+
+stop(_) ->
+    nitrogen:stop().
 
 %% route/1 lets you define new URL routes to your web pages, 
 %% or completely create a new routing scheme.
@@ -23,7 +30,7 @@ stop(_) -> nitrogen:stop().
 %%
 %% route("/web/newroute/" ++ PathInfo) -> {web_index, PathInfo};
 
-route("/") -> nitrogen:route("/web/index");
+%route("/") -> nitrogen:route("/web/index");
 route(Path) -> nitrogen:route(Path).
 
 

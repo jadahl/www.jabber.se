@@ -2,26 +2,47 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>[[[page:title()]]]</title>
-<script src='/nitrogen/jquery-1.2.6.js' type='text/javascript' charset='utf-8'></script>
-<script src='/nitrogen/jquery-ui-personalized-1.5.3.min.js' type='text/javascript' charset='utf-8'></script>
+<script src='/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
+<script src='/nitrogen/jquery.ba-bbq.min.js' type='text/javascript' charset='utf-8'></script>
+<script src='/nitrogen/jquery-ui.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/livevalidation.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/nitrogen.js' type='text/javascript' charset='utf-8'></script>
+<script src='/jabber.se/jabber.se.js' type='text/javascript' charset='utf-8'></script>
+
 <link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8">
 <link rel="stylesheet" href="/css/jabber.se.css" type="text/css" media="screen" charset="utf-8">
 
+
 <body>
 
-<h1>[[[page:title()]]]</h1>
 
-[[[element_flash:render()]]]
 
+<div id="page">
+<div id="title">[[[web_index:title()]]]</div>
+<div id="menu">
+    [[[web_index:menu()]]]
+</div>
+
+<div id="body" class="body">
 [[[page:body()]]]
+</div>
+<div id="footer">
+&copy; Copyright 2010 Jabber.se
+</div>
+</div>
 
+<script type="text/javascript">
+
+set_fragment_path();
+</script>
 
 
 <script>
 [[[script]]]
 </script>
+
+[[[page:foot()]]]
+
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));

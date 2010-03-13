@@ -1,13 +1,15 @@
--module(web_cms).
+-module(cms).
 -include_lib("nitrogen/include/wf.inc").
+-include("src/pages/menu.hrl").
 -include("src/cms/cms_db.hrl").
--compile(export_all).
+-export([body/1, event/1]).
 
-main() ->
-  #template{file="./wwwroot/template.html"}.
+body(Type) ->
+  Contents = cms_db:get_posts(Type),
+  [#h2{text = "News"} | lists:map(fun render_content/1, Contents)].
 
-title() ->
-  "Jabber.se - News".
+event(Event) ->
+    io:format("~p: Received event: ~p~n", [?MODULE, Event]).
 
 render_blog_post(#content{
     authors = Authors,
@@ -15,17 +17,17 @@ render_blog_post(#content{
       title = Title,
       body = Body,
       tags = _Tags}}) ->
-  [#rounded_panel{
+  [#panel{
       body=
       [#label{class = blog_title, text = Title},
 	#span{class = blog_by,
-                 text = "By: " ++
+                 text = "by " ++
 	  case Authors of
 	    [Author] -> Author;
 	    _ -> "unknown"
 	  end},
 	#br{},
-	#span{class = blog_body, text = Body}]},
+	#p{class = blog_body, body = Body}]},
     #br{}].
 
 render_content(#content{content = #blog_post{}} = Content) ->
@@ -33,8 +35,4 @@ render_content(#content{content = #blog_post{}} = Content) ->
 
 render_content(_) ->
   #label{text = "Unknown content"}.
-
-body() ->
-  Contents = cms_db:get_all(),
-  lists:map(fun render_content/1, Contents).
 

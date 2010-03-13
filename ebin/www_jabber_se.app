@@ -2,10 +2,10 @@
 	{description,  "Jabber.se"},
 	{mod, {www_jabber_se_app, []}},
 	{env, [
-		{platform, yaws}, %% {inets|yaws|mochiweb}
+		{platform, yaws},
 		{port, 8000},
 		{session_timeout, 20},
-		{sign_key, "SIGN_KEY"},
+		{sign_key, randomized},
 		{www_root, "./wwwroot"}
 	]}
 ]}.
