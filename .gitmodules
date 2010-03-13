@@ -1,0 +1,6 @@
+[submodule "lib/couchbeam"]
+	path = lib/couchbeam
+	url = git://github.com/benoitc/couchbeam.git
+[submodule "lib/nitrogen"]
+	path = lib/nitrogen
+	url = git://github.com/rklophaus/nitrogen.git
