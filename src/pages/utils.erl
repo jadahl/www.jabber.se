@@ -23,6 +23,8 @@ text_to_ht({email, EMail}) ->
     #link{url = "mailto:" ++ EMail, text = EMail};
 text_to_ht({url, URL}) ->
     #link{url = URL, text = URL};
+text_to_ht({link, URL, Text}) ->
+    #link{url = URL, text = Text};
 text_to_ht({jid, JID}) ->
     #link{url = "xmpp:" ++ JID, text = JID};
 text_to_ht({muc, MUC}) ->
