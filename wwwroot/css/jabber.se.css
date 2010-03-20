@@ -42,7 +42,6 @@ div#menu {
     margin:0;
     padding: 10px 10px 0 0px;
     list-style:none;
-
 }
 
 #menu li {
@@ -94,7 +93,7 @@ div#footer {
     padding: 20px;
     font-size: 12px;
     font-style: italic;
-    background-color: #fff1f1;
+    background-color: #f2f2f2;
     -moz-border-radius-bottomleft: 20px;
     -moz-border-radius-bottomright: 20px;
     -webkit-border-bottom-left-radius: 20px;
