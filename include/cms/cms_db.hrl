@@ -1,3 +1,5 @@
+-ifndef(cms_db_hrl).
+-define(cms_db_hrl, true).
 
 -define(COUCHDB_NAME, "jabber_se-cms").
 
@@ -30,3 +32,5 @@
         body,
         tags,
         lang = "en"}).
+
+-endif.

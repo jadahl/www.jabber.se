@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
+<head id='head_element'>
 <title>[[[page:title()]]]</title>
 <script src='/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/jquery.ba-bbq.min.js' type='text/javascript' charset='utf-8'></script>
@@ -12,6 +12,9 @@
 <link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8">
 <link rel="stylesheet" href="/css/jabber.se.css" type="text/css" media="screen" charset="utf-8">
 
+[[[page:head()]]]
+
+</head>
 
 <body>
 
@@ -19,12 +22,18 @@
 
 <div id="page">
 <div id="title">[[[web_index:title()]]]</div>
-<div id="menu">
-    [[[web_index:menu()]]]
+<div id="menu_bar">
+    <div id="menu">
+	[[[web_index:menu()]]]
+    </div>
+    <div id="menu_bar_left">
+    </div>
 </div>
 
-<div id="body" class="body">
-[[[page:body()]]]
+<div id="page_body" class="body">
+    <div id="content_body">
+	[[[page:body()]]]
+    </div>
 </div>
 <div id="footer">
 &copy; Copyright 2004-2010 Jabber.se

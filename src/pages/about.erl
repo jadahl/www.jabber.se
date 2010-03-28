@@ -1,6 +1,7 @@
 -module (about).
 -include_lib("nitrogen/include/wf.inc").
--include_lib("src/pages/menu.hrl").
+
+-include("include/menu.hrl").
 -compile(export_all).
 
 body() ->

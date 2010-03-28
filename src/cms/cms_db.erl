@@ -1,5 +1,5 @@
 -module(cms_db).
-%-include("src/cms/cms_db.hrl").
+-include("include/cms/cms_db.hrl").
 -include("src/cms/old_content.hrl").
 -behaviour(gen_server).
 -compile(export_all).
@@ -18,7 +18,6 @@ setup_db(Db) ->
 
 get_all_old() ->
     ?OLD_CONTENT.
-    
 
 connect_database() ->
     Connection = couchbeam_server:start_connection_link(),

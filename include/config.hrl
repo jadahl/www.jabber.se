@@ -1,6 +1,12 @@
+-ifndef(config_hrl).
+-define(config_hrl, true).
+
 -define(MODULES, [cms_db]).
 
 -define(TITLE, "Jabber.se").
+
+%-define(URL_BASE, "http://www.jabber.se/web/").
+-define(URL_BASE, "http://localhost:8000/web/").
 
 -define(DEFAULT_INDEX_MODULE, news).
 
@@ -16,3 +22,5 @@
             url = "#about"}
     ]
 ).
+
+-endif.

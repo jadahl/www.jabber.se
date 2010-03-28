@@ -1,6 +1,14 @@
 -module(utils).
 -include_lib("nitrogen/include/wf.inc").
--export([t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1]).
+-export([time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1]).
+
+time_to_iso8601(Time) ->
+    Ms = trunc(Time / 1000000), 
+    Now = {Ms, Time - (Ms * 1000000), 0},
+    {{Year, Month, Day}, {Hour, Min, Sec}} = calendar:now_to_universal_time(Now),
+    lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
+            [Year, Month, Day, Hour, Min, Sec])).
+
 
 t_to_ht(T) -> text_to_hyper_text(T).
 ts_to_ht(Ts) -> texts_to_hyper_text(Ts).

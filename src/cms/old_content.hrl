@@ -1,4 +1,4 @@
--include("src/cms/cms_db.hrl").
+-include("include/cms/cms_db.hrl").
 
 -define(OLD_CONTENT,
     [#content{

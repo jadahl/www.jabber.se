@@ -1,5 +1,5 @@
 -module (www_jabber_se_app).
--include("src/pages/config.hrl").
+-include("include/config.hrl").
 -export ([start/2, stop/1, route/1, request/1]).
 -behavior(application).
 
