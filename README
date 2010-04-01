@@ -1,0 +1,21 @@
+This is the www.jabber.se web application, written in Erlang, Javascript, HTML and CSS.
+
+To build:
+
+ #1 Build dependencies:
+
+> cd lib/couchbeam
+> make
+> cd ../nitrogen
+> make
+> cd ../..
+
+ #2 Build web application
+
+> make
+
+
+To run:
+
+> ./start.sh
+
