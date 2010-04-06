@@ -1,4 +1,12 @@
 
+function clear_form_fields(ids)
+{
+    for (var id in ids)
+    {
+	$("#" + id).val("");
+    }
+}
+
 function set_fragment_path(path)
 {
     hi = document.getElementById('page__fragment_path');

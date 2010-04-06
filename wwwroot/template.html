@@ -3,14 +3,13 @@
 <head id='head_element'>
 <title>[[[page:title()]]]</title>
 <script src='/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
-<script src='/nitrogen/jquery.ba-bbq.min.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/jquery-ui.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/livevalidation.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/nitrogen.js' type='text/javascript' charset='utf-8'></script>
 <script src='/jabber.se/jabber.se.js' type='text/javascript' charset='utf-8'></script>
 
-<link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8">
-<link rel="stylesheet" href="/jabber.se/jabber.se.css" type="text/css" media="screen" charset="utf-8">
+<link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8"/>
+<link rel="stylesheet" href="/jabber.se/jabber.se.css" type="text/css" media="screen" charset="utf-8"/>
 
 [[[page:head()]]]
 
@@ -36,7 +35,14 @@
     </div>
 </div>
 <div id="footer">
-&copy; Copyright 2004-2010 Jabber.se
+    <div id="footer_left">
+        &copy; Copyright 2004-2010 Jabber.se
+    </div>
+    <div id="footer_right">
+	<div id="footer_right_container">
+	    [[[page:login()]]]
+	</div>
+    </div>
 </div>
 </div>
 
@@ -46,7 +52,7 @@ set_fragment_path();
 </script>
 
 
-<script>
+<script type="text/javascript">
 [[[script]]]
 </script>
 

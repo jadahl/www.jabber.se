@@ -153,16 +153,22 @@ event(init) ->
     end;
 event({menu, Module}) ->
     menu_select(Module, [animate]);
+event({Module, Event}) when is_atom(Module) ->
+    try
+        Module:event(Event)
+    catch
+        error:undef ->
+            ok
+    end;
 event(Event) ->
     io:format("event: ~p~n", [Event]),
     ok.
-
 
 %%
 % Document entry points
 %%
 
-main() -> 
+main() ->
     #template { file="./wwwroot/template.html" }.
 
 %%
@@ -181,3 +187,5 @@ body() ->
 foot() ->
     [].
 
+login() ->
+    session:login_panel().

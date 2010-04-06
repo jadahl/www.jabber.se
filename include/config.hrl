@@ -23,4 +23,6 @@
     ]
 ).
 
+-define(SPINNER_IMAGE, "/nitrogen/spinner.gif").
+
 -endif.
