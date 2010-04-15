@@ -8,86 +8,44 @@
 
 -compile(export_all).
 
-%%
-% Utils
-%%
+%
+% Body content manipulation
+%
 
-get_element_by_url(Url) ->
-    get_element_by_url(Url, menu:get_menu_elements()).
-get_element_by_url(Url, [E| _Es]) when Url == E#menu_element.url ->
-    E;
-get_element_by_url(Url, [_E| Es]) ->
-    get_element_by_url(Url, Es);
-get_element_by_url(_, _) ->
-    none.
-
-%%
-% Menu
-%%
-
-menu_select(Module) ->
-    menu_select(Module, []).
-menu_select(Module, Options) ->
-    try
-        Body = {Module, body}(),
-        change_body(Module, Body, Options)
-    catch
-        error:undef ->
-            change_body(?DEFAULT_INDEX_MODULE, get_default_body(), Options)
+load_content(Module) ->
+    load_content(Module, []).
+load_content(Module, Options) ->
+    case menu:get_element_by_module(Module) of
+        none ->
+            ?LOG_WARNING("load_content called for nonexisting module \"~p\",", [Module]);
+        _ ->
+            try
+                Body = {Module, body}(),
+                change_body(Module, Body, Options)
+            catch
+                error:undef ->
+                    ?LOG_WARNING("Could not change body for selected menu item ~p.", [Module]),
+                    change_body(?DEFAULT_INDEX_MODULE, get_default_body(), Options)
+            end
     end.
 
-menu() ->
-    [
-        % hidden input field for storing fragment value
-        #hidden{
-            id = fragment_path,
-            text = ?DEFAULT_INDEX_MODULE,
-            actions = [#event{type = init, postback = init}]},
+%
+% Javascript API
+%
 
-        % menu elements
-        #list{body = menu_items()}
-    ].
+-define(ENTRY_FUNCTIONS, [init_content, load_content]).
 
-menu_click_action(Url) ->
-    {click, io_lib:format("set_fragment_path('~s');", [Url])}.
+wire_entry_point(Name) when is_atom(Name) ->
+    wf:wire(#api{name = Name, tag = Name});
+wire_entry_point({Name, Tag}) ->
+    wf:wire(#api{name = Name, tag = Tag}).
 
-menu_items() ->
-    MenuElements = menu:get_menu_elements(),
-    [#listitem{
-            body = #link{text = Title,
-                url = Url,
-                actions = [#event{type = menu_click_action(Url), postback = {menu, Module}}]
-            }}
-        || #menu_element{
-            title = Title,
-            url = Url,
-            module = Module} <- MenuElements].
+site_api() ->
+    lists:foreach(fun wire_entry_point/1, ?ENTRY_FUNCTIONS).
 
-%%
-% Feed
-%%
-
-get_feed_link(#menu_element{
-        title = Title,
-        module = Module}) ->
-    try
-        case Module:atom_url() of
-            {ok, AtomUrl} ->
-                [#ext_link{
-                        url = AtomUrl,
-                        type = "application/atom+xml",
-                        rel = "alternate",
-                        title = Title ++ " atom feed"}];
-            _ ->
-                []
-        end
-    catch
-        error:undef ->
-            []
-    end.
-
-get_feed_links() ->
-    lists:flatmap(fun get_feed_link/1, menu:get_menu_elements()).
+%
+% Feed Icon
+%
 
 get_feed_url(Module) ->
     try
@@ -108,21 +66,28 @@ get_feed_url(Module) ->
 set_feed(Module) ->
     case get_feed_url(Module) of
         none ->
-            wf:wire([], [], [#event{type = {call_js, "clear_atom_feed_icon", [?ATOM_ICON_ID]}}]);
+            wf:wire(#js_call{fname = "clear_atom_feed_icon", args = [?ATOM_ICON_ID]});
         Icon ->
-            wf:wire([], [], [#event{type = {call_js, "set_atom_feed_icon", [?ATOM_ICON_ID, Icon]}}])
+            wf:wire(#js_call{fname = "set_atom_feed_icon", args = [?ATOM_ICON_ID, Icon]})
     end.
 
-%%
-% Page body modification
-%%
+%
+% Document body modification
+%
 
+%
+% change_body(atom(), content()) -> ok
+% change_body(atom(), content(), options()) -> ok
+%    options() = [animate]
+%
+%    animate - Animate transition (default off)
+%
 change_body(Module, Body) ->
     change_body(Module, Body, []).
 change_body(Module, Body, Options) ->
     Animate = lists:any(fun(Option) -> Option == animate end, Options),
     Id = content_body,
-    Event = #event{target = Id, type = init},
+    Event = #event{target = Id, type = default},
 
     % update dom
     ?WHEN(Animate, wf:wire(Event#event{actions=#hide{}})),
@@ -133,56 +98,63 @@ change_body(Module, Body, Options) ->
 get_default_body() ->
     {?DEFAULT_INDEX_MODULE, body}().
 
-%%
+%
 % Events
-%%
+%
 
-event(init) ->
-    Value = wf:q(fragment_path),
-    MenuElement = case Value of
-        [Path] when is_list(Path) ->
-            get_element_by_url(Path);
-        _ ->
-            none
-    end,
-    case MenuElement of
-        none ->
-            change_body(?DEFAULT_INDEX_MODULE, get_default_body());
-        _ ->
-            menu_select(MenuElement#menu_element.module)
-    end;
 event({menu, Module}) ->
-    menu_select(Module, [animate]);
+    io:format("menu: ~p~n", [Module]),
+    load_content(Module, [animate]);
 event({Module, Event}) when is_atom(Module) ->
     try
         Module:event(Event)
     catch
         error:undef ->
-            ok
+            ?LOG_WARNING("Target for event {~p, ~p} not found.", [Module, Event])
     end;
 event(Event) ->
-    io:format("event: ~p~n", [Event]),
-    ok.
+    ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
-%%
+%
+% API Events
+%
+
+api_event(init_content, init_content, [Fragment]) when is_list(Fragment) ->
+    ?LOG_INFO("init_content(~p);", [Fragment]),
+    load_content(list_to_atom(Fragment));
+api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
+    ?LOG_INFO("load_content(~p);", [Fragment]),
+    load_content(list_to_atom(Fragment), [animate]);
+api_event(A, B, C) ->
+    ?LOG_WARNING("Unhandled api_event ~p, ~p, ~p.", [A, B, C]).
+
+
+%
 % Document entry points
-%%
+%
 
 main() ->
+    % site api
+    site_api(),
+
+    % initial post back
+    wf:wire("page.init_content(get_fragment_path());"),
+
+    % return template
     #template { file="./wwwroot/template.html" }.
 
-%%
+%
 % Template entry points
-%%
+%
 
 head() ->
-    get_feed_links().
+    feed:get_feed_links().
 
 title() ->
     ?TITLE.
 
 body() ->
-    [].
+    #panel{id = content_body}.
 
 foot() ->
     [].

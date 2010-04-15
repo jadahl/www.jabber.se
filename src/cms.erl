@@ -75,6 +75,7 @@ blog_post_to_html(#content{
     [#panel{
             body=
             [#label{class = blog_title, text = Title},
+                #br{},
                 #span{class = blog_by,
                     text = "by " ++
                     case Authors of

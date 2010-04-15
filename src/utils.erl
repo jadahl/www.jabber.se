@@ -1,6 +1,12 @@
 -module(utils).
 -include_lib("nitrogen/include/wf.inc").
--export([dialog/2, time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1]).
+
+-include("include/utils.hrl").
+-export([dialog/2, time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/4, find_with/3]).
+
+%
+% UI components
+%
 
 dialog(Id, Content) ->
     #panel{id = Id, class = dialog, style = "display: none", body = #panel{class = dialog_content, body = Content}}.
@@ -12,6 +18,9 @@ time_to_iso8601(Time) ->
     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
             [Year, Month, Day, Hour, Min, Sec])).
 
+%
+% Hyper text
+%
 
 t_to_ht(T) -> text_to_hyper_text(T).
 ts_to_ht(Ts) -> texts_to_hyper_text(Ts).
@@ -43,3 +52,33 @@ text_to_ht({muc, MUC}) ->
 text_to_ht(T) ->
     io:format("~p.erl:~p Warning: format ~p not recognized.", [?MODULE, ?LINE, T]),
     [].
+
+%
+% Logging
+%
+
+log(Level, Module, Format, Args) ->
+    LogLine = io_lib:format(Format, Args),
+    io:format("~s:~p: ~s~n", [Level, Module, LogLine]).
+
+%
+% Utility functions
+%
+
+%
+% maybe_foldl(MaybeFun, Acc0, List) -> Acc1
+%  MaybeFun = fun(Elem, AccIn) -> {just, AccOut} | nothing
+%  Elem = term()
+%  Acc0 = Acc1 = AccOut = AccIn = term()
+%  List = [term()]
+%
+find_with(MaybeFun, AccIn, [Elem| Elements]) ->
+    case MaybeFun(Elem, AccIn) of
+        {just, AccOut} ->
+            AccOut;
+        nothing ->
+            find_with(MaybeFun, AccIn, Elements)
+    end;
+find_with(_, _, []) ->
+    nothing.
+

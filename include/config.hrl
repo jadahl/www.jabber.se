@@ -1,6 +1,14 @@
 -ifndef(config_hrl).
 -define(config_hrl, true).
 
+-ifndef(DEBUG).
+-define(DEBUG, true).
+-endif.
+
+%-define(ENABLE_LOG_INFO, true).
+-define(ENABLE_LOG_WARNING, true).
+-define(ENABLE_LOG_ERROR, true).
+
 -define(MODULES, [cms_db]).
 
 -define(TITLE, "Jabber.se").

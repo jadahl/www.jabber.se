@@ -7,21 +7,26 @@ function clear_form_fields(ids)
     }
 }
 
+function get_fragment_path()
+{
+    var hash = window.location.hash;
+    return hash.replace(/#/, "");
+}
+
 function set_fragment_path(path)
 {
-    hi = document.getElementById('page__fragment_path');
+    hi = $('.wfid_fragment_path');
     hi.value = path == undefined? window.location.hash : path;
 }
 
-function clear_atom_feed_icon(id)
+function clear_atom_feed_icon(path)
 {
-    $('#' + id).remove();
+    $(path).remove();
 }
 
-function set_atom_feed_icon(id, element)
+function set_atom_feed_icon(path, element)
 {
-
-    var link = $('#' + id);
+    var link = $(path);
     if (link.length == 0)
     {
         var menu_bar_right = $('#menu_bar_right');
