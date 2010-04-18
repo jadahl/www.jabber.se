@@ -1,12 +1,8 @@
 -module (www_jabber_se_app).
-
--include_lib("yaws/include/yaws.hrl").
--include("simple_bridge/include/yaws_api.hrl").
-
--include("include/config.hrl").
-
 -export ([start/2, stop/0, stop/1, out/1, out/2, out/3]).
 -behavior(application).
+
+-include("include/config.hrl").
 
 -define(PORT, 8000).
 
@@ -15,10 +11,11 @@ start(_, _) ->
     lists:foreach(fun(Module) -> {Module, start}() end, ?MODULES),
 
     % start yaws
-    start_yaws().
+    yaws_bundle:start().
 
 stop(_) -> stop().
-stop() -> ok.
+stop() ->
+    yaws_bundle:stop().
 
 out(Arg) ->
     RequestBridge = simple_bridge:make_request(yaws_request_bridge, Arg),

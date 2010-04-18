@@ -1,5 +1,10 @@
 -module(yaws_bundle).
+-include_lib("yaws/include/yaws.hrl").
+-include("simple_bridge/include/yaws_api.hrl").
 -export([start/0, stop/0]).
+
+-define(PORT, 8000).
+-define(SITE_APP, www_jabber_se_app).
 
 start() ->
 	% Set up Yaws Configuration...
@@ -9,7 +14,7 @@ start() ->
 	SC = #sconf {
 		docroot = "./wwwroot",
 		port=?PORT,
-		appmods = [{"/web", ?MODULE}]
+		appmods = [{"/web", ?SITE_APP}]
 	},
 	DefaultGC = yaws_config:make_default_gconf(false, Id),
 	GC = DefaultGC#gconf {
@@ -28,7 +33,6 @@ start() ->
 	yaws_api:setconf(GC, [SCs]),
 	{ok, Pid}.
 	
-stop(_) -> stop().
 stop() -> 
 	% Stop the Yaws server.
 	Pid = application_controller:get_master(yaws),
