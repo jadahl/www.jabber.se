@@ -1,4 +1,23 @@
 
+function Site()
+{
+    return this;
+}
+
+var $Site = new Site();
+
+Site.prototype.$state_panel_set = function(alt, state_panel) {
+    var active = $(state_panel + " > " + ".state_panel_active");
+    var next = $(state_panel + " > " + alt);
+    active.removeClass("state_panel_active");
+    next.addClass("state_panel_active");
+    active.fadeOut('fast', function() { next.fadeIn('fast'); });
+//    active.hide();
+//    next.show();
+}
+
+// TODO put the following functions inside class Site.
+
 function clear_form_fields(ids)
 {
     for (var id in ids)

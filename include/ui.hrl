@@ -1,0 +1,3 @@
+-define(BASE_UI(Module), type = ui_content, id, class, module = Module).
+-record(ui_base, {?BASE_UI(undefined)}).
+-record(ui_state_panel, {?BASE_UI(ui_state_panel), bodies, init_state}).

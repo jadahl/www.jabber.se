@@ -8,12 +8,27 @@
 %
 
 %
+% ?UI(UI) -> Elements
+%   UI = ui(),
+%   Elements = [element()]
+%
+-define(UI(UI), stk_ui:render(UI)).
+
+%
 % ?WHEN(expr(), statement()) ->
 %     statement() | undefined
 %
 % If Condition evaluates to true, execute Statement, otherwise return undefined.
 %
 -define(WHEN(Condition, Statement), case Condition of true -> Statement; _ -> undefined end).
+
+%
+% ?WHEN_S(expr(), statement()) ->
+%     statement() | ""
+%
+% If Condition evaluates to true, execute Statement, otherwise return "".
+%
+-define(WHEN_S(Condition, Statement), case Condition of true -> Statement; _ -> "" end).
 
 % ?EITHER(expr(), statement(), statement()) ->
 %     statement()
