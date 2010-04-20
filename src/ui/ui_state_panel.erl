@@ -1,10 +1,14 @@
 -module(ui_state_panel).
--export([render_ui/1, set/2, get_set_call/2]).
+-export([render_ui/1, set/2, get_set_call/2, get_hide_call/1]).
 
 -include_lib("nitrogen/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/ui.hrl").
+
+%
+% UI rendering
+%
 
 render_ui(#ui_state_panel{id = Id, bodies = Bodies, init_state = InitState} = UI) ->
     #panel{
@@ -21,8 +25,15 @@ render_ui(#ui_state_panel{id = Id, bodies = Bodies, init_state = InitState} = UI
             end, Bodies)
     }.
 
+%
+% API
+%
+
 get_set_call(Key, Id) ->
     #js_call{fname = "$Site.$state_panel_set", args = [Key, Id]}.
+
+get_hide_call(Id) ->
+    #hide{target = Id}.
 
 set(Key, Id) ->
     wf:wire(get_set_call(Key, Id)).

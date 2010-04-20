@@ -2,14 +2,11 @@
 -include_lib("nitrogen/include/wf.inc").
 
 -include("include/utils.hrl").
--export([dialog/2, time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/4, find_with/3]).
+-export([time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/4, find_with/3]).
 
 %
-% UI components
+% Converters
 %
-
-dialog(Id, Content) ->
-    #panel{id = Id, class = dialog, style = "display: none", body = #panel{class = dialog_content, body = Content}}.
 
 time_to_iso8601(Time) ->
     Ms = trunc(Time / 1000000), 
