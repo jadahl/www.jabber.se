@@ -6,14 +6,51 @@ function Site()
 
 var $Site = new Site();
 
-Site.prototype.$state_panel_set = function(alt, state_panel) {
+Site.prototype.$state_panel_set = function(key, state_panel) {
+    // validate
+    if (Nitrogen.$validate_and_serialize('.wfid_login_login') == null)
+    {
+	return;
+    }
+
+    // retrieve current and next panel state
     var active = $(state_panel + " > " + ".state_panel_active");
-    var next = $(state_panel + " > " + alt);
+    var next = $(state_panel + " > " + key);
+
+    // update active state
     active.removeClass("state_panel_active");
     next.addClass("state_panel_active");
-    active.fadeOut('fast', function() { next.fadeIn('fast'); });
-//    active.hide();
-//    next.show();
+
+    // animate transition
+    active.slideToggle('fast', function() {
+		next.slideToggle('fast');
+	    });
+}
+
+Site.prototype.$state_panel_show = function(key, state_panel) {
+    // retrieve the to be panel state
+    var panel = $(state_panel);
+    var active = $(state_panel + " > " + key);
+
+    // update active state
+    active.addClass("state_panel_active");
+
+    // animate transition
+    panel.fadeIn('fast', function() { active.slideDown('fast'); });
+}
+
+Site.prototype.$state_panel_hide = function(state_panel) {
+    // retrieve current and next panel state
+    var panel = $(state_panel);
+    var active = $(state_panel + " > " + ".state_panel_active");
+
+    // update active state
+    active.removeClass("state_panel_active");
+
+    // animate transition
+    active.slideToggle('fast', function() {
+	    	panel.fadeOut('fast');
+	    });
 }
 
 // TODO put the following functions inside class Site.

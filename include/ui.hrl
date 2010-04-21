@@ -15,6 +15,8 @@
 % Actions
 %
 
--record(set_panel_state, {?ACTION_BASE(action_state_panel), type = set, key}).
+-record(state_panel_set, {?ACTION_BASE(action_state_panel), key}).
+-record(state_panel_show, {?ACTION_BASE(action_state_panel), key}).
+-record(state_panel_hide, {?ACTION_BASE(action_state_panel)}).
 
 -endif.
