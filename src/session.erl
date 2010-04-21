@@ -4,96 +4,112 @@
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
+-include("include/ui.hrl").
 
+%
+% Constants
+%
+
+-define(LOGIN_DIALOG_ID, login_dialog).
 
 %%
 % Events
 %%
 
 event(login) ->
-    io:format("login~n"),
-    %wf:wire(#event{target = login_username, type = init, actions = #jquery_effect{type = 'focus'}}),
-
-    % update content
-    %LoginDialog = wf:render(login_dialog()),
-    %wf:update(login_dialog, LoginDialog),
-    wf:wire(#event{type = init, target = login_dialog, actions = #appear{}});
+    wf:wire(#event{target = login_dialog, actions = #appear{}});
 
 event(do_login) ->
-    % update to progress animation
-    LoginAnimation = #image{image = ?SPINNER_IMAGE},
-    wf:update(login_status, LoginAnimation),
-
     % authenticate
-    [Username] = wf:q(login_username),
-    [Password] = wf:q(login_password),
+    Username = wf:q(login_username),
+    Password = wf:q(login_password),
     case authenticate(Username, Password) of
         granted ->
-            % hide dialog
-            CloseButton = #button{
-                text = "Close",
-                actions = #event{type = click, target = login_dialog, actions=#fade{}}},
-            wf:update(login_status, #panel{body = [#span{text = "Login Successful"}, CloseButton]});
-
+            action_state_panel:set(success, login_panel);
         _ ->
-            % reset buttons
-            wf:update(login_status, button_panel()),
-
-            % show failed
-            wf:update(login_title, login_title(failed))
-    end.
-
-%%
-% Interface
-%%
+            ok
+    end;
+event(Event) ->
+    ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
 %%
 % Panels
 %%
 
-login_title() ->
-    #h3{text = "Login"}.
-login_title(warning) ->
-    #h3{class = warning_title, text = "Login failed"};
-login_title(_) ->
-    #h3{text = "undefined"}.
+panel_login() ->
+    [
+        #h3{text = "Login"},
+        #p{},
+        #label{text = "Username"},
+        #textbox{id = login_username, class = login_input, next = login_password},
+        #p{},
+        #label{text = "Password"},
+        #password{id = login_password, class = login_input, next = login_login},
+        #p{},
+        #panel{id = login_status, body = button_panel()}
+    ].
 
-login_dialog() ->
-    utils:dialog("login_dialog",
-        [
-            login_title(),
-            #p{},
-            #label{text = "Username"},
-            #textbox{id = login_username, next = login_password},
-            #p{},
-            #label{text = "Password"},
-            #password{id = login_password, next = login_login},
-            #p{},
-            #panel{id = login_status, body = button_panel()}
-        ]).
+panel_progress() ->
+    [
+        #p{class = center, body = #image{image = ?SPINNER_IMAGE, id = login_spinner}}
+    ].
+
+panel_success() ->
+    [
+        #h3{class = center, text = "Login Success"},
+        #panel{
+            class = center,
+            body = #button{
+                text = "Close",
+                actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
+            }
+        }
+    ].
+
+panel_fail() ->
+    [
+        #h3{class = warning_title, text = "Login failed"}
+    ].
 
 button_panel() ->
     [
         #button{
             id = login_login,
             text = "Login",
-            postback = {session, do_login}},
+            actions = #event{type = click, actions = #state_panel_set{target = login_panel, key = progress}},
+            delegate = session,
+            postback = do_login
+        },
         " ",
         #button{
             id = login_cancel,
             text = "Cancel",
-            postback = {session, cancel_login}}
+            actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
+        }
     ].
 
-
 login_panel() ->
+    SubBodies = [
+        {login, panel_login()},
+        {progress, panel_progress()},
+        {success, panel_success()},
+        {fail, panel_fail()}
+    ],
     Body = 
     [
-        login_dialog(),
+        #ui_state_panel{
+            id = login_panel,
+            class = login_panel,
+            bodies = SubBodies,
+            init_state = login
+        },
         #link{
             id = login_link,
             text = "Login",
-            postback = {session, login}}
+            actions = #event{type = click, actions = #state_panel_show{target = login_panel, key = login}},
+            delegate = session,
+            postback = login
+        }
     ],
 
     % login detail validators
@@ -103,16 +119,16 @@ login_panel() ->
     wf:wire(login_login, login_password, #validate {validators = [
                 #is_required{text = "*"}
             ]}),
-    Body.
+    ?UI(Body).
 
-%%
+%
 % Authentication
-%%
+%
 
 authenticate(Username, Password) ->
     io:format("login: ~p:~p~n", [Username, Password]),
     receive 
-    after 1000 ->
+    after 2000 ->
             ok
     end,
     granted.

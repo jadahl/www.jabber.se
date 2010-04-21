@@ -66,9 +66,9 @@ get_feed_url(Module) ->
 set_feed(Module) ->
     case get_feed_url(Module) of
         none ->
-            wf:wire(#js_call{fname = "clear_atom_feed_icon", args = [?ATOM_ICON_ID]});
+            wf:wire(#js_call{fname = "Site.$clear_atom_feed_icon", args = [?ATOM_ICON_ID]});
         Icon ->
-            wf:wire(#js_call{fname = "set_atom_feed_icon", args = [?ATOM_ICON_ID, Icon]})
+            wf:wire(#js_call{fname = "Site.$set_atom_feed_icon", args = [?ATOM_ICON_ID, Icon]})
     end.
 
 %
@@ -138,7 +138,7 @@ main() ->
     site_api(),
 
     % initial post back
-    wf:wire("page.init_content(get_fragment_path());"),
+    wf:wire("page.init_content($Site.$get_fragment_path());"),
 
     % return template
     #template { file="./wwwroot/template.html" }.
@@ -159,5 +159,3 @@ body() ->
 foot() ->
     [].
 
-login() ->
-    session:login_panel().

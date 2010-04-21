@@ -53,9 +53,7 @@ Site.prototype.$state_panel_hide = function(state_panel) {
 	    });
 }
 
-// TODO put the following functions inside class Site.
-
-function clear_form_fields(ids)
+Site.prototype.$clear_form_fields = function(ids)
 {
     for (var id in ids)
     {
@@ -63,24 +61,18 @@ function clear_form_fields(ids)
     }
 }
 
-function get_fragment_path()
+Site.prototype.$get_fragment_path = function()
 {
     var hash = window.location.hash;
     return hash.replace(/#/, "");
 }
 
-function set_fragment_path(path)
-{
-    hi = $('.wfid_fragment_path');
-    hi.value = path == undefined? window.location.hash : path;
-}
-
-function clear_atom_feed_icon(path)
+Site.prototype.$clear_atom_feed_icon = function(path)
 {
     $(path).remove();
 }
 
-function set_atom_feed_icon(path, element)
+Site.prototype.$set_atom_feed_icon = function(path, element)
 {
     var link = $(path);
     if (link.length == 0)
