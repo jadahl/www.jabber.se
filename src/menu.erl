@@ -44,7 +44,7 @@ get_element_by_url(Url) ->
 get_element_by_url(Url, Elements) ->
     utils:find_with(fun maybe_element_by_url/2, Url, Elements).
 
-maybe_element_by_url(Url, Element) when Url == Element#menu_element.url ->
+maybe_element_by_url(Element, Url) when Url == Element#menu_element.url ->
     {just, Element};
 maybe_element_by_url(_, _) ->
     nothing.
@@ -59,7 +59,7 @@ get_element_by_module(Module) ->
 get_element_by_module(Module, Elements) ->
     utils:find_with(fun maybe_element_by_module/2, Module, Elements).
 
-maybe_element_by_module(Module, Element) when Module == Element#menu_element.module ->
+maybe_element_by_module(Element, Module) when Module == Element#menu_element.module ->
     {just, Element};
 maybe_element_by_module(_, _) ->
     nothing.
@@ -74,7 +74,7 @@ get_element_by_path(Path) ->
 get_element_by_path(Path, Elements) ->
     utils:find_with(fun maybe_element_by_path/2, Path, Elements).
 
-maybe_element_by_path(Path, #menu_element{url = [$# | Url]} = Element) when Path == Url ->
+maybe_element_by_path(#menu_element{url = [$# | Url]} = Element, Path) when Path == Url ->
     {just, Element};
 maybe_element_by_path(_, _) ->
     nothing.
