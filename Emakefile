@@ -27,3 +27,9 @@
 	{ outdir, "./ebin" },
 	debug_info
 ]}.
+
+{ './tests/*', [
+	{ i, "./include" },
+	{ outdir, "./test_ebin" },
+	debug_info
+]}.
