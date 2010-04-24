@@ -44,6 +44,18 @@
 
 -define(THROW(Reason), throw({exception, Reason, ?MODULE, ?LINE})).
 
+-define(CATCH_AND_WARN(Expr),
+    try
+        Expr
+    catch
+        {exception, Reason, Module, Line} ->
+            ?LOG_ERROR("Cought exception '~p', thrown at ~p:~p.~n", [Reason, Module, Line]),
+            error;
+        Exception ->
+            ?LOG_ERROR("Cought exception '~p'~n", [Exception]),
+            error
+    end).
+
 %
 % Logging
 %
