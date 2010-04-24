@@ -14,9 +14,11 @@
 
 load_content(Module) ->
     load_content(Module, []).
+load_content('', Options) ->
+    change_body(?DEFAULT_INDEX_MODULE, get_default_body(), Options);
 load_content(Module, Options) ->
     case menu:get_element_by_module(Module) of
-        none ->
+        nothing ->
             ?LOG_WARNING("load_content called for nonexisting module \"~p\",", [Module]);
         _ ->
             try
