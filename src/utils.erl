@@ -2,7 +2,7 @@
 -include_lib("nitrogen/include/wf.inc").
 
 -include("include/utils.hrl").
--export([time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/4, find_with/3]).
+-export([time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3]).
 
 %
 % Converters
@@ -54,9 +54,9 @@ text_to_ht(T) ->
 % Logging
 %
 
-log(Level, Module, Format, Args) ->
+log(Level, Module, Line, Format, Args) ->
     LogLine = io_lib:format(Format, Args),
-    io:format("~s:~p: ~s~n", [Level, Module, LogLine]).
+    io:format("~s:~p:~p: ~s~n", [Level, Module, Line, LogLine]).
 
 %
 % Utility functions
