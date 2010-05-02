@@ -164,21 +164,17 @@ a.atom_icon {
     background: url("/res/atom16.png") no-repeat 0 50%;
 }
 
-/*
- * State panel
- */
-
-div.state_panel {
-    position: relative;
-}
-
-div.state_panel_alt {
-    padding: 20px;
-}
-
 /****
  * UI elements
  ****/
+
+/*
+ * Login link
+ */
+
+a.login_link {
+    color: black;
+}
 
 /*
  * Login state panel
@@ -190,6 +186,14 @@ div.state_panel_alt {
 }
 
 div.wfid_login_panel {
+    position: relative;
+}
+
+div.wfid_login_panel > div > div { 
+    padding: 20px;
+}
+
+div.wfid_login_panel > div {
     /* position */
     position: absolute;
     width: 220px;

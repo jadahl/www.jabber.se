@@ -25,10 +25,15 @@ event(do_login) ->
     Password = wf:q(login_password),
     case authenticate(Username, Password) of
         granted ->
+            action_state_panel:set(authenticated, login_link),
             action_state_panel:set(success, login_panel);
         _ ->
-            ok
+            action_state_panel:set(fail, login_panel)
     end;
+
+event(do_logout) ->
+    action_state_panel:set(anonymous, login_link);
+
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
@@ -68,7 +73,14 @@ panel_success() ->
 
 panel_fail() ->
     [
-        #h3{class = warning_title, text = "Login failed"}
+        #h3{class = center, text = "Login failed"},
+        #panel{
+            class = center,
+            body = #button{
+                text = "Close",
+                actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
+            }
+        }
     ].
 
 button_panel() ->
@@ -95,6 +107,22 @@ login_panel() ->
         {success, panel_success()},
         {fail, panel_fail()}
     ],
+
+    LoginLinkBodies = [
+        {anonymous, 
+            #link{
+                class = login_link,
+                text = "Login",
+                actions = #event{type = click, actions = #state_panel_show{target = login_panel, key = login}},
+                delegate = session,
+                postback = login}},
+        {authenticated,
+            #link{
+                class = login_link,
+                text = "Logout",
+                delegate = session,
+                postback = do_logout}}
+        ],
     Body = 
     [
         #ui_state_panel{
@@ -103,12 +131,11 @@ login_panel() ->
             bodies = SubBodies,
             init_state = login
         },
-        #link{
+        #ui_state_panel{
             id = login_link,
-            text = "Login",
-            actions = #event{type = click, actions = #state_panel_show{target = login_panel, key = login}},
-            delegate = session,
-            postback = login
+            bodies = LoginLinkBodies,
+            visible = true,
+            init_state = anonymous
         }
     ],
 
@@ -126,9 +153,25 @@ login_panel() ->
 %
 
 authenticate(Username, Password) ->
-    io:format("login: ~p:~p~n", [Username, Password]),
-    receive 
-    after 2000 ->
-            ok
-    end,
-    granted.
+    case authenticate1(Username, Password) of
+        granted ->
+            granted;
+        denied ->
+            receive
+            after 2000 ->
+                    denied
+            end
+    end.
+
+authenticate1(Username, Password) ->
+    case db_user:get_password_hash_for(Username) of
+        {ok, StoredHash} ->
+            case sha2:hexdigest256(Password) of
+                InputHash when InputHash == StoredHash ->
+                    granted;
+                _ ->
+                    denied
+            end;
+        _ ->
+            denied
+    end.

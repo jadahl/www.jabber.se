@@ -8,7 +8,7 @@
 %
 -define(UI_BASE(Module), type = ui_content, id, class = [], module = Module).
 -record(ui_base, {?UI_BASE(undefined)}).
--record(ui_state_panel, {?UI_BASE(ui_state_panel), bodies, init_state}).
+-record(ui_state_panel, {?UI_BASE(ui_state_panel), bodies, visible = false, init_state}).
 -record(ui_dialog, {?UI_BASE(ui_dialog), body = []}).
 
 %

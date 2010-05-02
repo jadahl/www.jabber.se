@@ -10,21 +10,21 @@
 % HTML rendering
 %
 
-render_ui(#ui_state_panel{id = Id, bodies = Bodies, init_state = InitState} = UI) ->
+render_ui(#ui_state_panel{id = Id, bodies = Bodies, visible = Visible, init_state = InitState} = UI) ->
+    VisibleStyle = ?WHEN_S(not Visible, "display: none"),
     #panel{
         class = [state_panel_container],
-        body =
-        #panel{
+        id = Id,
+        style = VisibleStyle,
+        body = #panel{
             class = [state_panel, UI#ui_state_panel.class],
-            style = "display: none",
-            id = Id,
             body = lists:map(fun ({Key, Value}) ->
                         IsInit = InitState == Key,
                         #panel{
                             id = Key,
                             class = ?EITHER(IsInit, [state_panel_active, state_panel_alt], state_panel_alt),
                             body = Value,
-                            style = "display: none"}
+                            style = ?WHEN_S(not IsInit, "display: none")}
                 end, Bodies)
         }}.
 

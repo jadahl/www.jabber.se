@@ -68,9 +68,9 @@ get_feed_url(Module) ->
 set_feed(Module) ->
     case get_feed_url(Module) of
         none ->
-            wf:wire(#js_call{fname = "Site.$clear_atom_feed_icon", args = [?ATOM_ICON_ID]});
+            wf:wire(#js_call{fname = "$Site.$clear_atom_feed_icon", args = [?ATOM_ICON_ID]});
         Icon ->
-            wf:wire(#js_call{fname = "Site.$set_atom_feed_icon", args = [?ATOM_ICON_ID, Icon]})
+            wf:wire(#js_call{fname = "$Site.$set_atom_feed_icon", args = [?ATOM_ICON_ID, Icon]})
     end.
 
 %

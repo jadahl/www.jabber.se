@@ -4,8 +4,8 @@
 
 -include("include/config.hrl").
 -include("include/menu.hrl").
--include("include/cms/cms_db.hrl").
--export([body/1, atom/3, event/1]).
+-include("include/cms/db.hrl").
+-export([body/0, atom/2, event/1]).
 
 %%
 % Atom
@@ -19,14 +19,13 @@
 %  <link href="http://example.org/2003/12/13/atom03"/>
 %</entry>
 
-blog_post_to_atom_entry(#content{
+post_to_atom_entry(#db_post{
         id = Id,
         timestamp = Timestamp,
         authors = Authors,
-        content = #blog_post{
-            title = Title,
-            body = Body,
-            tags = _Tags}}) ->
+        title = Title,
+        body = Body,
+        tags = _Tag}) ->
     {entry,
         lists:flatten([
             {title, [Title]},
@@ -36,42 +35,36 @@ blog_post_to_atom_entry(#content{
             {summary, [Body]}
         ])}.
 
-content_to_atom_entry(#content{content = #blog_post{}} = Content) ->
-    blog_post_to_atom_entry(Content);
-content_to_atom_entry(_Content) ->
-    undefined.
-
 get_last_updated(Contents) ->
     lists:foldl(
         fun (X, R) ->
                 if 
-                    X#content.timestamp > R#content.timestamp ->
+                    X#db_post.timestamp > R#db_post.timestamp ->
                         X;
                     true ->
                         R
                 end
         end, 0, Contents).
 
-contents_to_atom(Contents, Url, Title, SubTitle) ->
+posts_to_atom(Contents, Url, Title, SubTitle) ->
     {feed, [{xmlns, "http://www.w3.org/2005/Atom"}],
         lists:flatten([
                 {title, [Title]},
                 {subtitle, [SubTitle]},
                 {link, [{href, ?URL_BASE ++ Url}], []},
                 {updated, [utils:time_to_iso8601(get_last_updated(Contents))]},
-                lists:map(fun content_to_atom_entry/1, Contents)
+                lists:map(fun post_to_atom_entry/1, Contents)
             ])}.
 
 %%
 % HTML
 %%
 
-blog_post_to_html(#content{
+post_to_html(#db_post{
         authors = Authors,
-        content = #blog_post{
-            title = Title,
-            body = Body,
-            tags = _Tags}}) ->
+        title = Title,
+        body = Body,
+        tags = _Tags}) ->
     [#panel{
             body=
             [#label{class = blog_title, text = Title},
@@ -86,23 +79,18 @@ blog_post_to_html(#content{
                 #p{class = blog_body, body = Body}]},
         #br{}].
 
-content_to_html(#content{content = #blog_post{}} = Content) ->
-    blog_post_to_html(Content);
-content_to_html(_) ->
-    #label{text = "Unknown content"}.
-
 %%
 % Entry points
 %%
 
-body(Type) ->
-    Contents = cms_db:get_posts(Type),
-    [#h2{text = "News"} | lists:map(fun content_to_html/1, Contents)].
+body() ->
+    Posts = db_post:get_posts(),
+    [#h2{text = "News"} | lists:map(fun post_to_html/1, Posts)].
 
-atom(Type, Url, SubTitle) ->
-    Contents = cms_db:get_posts(Type),
+atom(Url, SubTitle) ->
+    Contents = db_posts:get_posts(),
     Attrs = [{prolog, ["<?xml version=\"1.0\" encoding=\"utf-8\" ?>"]}],
-    xmerl:export_simple([contents_to_atom(Contents, Url, ?TITLE, SubTitle)], xmerl_xml, Attrs).
+    xmerl:export_simple([posts_to_atom(Contents, Url, ?TITLE, SubTitle)], xmerl_xml, Attrs).
 
 event(Event) ->
     io:format("~p: Received event: ~p~n", [?MODULE, Event]).

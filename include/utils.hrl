@@ -46,14 +46,14 @@
 
 -define(CATCH_AND_WARN(Expr),
     try
-        Expr
+        {ok, Expr}
     catch
         {exception, Reason, Module, Line} ->
             ?LOG_ERROR("Cought exception '~p', thrown at ~p:~p.~n", [Reason, Module, Line]),
-            error;
-        Exception ->
+            {error, Reason};
+        E2 ->
             ?LOG_ERROR("Cought exception '~p'~n", [Exception]),
-            error
+            {error, E2}
     end).
 
 %

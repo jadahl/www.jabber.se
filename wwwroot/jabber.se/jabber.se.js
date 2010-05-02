@@ -10,12 +10,12 @@ Site.prototype.$state_panel_set = function(key, state_panel) {
     // validate
     if (Nitrogen.$validate_and_serialize('.wfid_login_login') == null)
     {
-	return;
+        return;
     }
 
     // retrieve current and next panel state
-    var active = $(state_panel + " > " + ".state_panel_active");
-    var next = $(state_panel + " > " + key);
+    var active = $(state_panel + " > div > .state_panel_active");
+    var next = $(state_panel + " > div > " + key);
 
     // update active state
     active.removeClass("state_panel_active");
@@ -30,7 +30,14 @@ Site.prototype.$state_panel_set = function(key, state_panel) {
 Site.prototype.$state_panel_show = function(key, state_panel) {
     // retrieve the to be panel state
     var panel = $(state_panel);
-    var active = $(state_panel + " > " + key);
+
+    if (panel.is(':visible'))
+    {
+        return;
+    }
+
+    var prev = $(state_panel + " > div > .state_panel_active");
+    var active = $(state_panel + " > div > " + key);
 
     // update active state
     active.addClass("state_panel_active");
@@ -42,7 +49,7 @@ Site.prototype.$state_panel_show = function(key, state_panel) {
 Site.prototype.$state_panel_hide = function(state_panel) {
     // retrieve current and next panel state
     var panel = $(state_panel);
-    var active = $(state_panel + " > " + ".state_panel_active");
+    var active = $(state_panel + " > div > .state_panel_active");
 
     // update active state
     active.removeClass("state_panel_active");
