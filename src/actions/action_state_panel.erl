@@ -1,5 +1,5 @@
 -module(action_state_panel).
--export([render_action/1, set_action/2, show_action/2, hide_action/1, set/2]).
+-export([render_action/1, set_action/2, set_action/3, show_action/2, hide_action/1, set/2]).
 
 -include("include/ui.hrl").
 
@@ -9,8 +9,9 @@
 
 render_action(#state_panel_set{
         target = Target,
-        key = Key}) ->
-    action_state_panel:set_action(Key, Target);
+        key = Key,
+        validate_group = ValidateGroup}) ->
+    action_state_panel:set_action(Key, ValidateGroup, Target);
 render_action(#state_panel_show{target = Target, key = Key}) ->
     action_state_panel:show_action(Key, Target);
 render_action(#state_panel_hide{target = Target}) ->
@@ -21,7 +22,9 @@ render_action(#state_panel_hide{target = Target}) ->
 %
 
 set_action(Key, Id) ->
-    #js_call{fname = "$Site.$state_panel_set", args = [Key, Id]}.
+    set_action(Key, undefined, Id).
+set_action(Key, ValidateGroup, Id) ->
+    #js_call{fname = "$Site.$state_panel_set", args = [Key, ValidateGroup, Id]}.
 
 show_action(Key, Id) ->
     #js_call{fname = "$Site.$state_panel_show", args = [Key, Id]}.

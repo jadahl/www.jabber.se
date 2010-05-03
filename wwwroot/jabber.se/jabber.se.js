@@ -6,9 +6,9 @@ function Site()
 
 var $Site = new Site();
 
-Site.prototype.$state_panel_set = function(key, state_panel) {
+Site.prototype.$state_panel_set = function(key, validate_group, state_panel) {
     // validate
-    if (Nitrogen.$validate_and_serialize('.wfid_login_login') == null)
+    if (Nitrogen.$validate_and_serialize(validate_group) == null)
     {
         return;
     }

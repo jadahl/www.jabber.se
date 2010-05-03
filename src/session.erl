@@ -25,6 +25,7 @@ event(do_login) ->
     Password = wf:q(login_password),
     case authenticate(Username, Password) of
         granted ->
+            wf:user(Username),
             action_state_panel:set(authenticated, login_link),
             action_state_panel:set(success, login_panel);
         _ ->
@@ -32,6 +33,7 @@ event(do_login) ->
     end;
 
 event(do_logout) ->
+    wf:clear_session(),
     action_state_panel:set(anonymous, login_link);
 
 event(Event) ->
@@ -88,7 +90,7 @@ button_panel() ->
         #button{
             id = login_login,
             text = "Login",
-            actions = #event{type = click, actions = #state_panel_set{target = login_panel, key = progress}},
+            actions = #event{type = click, actions = #state_panel_set{target = login_panel, validate_group = login_login, key = progress}},
             delegate = session,
             postback = do_login
         },
@@ -135,7 +137,7 @@ login_panel() ->
             id = login_link,
             bodies = LoginLinkBodies,
             visible = true,
-            init_state = anonymous
+            init_state = ?EITHER(wf:user() == undefined, anonymous, authenticated)
         }
     ],
 
