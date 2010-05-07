@@ -2,7 +2,7 @@
 -include_lib("nitrogen/include/wf.inc").
 
 -include("include/utils.hrl").
--export([time_to_iso8601/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3]).
+-export([time_to_iso8601/1, to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3]).
 
 %
 % Converters
@@ -14,6 +14,21 @@ time_to_iso8601(Time) ->
     {{Year, Month, Day}, {Hour, Min, Sec}} = calendar:now_to_universal_time(Now),
     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
             [Year, Month, Day, Hour, Min, Sec])).
+
+%
+% XML
+%
+
+to_xml({List}) when is_list(List) ->
+    lists:map(fun to_xml/1, List);
+to_xml(List) when is_list(List) ->
+    List;
+to_xml(Bin) when is_binary(Bin) ->
+    Bin;
+to_xml({Name, Attrs, Content}) ->
+    wf_tags:emit_tag(Name, to_xml(Content), Attrs);
+to_xml({Name, Content}) ->
+    wf_tags:emit_tag(Name, to_xml(Content), []).
 
 %
 % Hyper text

@@ -6,15 +6,15 @@
 
 parse_doc({K, V}, P) ->
     case K of
-        title -> P#db_post{title = V};
-        ts -> P#db_post{timestamp = V};
+        '_id' -> P#db_post{id = V};
+        title -> P#db_post{title = binary_to_list(V)};
+        ts -> P#db_post{timestamp = list_to_integer(binary_to_list(V))};
         lang -> P#db_post{lang = V};
         tags -> P#db_post{tags = V};
         authors -> P#db_post{authors = lists:map(fun binary_to_list/1, V)};
-        body -> P#db_post{body = V};
+        body -> P#db_post{body = binary_to_list(V)};
 
         type -> P;
-        '_id' -> P;
         '_rev' -> P;
         _ ->
             ?LOG_INFO("Parser: Unknown entry ~p", [K]),

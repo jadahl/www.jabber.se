@@ -10,11 +10,12 @@
 main() ->
     Path = wf:path_info(),
     ?LOG_INFO("Path = ~p~n", [Path]),
-    case menu:get_element_by_path(menu:get_menu_elements(), Path) of
-        none ->
+    case menu:get_element_by_path(Path, menu:get_menu_elements()) of
+        nothing ->
             web_error:main();
         MenuElement ->
             Module = MenuElement#menu_element.module,
+            ?LOG_INFO("Module = ~p", [Module]),
             try
                 Body = {Module, atom}(),
                 wf:content_type("application/atom+xml"),
