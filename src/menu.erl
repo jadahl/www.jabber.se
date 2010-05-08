@@ -7,6 +7,7 @@
 -export([
         menu/0,
         get_menu_elements/0,
+        full_title/1, full_url/1,
         get_element_by_url/1, get_element_by_url/2,
         get_element_by_module/1, get_element_by_module/2,
         get_element_by_path/1, get_element_by_path/2]).
@@ -14,8 +15,15 @@
 get_menu_elements() ->
     ?MENU_ELEMENTS.
 
-menu_event(Module) ->
-    #event{type = click, actions = [#js_call{fname = "page.load_content", args = [atom_to_list(Module)]}]}.
+menu_event(#menu_element{url = Url}) ->
+    #event{type = click, actions = [#js_call{fname = "$Site.$load_content", args = [Url]}]}.
+
+
+full_title(#menu_element{title = Title}) ->
+    ?TITLE ++ " - " ++ Title.
+
+full_url(#menu_element{url = Url}) ->
+    ?BASE_DIR ++ "index" ++ Url.
 
 %
 % menu_items() -> MenuItems
@@ -27,12 +35,11 @@ menu_items() ->
     [#listitem{
             body = #link{text = Title,
                 url = Url,
-                actions = [menu_event(Module)]
+                actions = [menu_event(MenuElement)]
             }}
         || #menu_element{
             title = Title,
-            url = Url,
-            module = Module} <- MenuElements].
+            url = Url} = MenuElement <- MenuElements].
 
 %
 % get_menu_element_by_url(Url) -> Result

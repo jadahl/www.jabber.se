@@ -12,22 +12,25 @@
 % Body content manipulation
 %
 
+get_default_menu_element() ->
+    menu:get_element_by_module(?DEFAULT_INDEX_MODULE).
+
 load_content(Module) ->
     load_content(Module, []).
 load_content('', Options) ->
-    change_body(?DEFAULT_INDEX_MODULE, get_default_body(), Options);
+    change_body(get_default_menu_element(), get_default_body(), Options);
 load_content(Module, Options) ->
     case menu:get_element_by_module(Module) of
         nothing ->
             ?LOG_WARNING("load_content called for nonexisting module \"~p\",", [Module]);
-        _ ->
+        MenuElement ->
             try
                 Body = {Module, body}(),
-                change_body(Module, Body, Options)
+                change_body(MenuElement, Body, Options)
             catch
                 error:undef ->
                     ?LOG_WARNING("Could not change body for selected menu item ~p.", [Module]),
-                    change_body(?DEFAULT_INDEX_MODULE, get_default_body(), Options)
+                    change_body(get_default_menu_element(), get_default_body(), Options)
             end
     end.
 
@@ -84,9 +87,9 @@ set_feed(Module) ->
 %
 %    animate - Animate transition (default off)
 %
-change_body(Module, Body) ->
-    change_body(Module, Body, []).
-change_body(Module, Body, Options) ->
+change_body(MenuElement, Body) ->
+    change_body(MenuElement, Body, []).
+change_body(MenuElement, Body, Options) ->
     Animate = lists:any(fun(Option) -> Option == animate end, Options),
     Id = content_body,
     Event = #event{target = Id, type = default},
@@ -95,7 +98,18 @@ change_body(Module, Body, Options) ->
     ?WHEN(Animate, wf:wire(Event#event{actions=#hide{}})),
     wf:update(Id, Body),
     wf:wire(Event#event{actions = ?EITHER(Animate, #appear{}, #show{})}),
-    set_feed(Module).
+
+    % set title
+    wf:wire(#js_call{fname = "$Site.$set_title", args = [menu:full_title(MenuElement)]}),
+
+    % sed feed icon
+    set_feed(MenuElement#menu_element.module),
+
+    % add history entry
+    wf:wire(#js_call{fname = "$Site.$history_push", args = [menu:full_title(MenuElement), menu:full_url(MenuElement)]}),
+
+    ok.
+
 
 get_default_body() ->
     {?DEFAULT_INDEX_MODULE, body}().
@@ -104,11 +118,9 @@ get_default_body() ->
 % Events
 %
 
-event({menu, Module}) ->
-    io:format("menu: ~p~n", [Module]),
-    load_content(Module, [animate]);
 event({Module, Event}) when is_atom(Module) ->
     try
+        ?LOG_WARNING("Module ~p (~p) called with a depricated method.", [Module, Event]),
         Module:event(Event)
     catch
         error:undef ->
@@ -126,7 +138,12 @@ api_event(init_content, init_content, [Fragment]) when is_list(Fragment) ->
     load_content(list_to_atom(Fragment));
 api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("load_content(~p);", [Fragment]),
-    load_content(list_to_atom(Fragment), [animate]);
+    case menu:get_element_by_url(Fragment) of
+        #menu_element{module = Module} ->
+            load_content(Module, [animate]);
+        _ ->
+            ?LOG_WARNING("Unknown url requested: ~p", [Fragment])
+    end;
 api_event(A, B, C) ->
     ?LOG_WARNING("Unhandled api_event ~p, ~p, ~p.", [A, B, C]).
 

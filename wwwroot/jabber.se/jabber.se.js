@@ -6,6 +6,41 @@ function Site()
 
 var $Site = new Site();
 
+Site.prototype.$load_content = function(url) {
+    // don't reload the same page
+    if (url == window.location.hash)
+    {
+        return;
+    }
+
+    page.load_content(url);
+}
+
+Site.prototype.$history_event = function(url, state) {
+    // if state is null we we have not set the history entry,
+    // thus it's a new entry meaning no page loading
+    if (state == null)
+    {
+        return;
+    }
+    
+    page.load_content(url);
+}
+
+Site.prototype.$history_push = function(title, path) {
+    // check if function is implemented by the browser
+    if (history.replaceState) {
+        history.replaceState({ page: path}, title, path);
+    }
+    else {
+        // not supported by browser
+    }
+}
+
+Site.prototype.$set_title = function(title) {
+    document.title = title;
+}
+
 Site.prototype.$state_panel_set = function(key, validate_group, state_panel) {
     // validate
     if (Nitrogen.$validate_and_serialize(validate_group) == null)
@@ -101,3 +136,6 @@ Site.prototype.$set_atom_feed_icon = function(path, element)
     }
 }
 
+onpopstate = function(event) {
+    $Site.$history_event(window.location.hash, event.state);
+}
