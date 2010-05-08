@@ -13,6 +13,9 @@
 
 -define(TITLE, "Jabber.se").
 
+%-define(DEFAULT_LOCALE, 'en_US').
+-define(DEFAULT_LOCALE, 'sv_SE').
+
 -define(ADMIN_USER_ENTRY,
     #db_user{
         username = "admin",

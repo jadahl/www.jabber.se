@@ -6,7 +6,7 @@
 -include("include/utils.hrl").
 -include("include/menu.hrl").
 -include("include/cms/db.hrl").
--export([body/0, atom/2, event/1]).
+-export([body_single/1, body/0, atom/2, event/1]).
 
 %
 % Atom
@@ -24,9 +24,12 @@ post_to_atom_entry(#db_post{
         id = Id,
         timestamp = Timestamp,
         authors = Authors,
-        title = Title,
-        body = Body,
+        title = Titles,
+        body = Bodies,
         tags = _Tag}) ->
+    Title = locale(Titles),
+    Body = locale(Bodies),
+
     {entry,
         {[
             {title, [Title]},
@@ -63,14 +66,25 @@ posts_to_atom(Contents, Url, Title, SubTitle) ->
 % HTML
 %
 
+locale(Values) ->
+    db_post:safe_value_by_locale(?DEFAULT_LOCALE, Values).
+
+post_to_html(Post) ->
+    post_to_html(Post, false).
+
 post_to_html(#db_post{
         authors = Authors,
-        title = Title,
-        body = Body,
-        tags = _Tags}) ->
-    [#panel{
-            body=
-            [#label{class = blog_title, text = Title},
+        title = Titles,
+        body = Bodies,
+        tags = _Tags}, Single) ->
+
+    Body = locale(Bodies),
+
+    Title = case Single of
+        true -> [];
+        false -> 
+            [
+                #label{class = blog_title, text = locale(Titles)},
                 #br{},
                 #span{class = blog_by,
                     text = "by " ++
@@ -78,7 +92,14 @@ post_to_html(#db_post{
                         [Author] -> Author;
                         _ -> "unknown"
                     end},
-                #br{},
+                #br{}
+            ]
+    end,
+
+    [#panel{
+            body=
+            [
+                Title,
                 #p{class = blog_body, body = Body}]},
         #br{}].
 
@@ -86,8 +107,13 @@ post_to_html(#db_post{
 % Entry points
 %
 
+body_single(Id) ->
+    {_Id, _Key, Post} = db_post:get_post(Id),
+    Title = locale(Post#db_post.title),
+    [#h2{text = Title}, post_to_html(Post, true)].
+
 body() ->
-    Posts = db_post:get_posts(),
+    Posts = db_post:get_posts("news"),
     [#h2{text = "News"} | lists:map(fun post_to_html/1, Posts)].
 
 atom(Url, SubTitle) ->

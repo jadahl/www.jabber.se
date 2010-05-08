@@ -1,5 +1,7 @@
 -module(db_utils).
--export([binary_to_atom/1, atom_to_binary/1, parse/3, render/2, view_rows/1]).
+-export([binary_to_atom/1, atom_to_binary/1, parse/3, render/2, view_rows/1,
+        finalize_entry/1
+    ]).
 
 -include("include/cms/db.hrl").
 
@@ -27,8 +29,10 @@ simplify_entries1({Key, {Values}}) when is_list(Values) ->
 simplify_entries1({Key, Value}) ->
     {binary_to_atom(Key), Value}.
 
-parse(ParseFun, InitData, Rows) ->
-    [{Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))} || {Key, Id, {Entries}} <- Rows].
+parse(ParseFun, InitData, Rows) when is_list(Rows) ->
+    [{Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))} || {Key, Id, {Entries}} <- Rows];
+parse(ParseFun, InitData, {Key, Id, {Entries}}) ->
+    {Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))}.
 
 %
 % Render
@@ -40,7 +44,9 @@ post_render(Doc) ->
 finalize_entry({K, V}) ->
     case finalize_value(V) of
         undefined -> [];
-        FValue -> [{atom_to_binary(K), FValue}]
+        FValue when is_atom(K) -> [{atom_to_binary(K), FValue}];
+        FValue when is_list(K) -> [{list_to_binary(K), FValue}];
+        FValue when is_binary(K) -> [{K, FValue}]
     end.
 
 finalize_value(Value) ->
