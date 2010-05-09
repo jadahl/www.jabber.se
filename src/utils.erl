@@ -62,7 +62,7 @@ text_to_ht({jid, JID}) ->
 text_to_ht({muc, MUC}) ->
     #link{url = "xmpp:" ++ MUC ++ "?join", text = MUC};
 text_to_ht(T) ->
-    io:format("~p.erl:~p Warning: format ~p not recognized.", [?MODULE, ?LINE, T]),
+    ?LOG_WARNING("Format ~p not recognized.", [T]),
     [].
 
 %

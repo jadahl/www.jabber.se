@@ -3,6 +3,7 @@
 -behavior(application).
 
 -include("include/config.hrl").
+-include("include/utils.hrl").
 
 -define(PORT, 8000).
 
@@ -26,5 +27,5 @@ out(Arg) ->
 out(Arg, Module) -> out(Arg, Module, "").
 
 out(Arg, Module, PathInfo) ->
-    io:format("WARNING! Unhandled ~p ~p ~p ~n", [Arg, Module, PathInfo]).
+    ?LOG_WARNING("Unhandled ~p ~p ~p", [Arg, Module, PathInfo]).
 

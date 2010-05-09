@@ -8,4 +8,4 @@ body() ->
     cms:body_single("page_about").
 	
 event(Event) ->
-    io:format("~p: Received event: ~p~n", [?MODULE, Event]).
+    ?LOG_WARNING("Unexpected event: ~p", [Event]).
