@@ -27,9 +27,11 @@
 -define(ENABLE_LOG_WARNING, true).
 -define(ENABLE_LOG_ERROR, true).
 
--define(MODULES, [db_controller]).
+-define(MODULES, [db_controller, i18n]).
 
 -define(TITLE, "Jabber.se").
+
+-define(TRANSLATIONS_DIRECTORY, "res/translations/").
 
 %-define(DEFAULT_LOCALE, 'en_US').
 -define(DEFAULT_LOCALE, 'sv_SE').
@@ -54,11 +56,11 @@
     [
         #menu_element{
             module = news,
-            title = "News",
+            title = msg_id_news,
             url = "#news"},
         #menu_element{
             module = about,
-            title = "About",
+            title = msg_id_about,
             url = "#about"}
     ]
 ).

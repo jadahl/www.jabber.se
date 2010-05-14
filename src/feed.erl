@@ -17,10 +17,12 @@
 %
 
 -module(feed).
+-export([get_feed_links/0]).
+
 -include_lib("nitrogen/include/wf.hrl").
 
+-include("include/utils.hrl").
 -include("include/menu.hrl").
--export([get_feed_links/0]).
 
 get_feed_link(#menu_element{
         title = Title,
@@ -32,7 +34,7 @@ get_feed_link(#menu_element{
                         url = AtomUrl,
                         type = "application/atom+xml",
                         rel = "alternate",
-                        title = Title ++ " atom feed"}];
+                        title = ?T(Title) ++ " atom feed"}];
             _ ->
                 []
         end

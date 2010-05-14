@@ -36,9 +36,8 @@ get_menu_elements() ->
 menu_event(#menu_element{url = Url}) ->
     #event{type = click, actions = [#js_call{fname = "$Site.$load_content", args = [Url]}]}.
 
-
 full_title(#menu_element{title = Title}) ->
-    ?TITLE ++ " - " ++ Title.
+    ?TITLE ++ " - " ++ ?T(Title).
 
 full_url(#menu_element{url = Url}) ->
     ?BASE_DIR ++ "index" ++ Url.
@@ -51,7 +50,7 @@ full_url(#menu_element{url = Url}) ->
 menu_items() ->
     MenuElements = menu:get_menu_elements(),
     [#listitem{
-            body = #link{text = Title,
+            body = #link{text = i18n:t(Title),
                 url = Url,
                 actions = [menu_event(MenuElement)]
             }}

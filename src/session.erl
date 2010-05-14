@@ -57,18 +57,18 @@ event(do_logout) ->
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
-%%
+%
 % Panels
-%%
+%
 
 panel_login() ->
     [
-        #h3{text = "Login"},
+        #h3{text = ?T(msg_id_login)},
         #p{},
-        #label{text = "Username"},
+        #label{text = ?T(msg_id_login_username)},
         #textbox{id = login_username, class = login_input, next = login_password},
         #p{},
-        #label{text = "Password"},
+        #label{text = ?T(msg_id_login_password)},
         #password{id = login_password, class = login_input, next = login_login},
         #p{},
         #panel{id = login_status, body = button_panel()}
@@ -81,11 +81,11 @@ panel_progress() ->
 
 panel_success() ->
     [
-        #h3{class = center, text = "Login Success"},
+        #h3{class = center, text = ?T(msg_id_login_success)},
         #panel{
             class = center,
             body = #button{
-                text = "Close",
+                text = ?T(msg_id_close),
                 actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
             }
         }
@@ -93,7 +93,7 @@ panel_success() ->
 
 panel_fail() ->
     [
-        #h3{class = center, text = "Login failed"},
+        #h3{class = center, text = ?T(msg_id_login_fail)},
         #panel{
             class = center,
             body = #button{
@@ -107,7 +107,7 @@ button_panel() ->
     [
         #button{
             id = login_login,
-            text = "Login",
+            text = ?T(msg_id_login),
             actions = #event{type = click, actions = #state_panel_set{target = login_panel, validate_group = login_login, key = progress}},
             delegate = session,
             postback = do_login
@@ -115,7 +115,7 @@ button_panel() ->
         " ",
         #button{
             id = login_cancel,
-            text = "Cancel",
+            text = ?T(msg_id_cancel),
             actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
         }
     ].
@@ -132,14 +132,14 @@ login_panel() ->
         {anonymous, 
             #link{
                 class = login_link,
-                text = "Login",
+                text = ?T(msg_id_login),
                 actions = #event{type = click, actions = #state_panel_show{target = login_panel, key = login}},
                 delegate = session,
                 postback = login}},
         {authenticated,
             #link{
                 class = login_link,
-                text = "Logout",
+                text = ?T(msg_id_logout),
                 delegate = session,
                 postback = do_logout}}
         ],

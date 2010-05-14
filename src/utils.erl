@@ -20,7 +20,7 @@
 -include_lib("nitrogen/include/wf.inc").
 
 -include("include/utils.hrl").
--export([time_to_iso8601/1, to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3]).
+-export([time_to_iso8601/1, to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3, forall/2]).
 
 %
 % Converters
@@ -89,14 +89,14 @@ text_to_ht(T) ->
 
 log(Level, Module, Line, Format, Args) ->
     LogLine = io_lib:format(Format, Args),
-    io:format("~s:~p:~p: ~s~n", [Level, Module, Line, LogLine]).
+    io:format("~s:~p:~p:~p: ~s~n", [Level, Module, Line, self(), LogLine]).
 
 %
 % Utility functions
 %
 
 %
-% maybe_foldl(MaybeFun, Acc0, List) -> Acc1
+% find_with(MaybeFun, Acc0, List) -> Acc1
 %  MaybeFun = fun(Elem, AccIn) -> {just, AccOut} | nothing
 %  Elem = term()
 %  Acc0 = Acc1 = AccOut = AccIn = term()
@@ -111,4 +111,11 @@ find_with(MaybeFun, AccIn, [Elem| Elements]) ->
     end;
 find_with(_, _, []) ->
     nothing.
+
+
+forall(Fun, [Item | Items]) ->
+    Fun(Item),
+    forall(Fun, Items);
+forall(_Fun, []) ->
+    ok.
 

@@ -19,6 +19,7 @@
 -module (about).
 -include_lib("nitrogen/include/wf.inc").
 
+-include("include/utils.hrl").
 -include("include/menu.hrl").
 -compile(export_all).
 

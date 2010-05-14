@@ -26,6 +26,12 @@
 %
 
 %
+% ?T(Id) -> Text
+%
+
+-define(T(Id), i18n:t(Id)).
+
+%
 % ?UI(UI) -> Elements
 %   UI = ui(),
 %   Elements = [element()]

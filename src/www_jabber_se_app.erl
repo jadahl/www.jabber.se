@@ -27,7 +27,7 @@
 
 start(_, _) ->
     % start jabber.se modules
-    lists:foreach(fun(Module) -> {Module, start}() end, ?MODULES),
+    lists:foreach(fun(Module) -> Module:start() end, ?MODULES),
 
     % start yaws
     yaws_bundle:start().
