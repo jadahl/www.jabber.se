@@ -7,6 +7,10 @@ clean:
 
 all: compile
 
+translations:
+	./tools/scan_translations.erl -t res/translations/ -i . -i include/ -s src/
+
+
 test:
 	@erl \
 	    -name nitrogen_test@localhost \
