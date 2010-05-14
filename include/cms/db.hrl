@@ -27,7 +27,7 @@
             {<<"posts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(0 - doc.ts, doc); }">>}]}},
             {<<"news">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.tags.indexOf(\"news\") >= 0) emit(0 - doc.ts, doc); }">>}]}},
             {<<"posts_by_id">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(doc._id, doc); }">>}]}},
-            {<<"user_login">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"user\") emit(doc.username, doc.password_hash); }">>}]}}
+            {<<"user_login">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"user\") emit(doc._id, doc.password_hash); }">>}]}}
     ]}).
 
 -define(DB_DESIGN_DOC,

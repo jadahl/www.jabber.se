@@ -74,7 +74,7 @@ get_password_hash_for(User) ->
         [{Id, _Key, PasswordHash}] when Id == UserBin ->
             {ok, binary_to_list(PasswordHash)};
         [] ->
-            ?LOG_INFO("Unknown user '~p'", [User]),
+            ?LOG_INFO("Unknown user '~s'", [User]),
             {error, not_found}
     end.
     
