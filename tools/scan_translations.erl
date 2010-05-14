@@ -2,6 +2,8 @@
 %% -*- erlang -*-
 %%! -sname scan_translations -pa ebin/
 
+-include_lib("kernel/include/file.hrl").
+
 -define(THROW(Reason), throw({exception, Reason, ?MODULE, ?LINE})).
 
 -define(DEBUG, true).
@@ -75,11 +77,20 @@ scan_dir(Dir, IDirs) ->
     end.
 
 scan_file(Filename, IDirs) ->
-    case lists:suffix(".erl", Filename) of
-        true ->
-            scan_erl(Filename, IDirs);
-        false ->
-            []
+    case file:read_link_info(Filename) of
+        {ok, #file_info{type = regular}} ->
+            case lists:suffix(".erl", Filename) of
+                true ->
+                    scan_erl(Filename, IDirs);
+                false ->
+                    []
+            end;
+        {ok, #file_info{type = directory}} ->
+            scan_dir(Filename ++ "/", IDirs);
+        {error, enoent} ->
+            [];
+        Error ->
+            ?THROW(Error)
     end.
 
 scan_erl(Filename, IDirs) ->
@@ -145,8 +156,9 @@ merge_file(CurrentLine, F, []) ->
             ?THROW(Error)
     end;
 
-merge_file(CurrentLine, F, [{EntryLine, _Mode, NewEntry} | NewEntries]) when EntryLine == CurrentLine ->
-    [render_entry(NewEntry, NewEntries == []) | merge_file(CurrentLine + 1, F, NewEntries)];
+merge_file(CurrentLine, F, [{EntryLine, Mode, NewEntry} | NewEntries]) when EntryLine == CurrentLine ->
+    Is = (NewEntries == []) and (Mode == tail),
+    [render_entry(NewEntry, Is) | merge_file(CurrentLine + 1, F, NewEntries)];
 
 merge_file(CurrentLine, F, NewEntries) ->
     case read_line(F) of
@@ -223,7 +235,15 @@ insert_ids_to_file(Ids, Filename, Parsed) ->
 add_missing_ids(Ids, TDir) ->
     case file:list_dir(TDir) of
         {ok, Filenames} ->
-            utils:forall(fun(Filename) -> add_missing_ids_to_file(Ids, TDir ++ Filename) end, Filenames);
+            utils:forall(fun(Filename) ->
+                        Filename2 = TDir ++ Filename,
+                        case file:read_link_info(Filename2) of
+                            {ok, #file_info{type = regular}} ->
+                                add_missing_ids_to_file(Ids, Filename2);
+                            _ ->
+                                ok
+                        end
+                    end, Filenames);
         _ ->
             ok
     end.
@@ -248,16 +268,28 @@ add_missing_ids_to_file(Ids, Filename) ->
             halt(1)
     end.
 
+read_scan_parse(Filename) ->
+    {ok, Binary} = file:read_file(Filename),
+    {ok, Scanned, _} = erl_scan:string(binary_to_list(Binary)),
+    erl_parse:parse_exprs(Scanned).
+
 read_translation_file(Filename) ->
-    case filename:basename(Filename) of
-        [C1, C2, $_, C3, C4 | ".res"] when
-        ((C1 >= $a) and (C1 =< $z)) and
-        ((C2 >= $a) and (C2 =< $z)) and
-        ((C3 >= $A) and (C3 =< $Z)) and
-        ((C4 >= $A) and (C4 =< $Z)) ->
-            {ok, Binary} = file:read_file(Filename),
-            {ok, Scanned, _} = erl_scan:string(binary_to_list(Binary)),
-            erl_parse:parse_exprs(Scanned);
+    case file:read_link_info(Filename) of
+        {ok, #file_info{type = regular}} ->
+            case filename:basename(Filename) of
+                [C1, C2, $_, C3, C4 | ".res"] when
+                ((C1 >= $a) and (C1 =< $z)) and
+                ((C2 >= $a) and (C2 =< $z)) and
+                ((C3 >= $A) and (C3 =< $Z)) and
+                ((C4 >= $A) and (C4 =< $Z)) ->
+                    read_scan_parse(Filename);
+                [C1, C2 | ".res"] when
+                ((C1 >= $a) and (C1 =< $z)) and
+                ((C2 >= $a) and (C2 =< $z)) ->
+                    read_scan_parse(Filename);
+                _ ->
+                    skip
+            end;
         _ ->
             skip
     end.
