@@ -42,7 +42,11 @@ render_ui(#ui_state_panel{id = Id, bodies = Bodies, visible = Visible, init_stat
                             id = Key,
                             class = ?EITHER(IsInit, [state_panel_active, state_panel_alt], state_panel_alt),
                             body = Value,
-                            style = ?WHEN_S(not IsInit, "display: none")}
+                            style = case {IsInit, Visible} of
+                                {true, true} -> "";
+                                _ -> "display: none"
+                            end}
+                            %style = ?WHEN_S(not IsInit, "display: none")}
                 end, Bodies)
         }}.
 
