@@ -6,6 +6,14 @@ function Site()
 
 var $Site = new Site();
 
+Site.prototype.$do_load_content = function(url) {
+    page.load_content(url);
+}
+
+Site.prototype.$reload_content = function() {
+    $Site.$do_load_content(window.location.hash);
+}
+
 Site.prototype.$load_content = function(url) {
     // don't reload the same page
     if (url == window.location.hash)
@@ -13,7 +21,7 @@ Site.prototype.$load_content = function(url) {
         return;
     }
 
-    page.load_content(url);
+    $Site.$do_load_content(url);
 }
 
 Site.prototype.$history_event = function(url, state) {
@@ -24,7 +32,7 @@ Site.prototype.$history_event = function(url, state) {
         return;
     }
     
-    page.load_content(url);
+    $Site.$do_load_content(url);
 }
 
 Site.prototype.$history_push = function(title, path) {

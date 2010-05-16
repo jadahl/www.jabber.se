@@ -85,7 +85,7 @@ posts_to_atom(Contents, Url, Title, SubTitle) ->
 %
 
 locale(Values) ->
-    db_post:safe_value_by_locale(?DEFAULT_LOCALE, Values).
+    db_post:safe_value_by_locale(i18n:get_language(), Values).
 
 post_to_html(Post) ->
     post_to_html(Post, false).
@@ -132,7 +132,7 @@ body_single(Id) ->
 
 body() ->
     Posts = db_post:get_posts("news"),
-    [#h2{text = "News"} | lists:map(fun post_to_html/1, Posts)].
+    [#h2{text = ?T(msg_id_news)} | lists:map(fun post_to_html/1, Posts)].
 
 atom(Url, SubTitle) ->
     Contents = db_post:get_posts(),

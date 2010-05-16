@@ -88,7 +88,6 @@ get_posts(ViewName) ->
 save_posts(Posts, Db) ->
     db_controller:save_docs(fun render_post/1, Posts, Db).
 
-
 %
 % Locale
 %
@@ -98,7 +97,7 @@ safe_value_by_locale(Locale, Values) ->
         nothing -> 
             case default_value(Values) of
                 nothing -> 
-                    ?LOG_WARNING("Safe returned empty list for values '~p'", [Values]),
+                    ?LOG_WARNING("No valid translation found for '~p' in '~p'", [Locale, Values]),
                     [];
                 Value2 -> Value2
             end;

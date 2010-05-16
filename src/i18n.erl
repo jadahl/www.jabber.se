@@ -17,7 +17,7 @@
 %
 
 -module(i18n).
--export([start/0, set_lang/1, t/1, t/2,
+-export([start/0, get_language/0, set_language/1, t/1, t/2, alias/1,
         read_dir/1, read_translations/0,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
     ]).
@@ -33,18 +33,31 @@
 start() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-set_lang(Language) ->
-    put(current_language, Language).
-
-t(Id) ->
-    Lang = case get(current_language) of
+get_language() ->
+    case get(current_language) of
         undefined ->
-            set_lang(?DEFAULT_LOCALE),
-            ?DEFAULT_LOCALE;
+            set_language(?DEFAULT_LOCALE);
         CurrentLang ->
             CurrentLang
-    end,
+    end.
 
+%
+% Returns the new set language
+set_language(Lang) when is_list(Lang) ->
+    case is_lang(Lang) of
+        true ->
+            set_language(list_to_atom(Lang));
+        false ->
+            ?LOG_WARNING("Unknown language '~p'.", [Lang]),
+            {error, invalid_language}
+    end;
+set_language(Lang) when is_atom(Lang) ->
+    Lang2 = alias(Lang),
+    put(current_language, Lang2),
+    Lang2.
+
+t(Id) ->
+    Lang = get_language(),
     t(Id, Lang).
 
 t(Id, Lang) ->
@@ -59,9 +72,26 @@ t(Id, Lang) ->
             "[" ++ atom_to_list(Id) ++ "]"
     end.
 
+alias(en) -> en_US;
+alias(sv) -> sv_SE;
+alias(Lang) -> Lang.
+
 %
 % Internal
 %
+
+is_lang([C1, C2, $_, C3, C4]) when 
+    ((C1 >= $a) and (C1 =< $z)) and
+    ((C2 >= $a) and (C2 =< $z)) and
+    ((C3 >= $A) and (C3 =< $Z)) and
+    ((C4 >= $A) and (C4 =< $Z)) ->
+    true;
+is_lang([C1, C2]) when 
+    ((C1 >= $a) and (C1 =< $z)) and
+    ((C2 >= $a) and (C2 =< $z)) ->
+    true;
+is_lang(_) ->
+    false.
 
 eval(S) ->
     try
@@ -76,23 +106,25 @@ eval(S, Env) ->
     {ok, Parsed} = erl_parse:parse_exprs(Scanned),
     erl_eval:exprs(Parsed, Env).
 
-read_file(Directory, [C1, C2, $_, C3, C4 | ".res"] = Filename) when 
-    ((C1 >= $a) and (C1 =< $z)) and
-    ((C2 >= $a) and (C2 =< $z)) and
-    ((C3 >= $A) and (C3 =< $Z)) and
-    ((C4 >= $A) and (C4 =< $Z)) ->
-
+read_scan_parse(Filename, Lang) ->
     try
-        {ok, Binary} = file:read_file(Directory ++ Filename),
+        {ok, Binary} = file:read_file(Filename),
         {value, Value, _} = eval(binary_to_list(Binary)),
-        {list_to_atom([C1, C2, $_, C3, C4]), Value}
+        {Lang, Value}
     catch
         error:Error ->
             ?LOG_ERROR("Failed to read translation file '~s' due to '~p'", [Filename, Error]),
             []
-    end;
-read_file(_D, _F) ->
-    [].
+    end.
+
+read_file(Directory, Filename) ->
+    Lang = filename:basename(Filename, ".res"),
+    case is_lang(Lang) of
+        true ->
+            read_scan_parse(Directory ++ Filename, list_to_atom(Lang));
+        false ->
+            []
+    end.
 
 read_dir(Dir) ->
     case file:list_dir(Dir) of

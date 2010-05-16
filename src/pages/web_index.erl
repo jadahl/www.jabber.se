@@ -133,17 +133,129 @@ get_default_body() ->
     {?DEFAULT_INDEX_MODULE, body}().
 
 %
+% Fragment
+%
+
+parse_segment(Segment) ->
+    case lists:splitwith(fun(C) -> C /= $= end, Segment) of
+        {Key, [$= | Value]} ->
+            {list_to_atom(Key), Value};
+        {_, []} ->
+            {path, Segment};
+        _ ->
+            ?LOG_WARNING("Odd fragment encountered - '~p'", [Segment]),
+            []
+    end.
+
+parse_fragment([]) ->
+    [];
+parse_fragment(Fragment) ->
+    case lists:splitwith(fun(C) -> C /= $, end, Fragment) of
+        {[], [$, | Rest1]} ->
+            parse_fragment(Rest1);
+        {Segment, [$, | Rest2]} ->
+            [parse_segment(Segment) | parse_fragment(Rest2)];
+        {Segment, []} ->
+            [parse_segment(Segment)]
+    end.
+
+fragment_set_lang(Args) ->
+    case lists:keysearch(lang, 1, Args) of
+        {value, {lang, Lang}} ->
+            i18n:set_language(Lang);
+        _ -> 
+            ok
+    end.
+
+fragment_load_content(Args) ->
+    case lists:keysearch(path, 1, Args) of
+        {value, {path, Path}} ->
+            load_content(list_to_atom(Path));
+        _ ->
+            ok
+    end.
+
+process_fragment(Fragment) ->
+    Args = parse_fragment(Fragment),
+
+    % language
+    fragment_set_lang(Args),
+
+    % content
+    fragment_load_content(Args),
+
+    ok.
+
+%
+% Query
+%
+
+query_params() ->
+    (wf_context:request_bridge()):query_params().
+
+query_lang() ->
+    Query = query_params(),
+    case lists:keysearch("lang", 1, Query) of
+        {value, {_, Lang}} ->
+            {lang, Lang};
+        _ ->
+            undefined
+    end.
+
+%
+% Cookies
+%
+
+cookie_lang() ->
+    case wf:cookie("lang") of
+        [] ->
+            wf:cookie("lang", i18n:get_language()),
+            cookie_init;
+        Lang ->
+            {lang, Lang}
+    end.
+
+
+%
+% Environment
+%
+
+env_language() ->
+    case cookie_lang() of
+        {lang, Lang} ->
+            i18n:set_language(Lang);
+        cookie_init ->
+            case query_lang() of
+                {lang, Lang} ->
+                    set_language(Lang);
+                _ ->
+                    ok
+            end
+    end.
+
+process_env() ->
+    % update language
+    env_language(),
+
+    ok.
+
+set_language(Lang) ->
+    wf:cookie("lang", Lang),
+    i18n:set_language(Lang).
+
+%
 % Events
 %
 
-event({Module, Event}) when is_atom(Module) ->
-    try
-        ?LOG_WARNING("Module ~p (~p) called with a depricated method.", [Module, Event]),
-        Module:event(Event)
-    catch
-        error:undef ->
-            ?LOG_WARNING("Target for event {~p, ~p} not found.", [Module, Event])
-    end;
+event({language, Lang}) ->
+    % update cookie and set process dictionary
+    set_language(Lang),
+
+    % reload content
+    wf:wire(#js_call{fname = "$Site.$reload_content"}),
+
+    ok;
+
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
@@ -153,9 +265,11 @@ event(Event) ->
 
 api_event(init_content, init_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("init_content(~p);", [Fragment]),
-    load_content(list_to_atom(Fragment));
+    process_env(),
+    process_fragment(Fragment);
 api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("load_content(~p);", [Fragment]),
+    process_env(),
     case menu:get_element_by_url(Fragment) of
         #menu_element{module = Module} ->
             load_content(Module, [animate]);
@@ -165,12 +279,13 @@ api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
 api_event(A, B, C) ->
     ?LOG_WARNING("Unhandled api_event ~p, ~p, ~p.", [A, B, C]).
 
-
 %
 % Document entry points
 %
 
 main() ->
+    process_env(),
+
     % site api
     site_api(),
 
@@ -189,6 +304,13 @@ head() ->
 
 title() ->
     ?TITLE.
+
+language() ->
+    [
+        #link{text = "Svenska", class = "language_link", postback = {language, sv_SE}},
+        " | ",
+        #link{text = "English", class = "language_link", postback = {language, en_US}}
+    ].
 
 body() ->
     #panel{id = content_body}.

@@ -153,6 +153,43 @@ div#footer_right_container {
 }
 
 /*
+ * Language bar
+ */
+
+div#title_container {
+    display: block;
+}
+
+div#language_bar {
+    position: relative;
+    bottom: 10px;
+    right: 12px;
+
+    display: inline;
+    float: right;
+    font-size: 14px;
+}
+
+a.language_link:link {
+    color: #f9f9f9;
+}
+
+
+a.language_link:visited {
+    color: #5f5f5f;
+    text-decoration: none;
+}
+
+a.language_link:hover {
+    color: #ffffff;
+}
+
+a.language_link:active {
+    color: #efefef;
+    text-decoration: none;
+}
+
+/*
  * Feed atom
  */
 
