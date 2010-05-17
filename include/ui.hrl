@@ -33,7 +33,7 @@
 % Actions
 %
 
--record(state_panel_set, {?ACTION_BASE(action_state_panel), key, validate_group}).
+-record(state_panel_set, {?ACTION_BASE(action_state_panel), key, animate = false, validate_group}).
 -record(state_panel_show, {?ACTION_BASE(action_state_panel), key}).
 -record(state_panel_hide, {?ACTION_BASE(action_state_panel)}).
 

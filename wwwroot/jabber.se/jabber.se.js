@@ -6,12 +6,17 @@ function Site()
 
 var $Site = new Site();
 
+/*
+ * Content management
+ */
+
 Site.prototype.$do_load_content = function(url) {
     page.load_content(url);
 }
 
 Site.prototype.$reload_content = function() {
-    $Site.$do_load_content(window.location.hash);
+    location.reload();
+    //$Site.$do_load_content(window.location.hash);
 }
 
 Site.prototype.$load_content = function(url) {
@@ -49,9 +54,13 @@ Site.prototype.$set_title = function(title) {
     document.title = title;
 }
 
-Site.prototype.$state_panel_set = function(key, validate_group, state_panel) {
+/*
+ * State panel
+ */
+
+Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_group) {
     // validate
-    if (Nitrogen.$validate_and_serialize(validate_group) == null)
+    if (validate_group && Nitrogen.$validate_and_serialize(validate_group) == null)
     {
         return;
     }
@@ -64,10 +73,18 @@ Site.prototype.$state_panel_set = function(key, validate_group, state_panel) {
     active.removeClass("state_panel_active");
     next.addClass("state_panel_active");
 
-    // animate transition
-    active.slideToggle('fast', function() {
-		next.slideToggle('fast');
-	    });
+    if (animate)
+    {
+        // animate transition
+        active.slideToggle('fast', function() {
+                next.slideToggle('fast');
+                });
+    }
+    else
+    {
+        active.hide();
+        next.show();
+    }
 }
 
 Site.prototype.$state_panel_show = function(key, state_panel) {
@@ -103,6 +120,10 @@ Site.prototype.$state_panel_hide = function(state_panel) {
 	    });
 }
 
+/*
+ * Forms
+ */
+
 Site.prototype.$clear_form_fields = function(ids)
 {
     for (var id in ids)
@@ -111,11 +132,19 @@ Site.prototype.$clear_form_fields = function(ids)
     }
 }
 
+/*
+ * Fragment
+ */
+
 Site.prototype.$get_fragment_path = function()
 {
     var hash = window.location.hash;
     return hash.replace(/#/, "");
 }
+
+/*
+ * Atom icon
+ */
 
 Site.prototype.$clear_atom_feed_icon = function(path)
 {
@@ -143,6 +172,10 @@ Site.prototype.$set_atom_feed_icon = function(path, element)
         link.replaceWith(element);
     }
 }
+
+/*
+ * History management
+ */
 
 onpopstate = function(event) {
     $Site.$history_event(window.location.hash, event.state);

@@ -44,15 +44,15 @@ event(do_login) ->
     case authenticate(Username, Password) of
         granted ->
             wf:user(Username),
-            action_state_panel:set(authenticated, login_link),
-            action_state_panel:set(success, login_panel);
+            wf:wire(#state_panel_set{target = login_link, key = authenticated}),
+            wf:wire(#state_panel_set{target = login_panel, animate = true, key = success});
         _ ->
-            action_state_panel:set(fail, login_panel)
+            wf:wire(#state_panel_set{target = login_panel, animate = true, key = fail})
     end;
 
 event(do_logout) ->
     wf:clear_session(),
-    action_state_panel:set(anonymous, login_link);
+    wf:wire(#state_panel_set{target = login_link, key = anonymous});
 
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
