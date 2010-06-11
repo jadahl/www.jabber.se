@@ -8,8 +8,10 @@ clean:
 all: compile
 
 translations:
-	./tools/scan_translations.erl -t res/translations/ -i . -i include/ -s src/
+	./tools/scan_translations.erl -t res/translations/ -i . -i include/ -s src/ -d
 
+merge_translations:
+	./tools/scan_translations.erl -t res/translations/ -i . -i include/ -s src/
 
 test:
 	@erl \
