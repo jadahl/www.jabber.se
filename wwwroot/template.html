@@ -2,11 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head id='head_element'>
 <title>[[[page:title()]]]</title>
+<!-- Nitrogen scripts -->
 <script src='/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/jquery-ui.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/livevalidation.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/nitrogen.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/bert.js' type='text/javascript' charset='utf-8'></script>
+<!-- Other scripts -->
 <script src='/jabber.se/jabber.se.js' type='text/javascript' charset='utf-8'></script>
 
 <link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8"/>
@@ -18,51 +20,50 @@
 
 <body>
 
+    <div id="page">
+        <div id="title">
+            <div id="title_container">[[[web_index:title()]]]</div>
+            <div id="language_bar">[[[web_index:language()]]]</div>
+        </div>
+        <div id="menu_bar">
+            <div id="menu">
+                [[[menu:menu()]]]
+            </div>
+            <div id="menu_bar_right">
+            </div>
+        </div>
 
+        <div id="page_body" class="body">
+            <div id="content_body">
+                [[[page:body()]]]
+            </div>
+        </div>
 
-<div id="page">
-    <div id="title">
-        <div id="title_container">[[[web_index:title()]]]</div>
-        <div id="language_bar">[[[web_index:language()]]]</div></div>
-<div id="menu_bar">
-    <div id="menu">
-	[[[menu:menu()]]]
+        <div id="footer">
+            <div id="footer_left">
+                &copy; Copyright 2004-2010 Jabber.se
+            </div>
+            <div id="footer_right">
+                <div id="footer_right_container">
+                    [[[session:login_panel()]]]
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="menu_bar_right">
-    </div>
-</div>
 
-<div id="page_body" class="body">
-    <div id="content_body">
-	[[[page:body()]]]
-    </div>
-</div>
-<div id="footer">
-    <div id="footer_left">
-        &copy; Copyright 2004-2010 Jabber.se
-    </div>
-    <div id="footer_right">
-	<div id="footer_right_container">
-	    [[[session:login_panel()]]]
-	</div>
-    </div>
-</div>
-</div>
+    [[[page:foot()]]]
 
-<script type="text/javascript">
-[[[script]]]
-</script>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
 
-[[[page:foot()]]]
+    <script type="text/javascript">
+        try{var pageTracker=_gat._getTracker("UA-8892321-1");pageTracker._trackPageview();}catch(err){}
+    </script>
 
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-8892321-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
+    <script type="text/javascript">
+        [[[script]]]
+    </script>
+
 </body>
 </html>

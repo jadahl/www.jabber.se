@@ -22,19 +22,22 @@
 -include("include/config.hrl").
 -include("include/utils.hrl").
 -include("include/menu.hrl").
--export([
+
+-export(
+    [
         menu/0,
         get_menu_elements/0,
         full_title/1, full_url/1,
         get_element_by_url/1, get_element_by_url/2,
         get_element_by_module/1, get_element_by_module/2,
-        get_element_by_path/1, get_element_by_path/2]).
+        get_element_by_path/1, get_element_by_path/2
+    ]).
 
 get_menu_elements() ->
     ?MENU_ELEMENTS.
 
-menu_event(#menu_element{url = Url}) ->
-    #event{type = click, actions = [#js_call{fname = "$Site.$load_content", args = [Url]}]}.
+menu_event(#menu_element{url = Url, module = Module}) ->
+    #event{type = click, actions = [#js_call{fname = "$Site.$load_content", args = [Url, Module]}]}.
 
 full_title(#menu_element{title = Title}) ->
     ?TITLE ++ " - " ++ ?T(Title).
@@ -52,10 +55,12 @@ menu_items() ->
     [#listitem{
             body = #link{text = i18n:t(Title),
                 url = Url,
+                id = Module,
                 actions = [menu_event(MenuElement)]
             }}
         || #menu_element{
             title = Title,
+            module = Module,
             url = Url} = MenuElement <- MenuElements].
 
 %

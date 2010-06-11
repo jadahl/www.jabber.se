@@ -120,6 +120,9 @@ change_body(MenuElement, Body, Options) ->
     % set title
     wf:wire(#js_call{fname = "$Site.$set_title", args = [menu:full_title(MenuElement)]}),
 
+    % set current menu element
+    wf:wire(#js_call{fname = "$Site.$set_current", args = [MenuElement#menu_element.module]}),
+
     % sed feed icon
     set_feed(MenuElement#menu_element.module),
 

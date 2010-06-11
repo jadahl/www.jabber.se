@@ -10,7 +10,20 @@ var $Site = new Site();
  * Content management
  */
 
-Site.prototype.$do_load_content = function(url) {
+Site.prototype.$set_current = function(id) {
+    // set active menu element
+    if (id)
+    {
+	$("#menu > ul > li > .current").removeClass("current");
+	$(id).addClass("current");
+    }
+}
+
+Site.prototype.$do_load_content = function(url, id) {
+    //$Site.$set_current(id);
+    this.$set_current(id);
+
+    // request content
     page.load_content(url);
 }
 
@@ -19,14 +32,14 @@ Site.prototype.$reload_content = function() {
     //$Site.$do_load_content(window.location.hash);
 }
 
-Site.prototype.$load_content = function(url) {
+Site.prototype.$load_content = function(url, id) {
     // don't reload the same page
     if (url == window.location.hash)
     {
         return;
     }
 
-    $Site.$do_load_content(url);
+    this.$do_load_content(url, id);
 }
 
 Site.prototype.$history_event = function(url, state) {
@@ -37,7 +50,7 @@ Site.prototype.$history_event = function(url, state) {
         return;
     }
     
-    $Site.$do_load_content(url);
+    this.$do_load_content(url);
 }
 
 Site.prototype.$history_push = function(title, path) {
@@ -124,11 +137,10 @@ Site.prototype.$state_panel_hide = function(state_panel) {
  * Forms
  */
 
-Site.prototype.$clear_form_fields = function(ids)
-{
+Site.prototype.$clear_form_fields = function(ids) {
     for (var id in ids)
     {
-	$("#" + id).val("");
+        $("#" + id).val("");
     }
 }
 
@@ -136,8 +148,7 @@ Site.prototype.$clear_form_fields = function(ids)
  * Fragment
  */
 
-Site.prototype.$get_fragment_path = function()
-{
+Site.prototype.$get_fragment_path = function() {
     var hash = window.location.hash;
     return hash.replace(/#/, "");
 }
@@ -146,13 +157,11 @@ Site.prototype.$get_fragment_path = function()
  * Atom icon
  */
 
-Site.prototype.$clear_atom_feed_icon = function(path)
-{
+Site.prototype.$clear_atom_feed_icon = function(path) {
     $(path).remove();
 }
 
-Site.prototype.$set_atom_feed_icon = function(path, element)
-{
+Site.prototype.$set_atom_feed_icon = function(path, element) {
     var link = $(path);
     if (link.length == 0)
     {
