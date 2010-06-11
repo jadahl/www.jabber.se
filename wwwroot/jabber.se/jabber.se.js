@@ -14,8 +14,8 @@ Site.prototype.$set_current = function(id) {
     // set active menu element
     if (id)
     {
-	$("#menu > ul > li > .current").removeClass("current");
-	$(id).addClass("current");
+        $("#menu > ul > li > .current").removeClass("current");
+        $(id).addClass("current");
     }
 }
 
@@ -129,8 +129,8 @@ Site.prototype.$state_panel_hide = function(state_panel) {
 
     // animate transition
     active.slideToggle('fast', function() {
-	    	panel.fadeOut('fast');
-	    });
+            panel.fadeOut('fast');
+            });
 }
 
 /*
