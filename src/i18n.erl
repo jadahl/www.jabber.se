@@ -17,8 +17,8 @@
 %
 
 -module(i18n).
--export([start/0, get_language/0, set_language/1, t/1, t/2, alias/1,
-        read_dir/1, read_translations/0,
+-export([start/0, stop/0, get_language/0, set_language/1, t/1, t/2, alias/1,
+        read_dir/1, read_translations/0, is_lang/1,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
     ]).
 -behaviour(gen_server).
@@ -32,6 +32,9 @@
 
 start() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+stop() ->
+    gen_server:cast(?MODULE, close).
 
 get_language() ->
     case get(current_language) of
@@ -175,6 +178,8 @@ handle_call(Request, From, State) ->
     ?LOG_WARNING("Unexpected call from ~p. Request = ~p, State = ~p", [From, Request, State]),
     {noreply, State}.
 
+handle_cast(close, State) ->
+    {stop, normal, State};
 handle_cast(Request, State) ->
     ?LOG_WARNING("Unexpected cast. Request = ~p, State = ~p", [Request, State]),
     {noreply, State}.

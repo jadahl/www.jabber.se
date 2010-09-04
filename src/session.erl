@@ -18,7 +18,7 @@
 
 -module(session).
 -include_lib("nitrogen/include/wf.inc").
--export([event/1, login_panel/0]).
+-export([authenticated/0, event/1, page_init/0]).
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
@@ -30,143 +30,72 @@
 
 -define(LOGIN_DIALOG_ID, login_dialog).
 
-%%
+%
+% Utils
+%
+
+authenticated() ->
+    wf:user() /= undefined.
+
+%
 % Events
-%%
+%
 
 event(login) ->
     wf:wire(#event{target = login_dialog, actions = #appear{}});
 
 event(do_login) ->
-    % authenticate
-    Username = wf:q(login_username),
-    Password = wf:q(login_password),
-    case authenticate(Username, Password) of
-        granted ->
-            wf:user(Username),
-            wf:wire(#state_panel_set{target = login_link, key = authenticated}),
-            wf:wire(#state_panel_set{target = login_panel, animate = true, key = success});
-        _ ->
-            wf:wire(#state_panel_set{target = login_panel, animate = true, key = fail})
+    case wf:user() of
+        User when is_list(User) ->
+            ?LOG_WARNING("Trying to login while already authenticated as '~s'", [User]);
+        undefined ->
+            login()
     end;
 
 event(do_logout) ->
     wf:clear_session(),
+    wf:wire(admin_panel, #fade{actions = #update{type = remove}}),
     wf:wire(#state_panel_set{target = login_link, key = anonymous});
 
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
 
 %
-% Panels
+% Hook
 %
 
-panel_login() ->
-    [
-        #h3{text = ?T(msg_id_login)},
-        #p{},
-        #label{text = ?T(msg_id_login_username)},
-        #textbox{id = login_username, class = login_input, next = login_password},
-        #p{},
-        #label{text = ?T(msg_id_login_password)},
-        #password{id = login_password, class = login_input, next = login_login},
-        #p{},
-        #panel{id = login_status, body = button_panel()}
-    ].
+page_init() ->
+    case wf:user() of
+        undefined ->
+            ok;
+        _ ->
+            wf:insert_top(menu_bar_center, session_view:admin_panel()),
+            wf:wire(#show{target = admin_panel})
+    end.
 
-panel_progress() ->
-    [
-        #p{class = center, body = #image{image = ?SPINNER_IMAGE, id = login_spinner}}
-    ].
+%
+% Login
+%
 
-panel_success() ->
-    [
-        #h3{class = center, text = ?T(msg_id_login_success)},
-        #panel{
-            class = center,
-            body = #button{
-                text = ?T(msg_id_close),
-                actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
-            }
-        }
-    ].
+login() ->
+    % authenticate
+    Username = wf:q(login_username),
+    Password = wf:q(login_password),
+    case authenticate(Username, Password) of
+        granted ->
+            % Set session user value
+            wf:user(Username),
 
-panel_fail() ->
-    [
-        #h3{class = center, text = ?T(msg_id_login_fail)},
-        #panel{
-            class = center,
-            body = #button{
-                text = "Close",
-                actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
-            }
-        }
-    ].
+            % Update elements
+            wf:wire(#state_panel_set{target = login_link, key = authenticated}),
+            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success}),
+            wf:insert_bottom(menu_bar_center, session_view:admin_panel()),
+            wf:wire(#appear{target = admin_panel, speed = "slow"});
+        _ ->
+            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = fail})
+    end.
 
-button_panel() ->
-    [
-        #button{
-            id = login_login,
-            text = ?T(msg_id_login),
-            actions = #event{type = click, actions = #state_panel_set{target = login_panel, validate_group = login_login, key = progress}},
-            delegate = session,
-            postback = do_login
-        },
-        " ",
-        #button{
-            id = login_cancel,
-            text = ?T(msg_id_cancel),
-            actions = #event{type = click, actions = #state_panel_hide{target = login_panel}}
-        }
-    ].
 
-login_panel() ->
-    SubBodies = [
-        {login, panel_login()},
-        {progress, panel_progress()},
-        {success, panel_success()},
-        {fail, panel_fail()}
-    ],
-
-    LoginLinkBodies = [
-        {anonymous, 
-            #link{
-                class = login_link,
-                text = ?T(msg_id_login),
-                actions = #event{type = click, actions = #state_panel_show{target = login_panel, key = login}},
-                delegate = session,
-                postback = login}},
-        {authenticated,
-            #link{
-                class = login_link,
-                text = ?T(msg_id_logout),
-                delegate = session,
-                postback = do_logout}}
-        ],
-    Body = 
-    [
-        #ui_state_panel{
-            id = login_panel,
-            class = login_panel,
-            bodies = SubBodies,
-            init_state = login
-        },
-        #ui_state_panel{
-            id = login_link,
-            bodies = LoginLinkBodies,
-            visible = true,
-            init_state = ?EITHER(wf:user() == undefined, anonymous, authenticated)
-        }
-    ],
-
-    % login detail validators
-    wf:wire(login_login, login_username, #validate{validators = [
-                #is_required{text = "*"}
-            ]}),
-    wf:wire(login_login, login_password, #validate {validators = [
-                #is_required{text = "*"}
-            ]}),
-    ?UI(Body).
 
 %
 % Authentication

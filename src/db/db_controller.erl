@@ -20,12 +20,18 @@
 -behaviour(gen_server).
 -export([
         start/0, stop/0, code_change/3, handle_call/3, handle_cast/2, handle_info/2, init/1, terminate/2,
-        get_view/2, get_view/3, get_database/0, save_doc/2, save_doc/3, save_docs/2, save_docs/3
+        get_database/0,
+        get_view/2, get_view/3, 
+        open_doc/1, open_doc/2,
+        save_doc/1, save_doc/2,
+        render_and_save/2, render_and_save/3,
+        render_and_save_many/2, render_and_save_many/3,
+        delete_doc/1,  delete_doc/2, delete_doc_by_id/1, delete_doc_by_id/2
     ]).
 
 -include("include/utils.hrl").
--include("include/cms/db.hrl").
--include("src/cms/old_content.hrl").
+-include("include/db/db.hrl").
+-include("src/db/old_content.hrl").
 
 %
 % Control
@@ -59,7 +65,7 @@ init_database() ->
 %
 
 open_or_create_database(State) ->
-    ?LOG_INFO("Opening database", []),
+    ?LOG_INFO("Opening database connection", []),
     Connection = couchbeam_server:start_connection_link(),
     {Method, Database} = case couchbeam_db:open(Connection, ?COUCHDB_NAME) of
         not_found ->
@@ -68,12 +74,15 @@ open_or_create_database(State) ->
             {opened, ExistingDb}
     end,
     put(?DB_PID_KEY, Database),
-    {Method, State#db_state{connection = Connection, db =Database}}.
+    {Method, State#db_state{connection = Connection, db = Database}}.
 
 disconnect_database({Connection, Db}) ->
-    ?LOG_INFO("Closing down couchbream database", []),
     ?WHEN(Db, couchbeam_db:close(Connection, Db)),
     ?WHEN(Connection, couchbeam_server:close(Connection)).
+
+%
+% Views
+%
 
 get_view(ViewName, Params) ->
     get_view(ViewName, Params, get_database()).
@@ -86,16 +95,52 @@ get_view(ViewName, Params, Db) ->
         _ -> Res
     end.
 
-save_doc(RenderFun, Input) ->
-    save_doc(RenderFun, Input, get_database()).
-save_doc(RenderFun, Input, Db) ->
-    couchbeam_db:save_doc(Db, db_utils:render(RenderFun, Input)).
+%
+% Opening
+%
 
-save_docs(RenderFun, Inputs) ->
-    save_docs(RenderFun, Inputs, get_database()).
-save_docs(RenderFun, Inputs, Db) ->
-    [save_doc(RenderFun, Input, Db) || Input <- Inputs],
-    ok.
+open_doc(DocId) ->
+    open_doc(DocId, get_database()).
+open_doc(DocId, Db) when is_binary(DocId) ->
+    open_doc(binary_to_list(DocId), Db);
+open_doc(DocId, Db) when is_atom(DocId) ->
+    open_doc(atom_to_list(DocId), Db);
+open_doc(DocId, Db) when is_list(DocId) ->
+    ?DB_HANDLE_RESULT(couchbeam_db:open_doc(Db, DocId)).
+
+%
+% Saving
+%
+
+render_and_save_many(RenderFun, Inputs) ->
+    render_and_save_many(RenderFun, Inputs, get_database()).
+render_and_save_many(RenderFun, Inputs, Db) ->
+    lists:foreach(fun(Input) -> render_and_save(RenderFun, Input, Db) end, Inputs).
+
+render_and_save(RenderFun, Input) ->
+    render_and_save(RenderFun, Input, get_database()).
+render_and_save(RenderFun, Input, Db) ->
+    ?DB_HANDLE_RESULT(couchbeam_db:save_doc(Db, db_doc:render(RenderFun, Input))).
+
+save_doc(Doc) ->
+    save_doc(Doc, get_database()).
+save_doc(Doc, Db) ->
+    ?DB_HANDLE_RESULT(couchbeam_db:save_doc(Db, Doc)).
+
+%
+% Deleting
+%
+
+delete_doc(Doc) ->
+    delete_doc(Doc, get_database()).
+delete_doc(Doc, Db) ->
+    ?DB_HANDLE_RESULT(couchbeam_db:delete_doc(Db, Doc)).
+
+delete_doc_by_id(DocId) ->
+    delete_doc_by_id(DocId, get_database()).
+delete_doc_by_id(DocId, Db) ->
+    Doc = open_doc(DocId, Db),
+    delete_doc(Doc, Db).
 
 %
 % Setup
@@ -103,8 +148,10 @@ save_docs(RenderFun, Inputs, Db) ->
 
 setup_db(#db_state{db = Db} = DbState) ->
     ?LOG_INFO("Setting up db ('~p')", [DbState]),
-    couchbeam_db:save_doc(Db, ?DB_DESIGN_DOC),
+    ?DB_HANDLE_RESULT(couchbeam_db:save_doc(Db, ?DB_DESIGN_DOC)),
+    ?LOG_INFO("Saving old posts", []),
     db_post:save_posts(get_all_old(), Db),
+    ?LOG_INFO("Saving admin entry", []),
     db_user:save_user(?ADMIN_USER_ENTRY, Db),
     DbState.
 
@@ -129,7 +176,7 @@ gen_call(Call) ->
 % gen_server callbacks
 %
 
-init(#db_state{} = InitialState) ->
+init(InitialState) ->
     process_flag(trap_exit, true),
     couchbeam:start(),
     case open_or_create_database(InitialState) of

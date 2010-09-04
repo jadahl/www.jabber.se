@@ -1,6 +1,12 @@
 
 function Site()
 {
+    this.active_dialog = null;
+
+    this.live_post = null;
+
+    this.current_post = null;
+
     return this;
 }
 
@@ -10,7 +16,7 @@ var $Site = new Site();
  * Content management
  */
 
-Site.prototype.$set_current = function(id) {
+Site.prototype.$menu_set_current = function(id) {
     // set active menu element
     if (id)
     {
@@ -20,8 +26,7 @@ Site.prototype.$set_current = function(id) {
 }
 
 Site.prototype.$do_load_content = function(url, id) {
-    //$Site.$set_current(id);
-    this.$set_current(id);
+    this.$menu_set_current(id);
 
     // request content
     page.load_content(url);
@@ -79,8 +84,8 @@ Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_g
     }
 
     // retrieve current and next panel state
-    var active = $(state_panel + " > div > .state_panel_active");
-    var next = $(state_panel + " > div > " + key);
+    var active = $(state_panel + " > .state_panel_active");
+    var next = $(state_panel + " > " + key);
 
     // update active state
     active.removeClass("state_panel_active");
@@ -109,8 +114,8 @@ Site.prototype.$state_panel_show = function(key, state_panel) {
         return;
     }
 
-    var prev = $(state_panel + " > div > .state_panel_active");
-    var active = $(state_panel + " > div > " + key);
+    var prev = $(state_panel + " > .state_panel_active");
+    var active = $(state_panel + " > " + key);
 
     // update active state
     active.addClass("state_panel_active");
@@ -122,7 +127,7 @@ Site.prototype.$state_panel_show = function(key, state_panel) {
 Site.prototype.$state_panel_hide = function(state_panel) {
     // retrieve current and next panel state
     var panel = $(state_panel);
-    var active = $(state_panel + " > div > .state_panel_active");
+    var active = $(state_panel + " .state_panel_active");
 
     // update active state
     active.removeClass("state_panel_active");
@@ -165,21 +170,98 @@ Site.prototype.$set_atom_feed_icon = function(path, element) {
     var link = $(path);
     if (link.length == 0)
     {
-        var menu_bar_right = $('#menu_bar_right');
-        if (menu_bar_right.length == 0)
-        {
-            // template error
-            return;
-        }
-        else
-        {
-            menu_bar_right.append(element);
-        }
+        $('#menu_bar_right').append(element);
     }
     else
     {
         link.replaceWith(element);
     }
+}
+
+/*
+ * Overlay
+ */
+
+Site.prototype.$dialog_hide = function(dialog_id, callback) {
+    var dialog = null;
+    if (dialog_id)
+    {
+        dialog = $(dialog_id);
+    }
+    else
+    {
+        dialog = this.active_dialog;
+        this.active_dialog = null;
+    }
+
+    if (dialog && dialog.length == 0)
+    {
+        $Site.$overlay_hide(callback);
+    }
+    else if (dialog)
+    {
+        dialog.fadeOut('fast', function () {
+                dialog.remove();
+                $Site.$overlay_hide(callback);
+                });
+    }
+    else if (callback)
+    {
+        callback();
+    }
+}
+
+Site.prototype.$dialog_show = function(dialog_id, callback) {
+    if (this.active_dialog)
+    {
+        this.active_dialog = null;
+        dialog.fadeIn('fast', function() { $Site.show_dialog(dialog_id, callback); });
+    }
+    else
+    {
+        var dialog = $(dialog_id);
+        this.active_dialog = dialog;
+        this.$overlay_show(function() { dialog.fadeIn('fast', function() { dialog.trigger('foo'); if (callback) callback(); }); });
+    }
+}
+
+Site.prototype.$overlay_hide = function(callback) {
+    if (this.active_dialog)
+    {
+        this.$dialog_hide(null, callback);
+    }
+    else
+    {
+        this.overlay.fadeOut('fast', callback);
+    }
+}
+
+Site.prototype.$set_overlay_size = function() {
+    this.overlay.height($(document).height());
+    this.overlay.width($(document).width());
+}
+
+Site.prototype.$overlay_show = function(callback) {
+    this.$set_overlay_size();
+    this.overlay.fadeIn('fast', callback);
+}
+
+/*
+ *
+ */
+
+Site.prototype.$new_post = function() {
+    this.current_post = new Post();
+}
+
+/*
+ * Init
+ */
+
+Site.prototype.$on_document_loaded = function() {
+    // initialize overlay
+    this.overlay = $('#overlay');
+    this.overlay.click(function() { $Site.$overlay_hide(); });
 }
 
 /*
@@ -189,3 +271,13 @@ Site.prototype.$set_atom_feed_icon = function(path, element) {
 onpopstate = function(event) {
     $Site.$history_event(window.location.hash, event.state);
 }
+
+/*
+ * Init
+ */
+
+$(document).ready(function() { $Site.$on_document_loaded(); });
+
+// overlay resizing
+$(window).resize(function() { $Site.$set_overlay_size(); });
+

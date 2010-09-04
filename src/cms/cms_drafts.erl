@@ -16,30 +16,27 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(web_feed).
--include("include/utils.hrl").
--include("include/menu.hrl").
--export([main/0]).
+-module(cms_drafts).
+-export([selected/0, left/0, title/0, body/0, hook/0]).
+-behaviour(gen_cms_admin_module).
 
 %
-% Document entry points
+% Admin control
 %
 
-main() ->
-    Path = wf:path_info(),
-    case menu:get_element_by_path(Path, menu:get_menu_elements()) of
-        nothing ->
-            web_error:main();
-        MenuElement ->
-            Module = MenuElement#menu_element.module,
-            try
-                Body = Module:atom(),
-                wf:content_type("application/atom+xml"),
-                Body
-            catch
-                error:undef ->
-                    ?LOG_WARNING("No atom feed for module \"~p\"", [Module]),
-                    web_error:main()
-            end
-    end.
+selected() ->
+    ok.
+
+left() ->
+    ok.
+
+title() ->
+    cms_drafts_view:title().
+
+body() ->
+    Drafts = db_post:get_drafts_by(wf:user()),
+    cms_drafts_view:body(Drafts).
+
+hook() ->
+    ok.
 

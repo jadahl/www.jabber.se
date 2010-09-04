@@ -21,7 +21,7 @@
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
--include("include/cms/db.hrl").
+-include("include/db/db.hrl").
 
 %
 % Parse
@@ -68,7 +68,7 @@ render_user(#db_user{
 %
 
 get_password_hash_for(User) ->
-    Rows = db_utils:view_rows(db_controller:get_view("user_login", [{<<"key">>, list_to_binary(User)}])),
+    Rows = db_doc:view_rows(db_controller:get_view("user_login", [{<<"key">>, list_to_binary(User)}])),
     UserBin = list_to_binary(User),
     case Rows of
         [{Id, _Key, PasswordHash}] when Id == UserBin ->
@@ -79,5 +79,5 @@ get_password_hash_for(User) ->
     end.
     
 save_user(User, Db) ->
-    db_controller:save_doc(fun render_user/1, User, Db).
+    db_controller:render_and_save(fun render_user/1, User, Db).
 

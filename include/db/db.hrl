@@ -25,7 +25,9 @@
 -define(DB_VIEWS,
     {[
             {<<"posts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(0 - doc.ts, doc); }">>}]}},
-            {<<"news">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.tags.indexOf(\"news\") >= 0) emit(0 - doc.ts, doc); }">>}]}},
+            {<<"posts_by">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") { for(author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
+            {<<"drafts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"draft\") { for (author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
+            {<<"news">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"public\" && doc.tags.indexOf(\"news\") >= 0) emit(0 - doc.ts, doc); }">>}]}},
             {<<"posts_by_id">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(doc._id, doc); }">>}]}},
             {<<"user_login">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"user\") emit(doc._id, doc.password_hash); }">>}]}}
     ]}).
@@ -43,11 +45,12 @@
 
 -record(db_post, {
         id,
-        title,
+        state = draft,
+        title = "",
         timestamp,
-        tags,
-        authors,
-        body
+        tags = [],
+        authors = [],
+        body = ""
     }).
 
 -record(db_user, {
@@ -57,5 +60,11 @@
         email,
         jid
     }).
+
+%
+% Helper macros
+%
+
+-define(DB_HANDLE_RESULT(Expr), db_utils:throw_error_if_not_doc(Expr)).
 
 -endif.

@@ -43,7 +43,7 @@ load_content(Module, Options) ->
             ?LOG_WARNING("load_content called for nonexisting module \"~p\",", [Module]);
         MenuElement ->
             try
-                Body = {Module, body}(),
+                Body = Module:body(),
                 change_body(MenuElement, Body, Options)
             catch
                 error:undef ->
@@ -72,7 +72,7 @@ site_api() ->
 
 get_feed_url(Module) ->
     try
-        case {Module, atom_url}() of
+        case Module:atom_url() of
             {ok, AtomUrl} ->
                 #link{
                     class = ?ATOM_ICON_CLASS,
@@ -121,10 +121,7 @@ change_body(MenuElement, Body, Options) ->
     wf:wire(#js_call{fname = "$Site.$set_title", args = [menu:full_title(MenuElement)]}),
 
     % set current menu element
-    wf:wire(#js_call{fname = "$Site.$set_current", args = [MenuElement#menu_element.module]}),
-
-    % sed feed icon
-    set_feed(MenuElement#menu_element.module),
+    wf:wire(#js_call{fname = "$Site.$menu_set_current", args = [MenuElement#menu_element.module]}),
 
     % add history entry
     wf:wire(#js_call{fname = "$Site.$history_push", args = [menu:full_title(MenuElement), menu:full_url(MenuElement)]}),
@@ -247,6 +244,13 @@ set_language(Lang) ->
     i18n:set_language(Lang).
 
 %
+% Hooks
+%
+
+page_init_hooks() ->
+    [Module:page_init() || Module <- ?HOOKS].
+
+%
 % Events
 %
 
@@ -269,7 +273,9 @@ event(Event) ->
 api_event(init_content, init_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("init_content(~p);", [Fragment]),
     process_env(),
-    process_fragment(Fragment);
+    process_fragment(Fragment),
+
+    page_init_hooks();
 api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("load_content(~p);", [Fragment]),
     process_env(),
@@ -321,3 +327,5 @@ body() ->
 foot() ->
     [].
 
+dialogs() ->
+    #panel{id = dialogs}.

@@ -16,12 +16,16 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(db_utils).
--export([binary_to_atom/1, atom_to_binary/1, parse/3, render/2, view_rows/1,
-        finalize_entry/1
+-module(db_doc).
+-export([
+        binary_to_atom/1, atom_to_binary/1,
+        parse_doc/3, parse_rows/3, parse_row/3, render/2, view_rows/1,
+        finalize_entry/1,
+        edit_entry/3, push_to_entry/3, pop_from_entry/3, edit_or_add_entry/3,
+        get_rev/1, set_rev/2
     ]).
 
--include("include/cms/db.hrl").
+-include("include/db/db.hrl").
 
 %
 % Utilities
@@ -34,7 +38,7 @@ atom_to_binary(Atom) ->
     list_to_binary(atom_to_list(Atom)).
 
 %
-% Parsing
+% Parse helpers
 %
 
 simplify_entries(Binary) when is_binary(Binary) ->
@@ -47,10 +51,18 @@ simplify_entries1({Key, {Values}}) when is_list(Values) ->
 simplify_entries1({Key, Value}) ->
     {binary_to_atom(Key), Value}.
 
-parse(ParseFun, InitData, Rows) when is_list(Rows) ->
-    [{Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))} || {Key, Id, {Entries}} <- Rows];
-parse(ParseFun, InitData, {Key, Id, {Entries}}) ->
+%
+% Parsing
+%
+
+parse_doc(ParseFun, InitData, {Entries}) when is_list(Entries) ->
+    lists:foldl(ParseFun, InitData, simplify_entries(Entries)).
+
+parse_row(ParseFun, InitData, {Key, Id, {Entries}}) ->
     {Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))}.
+
+parse_rows(ParseFun, InitData, Rows) when is_list(Rows) ->
+    [{Key, Id, lists:foldl(ParseFun, InitData, simplify_entries(Entries))} || {Key, Id, {Entries}} <- Rows].
 
 %
 % Render
@@ -70,6 +82,7 @@ finalize_entry({K, V}) ->
 finalize_value(Value) ->
     case Value of
         undefined -> undefined;
+        _ when is_binary(Value) -> Value;
         _ when is_integer(Value) -> list_to_binary(integer_to_list(Value));
         _ when is_float(Value) -> list_to_binary(float_to_list(Value));
         _ when is_atom(Value) -> atom_to_binary(Value);
@@ -103,3 +116,36 @@ render(RenderFun, InputData) ->
 
 view_rows({_, _, _, Rows}) -> Rows.
 
+%
+% Reader helpers
+%
+
+get_entry(Key, {Entries}) ->
+    case lists:keysearch(utils:to_binary(Key), 1, Entries) of
+        {value, {_, Value}} -> Value;
+        _ -> erlang:error({key_not_found, Key})
+    end.
+
+get_rev(Doc) ->
+    get_entry('_rev', Doc).
+
+%
+% Edit helpers
+%
+
+edit_or_add_entry(Key, Value, {Entries}) ->
+    KeyB = utils:to_binary(Key),
+    {utils:keyreplaceoraddwith(KeyB, 1, fun(_) -> {KeyB, finalize_value(Value)} end, Entries)}.
+
+edit_entry(Key, Value, {Entries}) ->
+    KeyB = utils:to_binary(Key),
+    {utils:keyreplacewith(KeyB, 1, fun(_) -> {KeyB, finalize_value(Value)} end, Entries)}.
+
+push_to_entry(Key, Value, {Entries}) ->
+    {utils:keyreplacewith(utils:to_binary(Key), 1, fun({_, Values}) -> {Key, Values ++ [finalize_value(Value)]} end, Entries)}.
+
+pop_from_entry(Key, Value, {Entries}) ->
+    {utils:keyreplacewith(utils:to_binary(Key), 1, fun({_, Values}) -> {Key, Values -- [finalize_value(Value)]} end, Entries)}.
+
+set_rev(Rev, Doc) ->
+    edit_or_add_entry('_rev', Rev, Doc).

@@ -32,6 +32,17 @@
 -define(T(Id), i18n:t(Id)).
 
 %
+% CSS styles
+%
+% HIDDEN: display: none
+% INLINE: display: inline
+% BLOCK: display: block
+%
+-define(HIDDEN, "display: none").
+-define(INLINE, "display: inline").
+-define(BLOCK, "display: block").
+
+%
 % ?UI(UI) -> Elements
 %   UI = ui(),
 %   Elements = [element()]
@@ -79,6 +90,11 @@
             ?LOG_ERROR("Cought exception '~p'~n", [Exception]),
             {error, E2}
     end).
+
+%
+% AUTH(Statement) -> Statement
+%
+-define(AUTH(Statement), ?WHEN(session:authenticated(), Statement)).
 
 %
 % Logging

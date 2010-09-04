@@ -16,30 +16,17 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(web_feed).
--include("include/utils.hrl").
--include("include/menu.hrl").
--export([main/0]).
+-module(gen_cms_admin_module).
 
-%
-% Document entry points
-%
+-export([behaviour_info/1]).
 
-main() ->
-    Path = wf:path_info(),
-    case menu:get_element_by_path(Path, menu:get_menu_elements()) of
-        nothing ->
-            web_error:main();
-        MenuElement ->
-            Module = MenuElement#menu_element.module,
-            try
-                Body = Module:atom(),
-                wf:content_type("application/atom+xml"),
-                Body
-            catch
-                error:undef ->
-                    ?LOG_WARNING("No atom feed for module \"~p\"", [Module]),
-                    web_error:main()
-            end
-    end.
-
+behaviour_info(callbacks) ->
+    [
+        {selected, 0}, % hook for when admin module was selected
+        {left,  0}, % hook for when user navigated away
+        {title, 0}, % return title of the module
+        {body, 0}, % return the body of the module
+        {hook, 0} % hook for when the body has been wired
+    ];
+behaviour_info(_Other) ->
+    undefined.

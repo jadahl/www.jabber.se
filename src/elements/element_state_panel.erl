@@ -16,8 +16,8 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(ui_state_panel).
--export([render_ui/1]).
+-module(element_state_panel).
+-export([render_element/1]).
 
 -include_lib("nitrogen/include/wf.hrl").
 
@@ -28,25 +28,29 @@
 % HTML rendering
 %
 
-render_ui(#ui_state_panel{id = Id, bodies = Bodies, visible = Visible, init_state = InitState} = UI) ->
+render_element(#state_panel{
+        id = Id,
+        class = Class,
+        inline = Inline,
+        bodies = Bodies,
+        visible = Visible,
+        init_state = InitState}) ->
     VisibleStyle = ?WHEN_S(not Visible, "display: none"),
+    InlineClass = ?EITHER(Inline, "state_panel_inline", "state_panel_block"),
     #panel{
-        class = [state_panel_container],
         id = Id,
         style = VisibleStyle,
-        body = #panel{
-            class = [state_panel, UI#ui_state_panel.class],
-            body = lists:map(fun ({Key, Value}) ->
-                        IsInit = InitState == Key,
-                        #panel{
-                            id = Key,
-                            class = ?EITHER(IsInit, [state_panel_active, state_panel_alt], state_panel_alt),
-                            body = Value,
-                            style = case {IsInit, Visible} of
-                                {true, true} -> "";
-                                _ -> "display: none"
-                            end}
-                            %style = ?WHEN_S(not IsInit, "display: none")}
-                end, Bodies)
-        }}.
+        class = [state_panel, InlineClass, Class],
+        body = lists:map(fun ({Key, Value}) ->
+                    IsInit = InitState == Key,
+                    #panel{
+                        id = Key,
+                        class = [InlineClass | ?EITHER(IsInit, [state_panel_active, state_panel_alt], state_panel_alt)],
+                        body = Value,
+                        style = case {IsInit, Visible} of
+                            {true, true} -> "";
+                            _ -> "display: none"
+                        end}
+            end, Bodies)
+    }.
 

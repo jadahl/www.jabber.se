@@ -16,6 +16,30 @@ a {
     text-decoration: none;
 }
 
+img {
+    border: none;
+}
+
+table {
+    width: 100%;
+}
+
+td {
+    padding: 5px;
+}
+
+input.textbox {
+    border: 1px solid white;
+}
+
+input.password {
+    border: 1px solid white;
+}
+
+textarea {
+    border: 2px solid #ffffff;
+}
+
 span.contact {
     font-weight: bold;
 }
@@ -51,6 +75,18 @@ ul.contact {
 /*
  * Basic elements
  */
+
+div.dyn_dialog_title div.wfid_corner {
+    top: 25px;
+    right: 20px;
+    position: absolute;
+    font-size: 28px;
+}
+
+.top_dialog a {
+    color: #f0f0f0;
+}
+
 
 div#page {
     width: 800px;
@@ -94,11 +130,15 @@ div#menu {
     bottom: 0px;
 }
 
+div.wfid_menu_bar_center {
+    padding: 5px;
+}
+
 div#menu_bar_right {
     position: absolute;
-    top: 0px;
+    bottom: 0px;
     right: 10px;
-    padding: 10px 10px 0px 10px;
+    padding: 10px 10px 5px 10px;
 }
 
 div#page_body {
@@ -109,6 +149,7 @@ div#page_body {
 }
 
 div#footer {
+    height: 14px;
     padding: 10px 20px 24px 20px;
     font-size: 12px;
     font-style: italic;
@@ -190,7 +231,6 @@ a.language_link:link {
     color: #f9f9f9;
 }
 
-
 a.language_link:visited {
     color: #5f5f5f;
     text-decoration: none;
@@ -218,15 +258,36 @@ a.atom_icon {
 }
 
 /****
- * UI elements
+ * Elements
  ****/
+
+/*
+ * State panel
+ */
+
+div.state_panel_inline {
+    display: inline;
+}
+
+div.state_panel_block {
+    display: block;
+}
 
 /*
  * Login link
  */
 
+a.login_panel_button {
+    color: white;
+}
+
+div.login_link_panel {
+    padding: 5px;
+}
+
 a.login_link {
     color: black;
+    font-size: 9px;
 }
 
 /*
@@ -238,20 +299,17 @@ a.login_link {
     width: 90%;
 }
 
-div.wfid_login_panel {
+div.wfid_login_dialog {
     position: relative;
+    z-index: 10;
 }
 
-div.wfid_login_panel > div > div { 
-    padding: 20px;
-}
-
-div.wfid_login_panel > div {
+div.wfid_login_dialog > div {
     /* position */
     position: absolute;
     width: 220px;
     right: 20px;
-    bottom: 40px;
+    top: 40px;
 
     /* style */
     -moz-border-radius: 20px;
@@ -265,12 +323,92 @@ div.wfid_login_panel > div {
     background-color: rgba(0, 0, 0, 0.8);
     color: #fff;
 
-    padding-bottom: 20px;
+    padding: 10px 20px 20px 20px;
 }
 
 
 img.wfid_login_spinner {
     padding-top: 40px;
+}
+
+/*
+ * Login panel
+ */
+
+div.wfid_admin_panel {
+    z-index: 10;
+
+    text-align: center;
+
+    width: 300px;
+    height: 18px;
+
+    padding: 5px;
+    margin-left: auto;
+    margin-right: auto;
+
+    /* style */
+    border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+
+    -moz-box-shadow: 3px 0px 3px #666;
+    -webkit-box-shadow: 3px 3px 3px #666;
+    box-shadow: 3px 3px 3px #666;
+}
+
+.wfid_admin_panel a {
+    color: white;
+}
+
+/*
+ * Admin panel
+ */
+
+.wfid_admin_dialog div.dyn_dialog_title {
+    text-align: center;
+}
+
+div.wfid_admin_dialog div.wfid_corner a {
+    color: rgba(128, 128, 128, 0.7);
+}
+
+div.wfid_admin_dialog div.wfid_corner a:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+ul.admin_modules {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    text-align: center;
+}
+
+.admin_modules li {
+    margin-left: 25%;
+    margin-right: 25%;
+    text-align: center;
+    display: block;
+    padding: 10px;
+}
+
+.admin_modules li:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+table.drafts_table tr:nth-child(2n) {
+    background-color: rgba(20, 20, 20, 0.5);
+}
+
+table.drafts_table tr:nth-child(2n+3) {
+    background-color: rgba(40, 40, 40, 0.5);
+}
+
+table.drafts_table tr:nth-child(n+2):hover {
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 /*
@@ -290,3 +428,111 @@ span.blog_by {
     color: #a0a0a0;
 }
 
+/*
+ * Top dialog (in front of page)
+ */
+
+div#overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+div.wfid_dialogs {
+    width: 100%;
+}
+
+div.top_dialog {
+    position: absolute;
+
+    z-index: 40;
+    top: 50px;
+    left: 18.5%;
+    width: 60%;
+
+    margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    /* style */
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+
+    -moz-box-shadow: 3px 3px 3px #666;
+    -webkit-box-shadow: 3px 3px 3px #666;
+    box-shadow: 3px 3px 3px #666;
+
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+
+    padding: 10px 20px 20px 20px;
+}
+
+img.close_button {
+    position: relative;
+    float: left;
+    display: inline;
+    top: -14px;
+    left: -24px;
+}
+
+
+/*
+ * Post dialog
+ */
+
+.wfid_post_dialog label {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.wfid_post_dialog .wfid_post_dialog_subject_input {
+    width: 100%;
+}
+
+.wfid_post_dialog .wfid_post_dialog_tag_input, .wfid_post_dialog .wfid_post_dialog_tag_add_button {
+    width: 70px;
+}
+
+.wfid_post_dialog .ui-menu {
+    -moz-border-radius-bottomleft: 4px;
+    -moz-border-radius-bottomright: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+    -webkit-border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+
+    /*background-color: rgba(140, 140, 140, 0.9);*/
+    background-color: rgba(40, 40, 40, 0.95);
+    color: white;
+}
+
+.wfid_post_dialog .ui-menu-item a.ui-state-hover,
+.wfid_post_dialog .ui-menu-item a.ui-state-active {
+    background-color: rgb(30, 30, 30);
+}
+
+textarea.wfid_post_dialog_text_area {
+    width: 100%;
+    height: 170px;
+    max-height: 260px;
+}
+
+a.post_dialog_tag {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+
+    padding: 4px;
+    margin: 4px;
+
+    font-size: 10px;
+    background: rgba(200, 200, 200, 0.8);
+    color: black;
+}
+
+a:hover.post_dialog_tag {
+    background: rgba(250, 150, 150, 0.8);
+}

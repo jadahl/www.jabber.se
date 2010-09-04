@@ -16,11 +16,12 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--include("include/cms/db.hrl").
+-include("include/db/db.hrl").
 
 -define(OLD_CONTENT,
     [#db_post{
             timestamp = 1268486587, %%  ~ 2010-03-13 14:23
+            state = public,
             authors = ["Jonas"],
             title = {[
                     {"en_US", "New Website!"},
@@ -33,6 +34,7 @@
             tags = ["news"]},
         #db_post{
             timestamp = 1236930795, %% 2009-11-28 13:19
+            state = public,
             authors = ["Jonas"],
             title = "Jabber.CD.Chalmers.Se",
             body = {[
@@ -42,6 +44,7 @@
             tags = ["news"]},
         #db_post{
             timestamp = 1236930795,
+            state = public,
             authors = ["Jonas"],
             title = {[
                     {"en_US", "Welcome to Jabber.se!"},
@@ -58,6 +61,7 @@
         %
         #db_post{
             id = "page_about",
+            state = public,
             authors = ["Jonas"],
             title = {[
                     {"en_US", "About"},
@@ -67,10 +71,5 @@
                     {"en_US", "<p>Jabber.se is a non profit public Jabber service. It's located at <a href=\"http://www.lysator.liu.se/\">Lysator Computer Society</a>, at Linköping University, Sweden. It was originaly started by a group of Chalmers students and was run at Chalmers Computer Society (Chalmers Datorförening, CD) between 2004 and 2008, until it was moved to Lysator, due to loss of the computer hall, where it has been running ever since.</p><p>Jabber.se is open for any one to use and is completely free. All software run on Jabber.se is Open Source and Free Software.</p><br/><h3>Contact</h3><span class=\"contact\">Chat room</span><ul><li>Talks - <a href=\"xmpp://talks@conference.jabber.se?join\">talks@conference.jabber.se</a></li></ul><span class=\"contact\">Administrators (via Jabber)</span><ul><li><a href=\"xmpp:jonas@jabber.se\">jonas@jabber.se</a></li><li><a href=\"legoscia@jabber.cd.chalmers.se\">legoscia@jabber.cd.chalmers.se</a></li></ul>"},
                     {"sv_SE", "<p>Jabber.se är en ideell publik Jabbertjänst. Den körs hos <a href=\"http://www.lysator.liu.se/\">Lysator</a>, en datorförening vid Linköpings universitet. Tjänsten var från början startad av en grupp Chalmersstudenter och kördes då på Chalmers Datorförening, mellan 2004 och 2008, tills den senare flyttades till Lysator, på grund av avsaknad av datorhall, där den har körts sen dess.</p><p>Jabber.se är öppen för vem som helst och det är helt gratis. All mjukvara som körs på Jabber.se är dessutom fri och av öppen källkod.</p><br/><h3>Kontakt</h3><span class=\"contact\">Chatrum</span><ul><li>Talks - <a href=\"xmpp://talks@conference.jabber.se?join\">talks@conference.jabber.se</a></li></ul><span class=\"contact\">Administratörer (via Jabber)</span><ul><li><a href=\"xmpp:jonas@jabber.se\">jonas@jabber.se</a></li><li><a href=\"legoscia@jabber.cd.chalmers.se\">legoscia@jabber.cd.chalmers.se</a></li></ul>"}]}
         }
-
-
-
-
     ]).
-
 

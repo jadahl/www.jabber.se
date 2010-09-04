@@ -16,36 +16,25 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(action_state_panel).
--export([render_action/1, set_action/4, show_action/2, hide_action/1]).
+-module(action_autocomplete).
+-export([render_action/1]).
 
 -include("include/ui.hrl").
 
-%
-% Render
-%
-
-render_action(#state_panel_set{
+render_action(#autocomplete{
         target = Target,
-        key = Key,
-        animate = Animate,
-        validate_group = ValidateGroup}) ->
-    set_action(Key, Animate, ValidateGroup, Target);
-render_action(#state_panel_show{target = Target, key = Key}) ->
-    show_action(Key, Target);
-render_action(#state_panel_hide{target = Target}) ->
-    hide_action(Target).
-
-%
-% API
-%
-
-set_action(Key, Animate, ValidateGroup, Id) ->
-    #js_call{fname = "$Site.$state_panel_set", args = [Id, Key, Animate, ValidateGroup]}.
-
-show_action(Key, Id) ->
-    #js_call{fname = "$Site.$state_panel_show", args = [Key, Id]}.
-
-hide_action(Id) ->
-    #js_call{fname = "$Site.$state_panel_hide", args = [Id]}.
+        method = Method,
+        alternatives = Alternatives}) ->
+    case Method of
+        enable ->
+            #jquery_cast{
+                target = Target,
+                cast = autocomplete,
+                arg = {[{source, [list_to_binary(A) || A <- Alternatives]}]}};
+        destroy ->
+            #jquery_cast{
+                target = Target,
+                cast = autocomplete,
+                arg = destroy}
+    end.
 

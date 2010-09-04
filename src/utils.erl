@@ -20,11 +20,30 @@
 -include_lib("nitrogen/include/wf.inc").
 
 -include("include/utils.hrl").
--export([time_to_iso8601/1, to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3, forall/2]).
+-export([
+        ts_to_date_s/1, ts_to_date/1, ts_to_hour_min/1, time_to_iso8601/1, to_binary/1, to_string/1,
+        sub_id/2,
+        to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
+    ]).
 
 %
 % Converters
 %
+
+ts_to_date_s(TS) when is_integer(TS) ->
+    {{Year, Month, Day}, _} = ts_to_date(TS),
+    io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B", [Year, Month, Day]).
+
+ts_to_date(TS) ->
+    Ms = trunc(TS / 1000000), 
+    Now = {Ms, TS - (Ms * 1000000), 0},
+    calendar:now_to_universal_time(Now).
+
+
+ts_to_hour_min(TS) ->
+    Minute = (TS div 60) rem 60,
+    Hour = (TS div (60*60)) rem 24,
+    io_lib:format("~2.10.0B:~2.10.0B", [Hour, Minute]).
 
 time_to_iso8601(Time) ->
     Ms = trunc(Time / 1000000), 
@@ -32,6 +51,37 @@ time_to_iso8601(Time) ->
     {{Year, Month, Day}, {Hour, Min, Sec}} = calendar:now_to_universal_time(Now),
     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
             [Year, Month, Day, Hour, Min, Sec])).
+
+to_binary(List) when is_list(List) ->
+    list_to_binary(List);
+to_binary(Atom) when is_atom(Atom) ->
+    list_to_binary(atom_to_list(Atom));
+to_binary(Float) when is_float(Float) ->
+    list_to_binary(float_to_list(Float));
+to_binary(Integer) when is_integer(Integer) ->
+    list_to_binary(integer_to_list(Integer));
+to_binary(Binary) when is_binary(Binary) ->
+    Binary.
+
+to_string(Binary) when is_binary(Binary) ->
+    binary_to_list(Binary);
+to_string(Atom) when is_atom(Atom) ->
+    atom_to_list(Atom);
+to_string(Float) when is_float(Float) ->
+    float_to_list(Float);
+to_string(Integer) when is_integer(Integer) ->
+    integer_to_list(Integer);
+to_string(List) when is_list(List) ->
+    List.
+
+%
+% Ids
+%
+
+sub_id(Parent, Child) when is_atom(Parent) and is_atom(Child) ->
+    list_to_atom(atom_to_list(Parent) ++ "." ++ atom_to_list(Child));
+sub_id(Parent, Child) ->
+    [wf_render_actions:normalize_path(Parent), " > ", wf_render_actions:normalize_path(Child)].
 
 %
 % XML
@@ -119,3 +169,22 @@ forall(Fun, [Item | Items]) ->
 forall(_Fun, []) ->
     ok.
 
+keyreplacewith(Key, N, Fun, [Tuple | TupleList]) ->
+    if
+        element(N, Tuple) =:=  Key ->
+            [Fun(Tuple) | TupleList];
+        true ->
+            [Tuple | keyreplacewith(Key, N, Fun, TupleList)]
+    end;
+keyreplacewith(_, _, _, []) ->
+    [].
+
+keyreplaceoraddwith(Key, N, Fun, [Tuple | TupleList]) ->
+    if
+        element(N, Tuple) =:=  Key ->
+            [Fun(Tuple) | TupleList];
+        true ->
+            [Tuple | keyreplaceoraddwith(Key, N, Fun, TupleList)]
+    end;
+keyreplaceoraddwith(_, _, Fun, []) ->
+    [Fun(none)].

@@ -31,7 +31,8 @@ start() ->
 
 	SC = #sconf {
 		docroot = "./wwwroot",
-		port=?PORT,
+		port = ?PORT,
+        listen = {0, 0, 0, 0},
 		appmods = [{"/web", ?SITE_APP}]
 	},
 	DefaultGC = yaws_config:make_default_gconf(false, Id),

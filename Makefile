@@ -1,6 +1,6 @@
 compile: 
 	mkdir -p ebin test_ebin
-	erl -make
+	erl -pa ebin -make
 	
 clean:
 	rm -rf ./ebin/*.beam
@@ -15,6 +15,7 @@ merge_translations:
 
 test:
 	@erl \
+		-noshell \
 	    -name nitrogen_test@localhost \
 	    -pa ./ebin -pa ./test_ebin -pa ./include \
 	    -pa lib/nitrogen/apps/simple_bridge/ebin -pa lib/nitrogen/apps/simple_bridge/include \
@@ -22,4 +23,9 @@ test:
 	    -pa lib/couchbeam/ebin -pa lib/couchbeam/include \
 	    -pa lib/couchbeam/deps/lhttpc/ebin \
 	    -s make all \
-	    -eval "tests:all_test()"
+	    -eval "tests:all_test()" \
+		-s init stop
+
+dialyzer:
+	dialyzer -c ebin/*.beam
+

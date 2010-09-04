@@ -5,13 +5,17 @@
 <!-- Nitrogen scripts -->
 <script src='/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/jquery-ui.js' type='text/javascript' charset='utf-8'></script>
-<script src='/nitrogen/livevalidation.js' type='text/javascript' charset='utf-8'></script>
+<!--<script src='/nitrogen/livevalidation.js' type='text/javascript' charset='utf-8'></script>-->
+<script src='/jabber.se/debug/livevalidation.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/nitrogen.js' type='text/javascript' charset='utf-8'></script>
 <script src='/nitrogen/bert.js' type='text/javascript' charset='utf-8'></script>
 <!-- Other scripts -->
+<script src='/jabber.se/jquery.textchange.min.js' type='text/javascript' charset='utf-8'></script>
 <script src='/jabber.se/jabber.se.js' type='text/javascript' charset='utf-8'></script>
+<script src='/jabber.se/post.js' type='text/javascript' charset='utf-8'></script>
 
 <link rel="stylesheet" href="/nitrogen/elements.css" type="text/css" media="screen" charset="utf-8"/>
+<link rel="stylesheet" href="/jabber.se/jquery-ui/jquery.ui.custom.css" type="text/css" media="screen" charset="utf-8"/>
 <link rel="stylesheet" href="/jabber.se/jabber.se.css" type="text/css" media="screen" charset="utf-8"/>
 
 [[[page:head()]]]
@@ -29,7 +33,15 @@
             <div id="menu">
                 [[[menu:menu()]]]
             </div>
+
+            <div class="wfid_menu_bar_center">
+                <!-- <div id="admin_panel">
+                    Create | Manage | Account
+                </div> -->
+            </div>
+
             <div id="menu_bar_right">
+                [[[session_view:login_panel()]]]
             </div>
         </div>
 
@@ -45,7 +57,6 @@
             </div>
             <div id="footer_right">
                 <div id="footer_right_container">
-                    [[[session:login_panel()]]]
                 </div>
             </div>
         </div>
@@ -60,6 +71,11 @@
     <script type="text/javascript">
         try{var pageTracker=_gat._getTracker("UA-8892321-1");pageTracker._trackPageview();}catch(err){}
     </script>
+
+        [[[page:dialogs()]]]
+
+    <div id="overlay" style='display: none'>
+    </div>
 
     <script type="text/javascript">
         [[[script]]]

@@ -16,18 +16,27 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(ui_dialog).
--export([render_ui/1]).
+-module(cms_manage).
+-export([selected/0, left/0, title/0, body/0, hook/0]).
+-behaviour(gen_cms_admin_module).
 
--include_lib("nitrogen/include/wf.hrl").
+%
+% Admin control
+%
 
--include("include/utils.hrl").
--include("include/ui.hrl").
+selected() ->
+    ok.
 
-render_ui(#ui_dialog{body = Body, id = Id, class = Class}) ->
-    #panel{
-        class = [dialog, Class],
-        id = Id,
-        body = #panel{class = dialog_content, body = Body}
-    }.
+left() ->
+    ok.
+
+title() ->
+    cms_manage_view:title().
+
+body() ->
+    Drafts = db_post:get_posts_by(wf:user()),
+    cms_manage_view:body(Drafts).
+
+hook() ->
+    ok.
 

@@ -19,23 +19,24 @@
 -ifndef(config_hrl).
 -define(config_hrl, true).
 
--ifndef(DEBUG).
--define(DEBUG, true).
--endif.
+%-ifndef(DEBUG).
+%-define(DEBUG, true).
+%-endif.
 
 -define(ENABLE_LOG_INFO, true).
 -define(ENABLE_LOG_WARNING, true).
 -define(ENABLE_LOG_ERROR, true).
 
 -define(MODULES, [db_controller, i18n]).
+-define(HOOKS, [session]).
 
 -define(TITLE, "Jabber.se").
 
 -define(TRANSLATIONS_DIRECTORY, "res/translations/").
 
 %-define(DEFAULT_LOCALE, 'en').
-%-define(DEFAULT_LOCALE, 'en_US').
--define(DEFAULT_LOCALE, 'sv_SE').
+-define(DEFAULT_LOCALE, 'en_US').
+%-define(DEFAULT_LOCALE, 'sv_SE').
 
 -define(ADMIN_USER_ENTRY,
     #db_user{
@@ -63,8 +64,14 @@
             module = about,
             title = msg_id_about,
             url = "#about"}
-    ]
-).
+    ]).
+
+-define(CMS_ADMIN_MODULES,
+    [
+        cms_post,
+        cms_drafts,
+        cms_manage
+    ]).
 
 -define(SPINNER_IMAGE, "/res/spinner.gif").
 
