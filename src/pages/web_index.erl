@@ -187,63 +187,6 @@ process_fragment(Fragment) ->
     ok.
 
 %
-% Query
-%
-
-query_params() ->
-    (wf_context:request_bridge()):query_params().
-
-query_lang() ->
-    Query = query_params(),
-    case lists:keysearch("lang", 1, Query) of
-        {value, {_, Lang}} ->
-            {lang, Lang};
-        _ ->
-            undefined
-    end.
-
-%
-% Cookies
-%
-
-cookie_lang() ->
-    case wf:cookie("lang") of
-        [] ->
-            wf:cookie("lang", i18n:get_language()),
-            cookie_init;
-        Lang ->
-            {lang, Lang}
-    end.
-
-
-%
-% Environment
-%
-
-env_language() ->
-    case cookie_lang() of
-        {lang, Lang} ->
-            i18n:set_language(Lang);
-        cookie_init ->
-            case query_lang() of
-                {lang, Lang} ->
-                    set_language(Lang);
-                _ ->
-                    ok
-            end
-    end.
-
-process_env() ->
-    % update language
-    env_language(),
-
-    ok.
-
-set_language(Lang) ->
-    wf:cookie("lang", Lang),
-    i18n:set_language(Lang).
-
-%
 % Hooks
 %
 
@@ -256,7 +199,7 @@ page_init_hooks() ->
 
 event({language, Lang}) ->
     % update cookie and set process dictionary
-    set_language(Lang),
+    session:language(Lang),
 
     % reload content
     wf:wire(#js_call{fname = "$Site.$reload_content"}),
@@ -272,13 +215,13 @@ event(Event) ->
 
 api_event(init_content, init_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("init_content(~p);", [Fragment]),
-    process_env(),
+    session:env(),
     process_fragment(Fragment),
 
     page_init_hooks();
 api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("load_content(~p);", [Fragment]),
-    process_env(),
+    session:env(),
     case menu:get_element_by_url(Fragment) of
         #menu_element{module = Module} ->
             load_content(Module, [animate]);
@@ -293,7 +236,7 @@ api_event(A, B, C) ->
 %
 
 main() ->
-    process_env(),
+    session:env(),
 
     % site api
     site_api(),

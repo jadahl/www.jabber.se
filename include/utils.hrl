@@ -94,7 +94,7 @@
 %
 % AUTH(Statement) -> Statement
 %
--define(AUTH(Statement), ?WHEN(session:authenticated(), Statement)).
+-define(AUTH(Statement), ?WHEN(session:authenticated(), (fun() -> session:env(), Statement end)())).
 
 %
 % Logging

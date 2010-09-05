@@ -18,7 +18,7 @@
 
 -module(session).
 -include_lib("nitrogen/include/wf.inc").
--export([authenticated/0, event/1, page_init/0]).
+-export([authenticated/0, event/1, env/0, language/1, page_init/0]).
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
@@ -29,6 +29,63 @@
 %
 
 -define(LOGIN_DIALOG_ID, login_dialog).
+
+%
+% Query
+%
+
+query_params() ->
+    (wf_context:request_bridge()):query_params().
+
+query_lang() ->
+    Query = query_params(),
+    case lists:keysearch("lang", 1, Query) of
+        {value, {_, Lang}} ->
+            {lang, Lang};
+        _ ->
+            undefined
+    end.
+
+%
+% Cookies
+%
+
+cookie_lang() ->
+    case wf:cookie("lang") of
+        [] ->
+            wf:cookie("lang", i18n:update_language()),
+            cookie_init;
+        Lang ->
+            {lang, Lang}
+    end.
+
+
+%
+% Environment
+%
+
+env_language() ->
+    case cookie_lang() of
+        {lang, Lang} ->
+            i18n:set_language(Lang);
+        cookie_init ->
+            case query_lang() of
+                {lang, Lang} ->
+                    language(Lang);
+                _ ->
+                    ok
+            end
+    end.
+
+env() ->
+    % update language
+    env_language(),
+
+    ok.
+
+language(Lang) ->
+    wf:cookie("lang", Lang),
+    i18n:set_language(Lang).
 
 %
 % Utils
@@ -45,6 +102,8 @@ event(login) ->
     wf:wire(#event{target = login_dialog, actions = #appear{}});
 
 event(do_login) ->
+    session:env(),
+
     case wf:user() of
         User when is_list(User) ->
             ?LOG_WARNING("Trying to login while already authenticated as '~s'", [User]);
@@ -53,6 +112,8 @@ event(do_login) ->
     end;
 
 event(do_logout) ->
+    session:env(),
+
     wf:clear_session(),
     wf:wire(admin_panel, #fade{actions = #update{type = remove}}),
     wf:wire(#state_panel_set{target = login_link, key = anonymous});

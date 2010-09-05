@@ -17,7 +17,7 @@
 %
 
 -module(i18n).
--export([start/0, stop/0, get_language/0, set_language/1, t/1, t/2, alias/1,
+-export([start/0, stop/0, get_language/0, update_language/0, set_language/1, t/1, t/2, alias/1,
         read_dir/1, read_translations/0, is_lang/1,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
     ]).
@@ -37,7 +37,10 @@ stop() ->
     gen_server:cast(?MODULE, close).
 
 get_language() ->
-    case get(current_language) of
+    get(current_language).
+
+update_language() ->
+    case get_language() of
         undefined ->
             set_language(?DEFAULT_LOCALE);
         CurrentLang ->
@@ -60,7 +63,15 @@ set_language(Lang) when is_atom(Lang) ->
     Lang2.
 
 t(Id) ->
-    Lang = get_language(),
+    Lang = case get_language() of
+        undefined ->
+            ?LOG_WARNING("Translation request with no language set for '~p'", [Id]),
+            % Uncomment the following line to get origin of call
+            %erlang:display(catch erlang:error(no_lang)),
+            ?DEFAULT_LOCALE;
+        Lang1 ->
+            Lang1
+    end,
     t(Id, Lang).
 
 t(Id, Lang) ->
