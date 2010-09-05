@@ -98,9 +98,6 @@ authenticated() ->
 % Events
 %
 
-event(login) ->
-    wf:wire(#event{target = login_dialog, actions = #appear{}});
-
 event(do_login) ->
     session:env(),
 

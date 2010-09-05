@@ -304,7 +304,7 @@ div.wfid_login_dialog {
     z-index: 10;
 }
 
-div.wfid_login_dialog > div {
+div.wfid_login_dialog {
     /* position */
     position: absolute;
     width: 220px;

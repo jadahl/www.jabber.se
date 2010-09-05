@@ -119,9 +119,7 @@ login_link() ->
                 #link{
                     class = login_link,
                     text = ?T(msg_id_login),
-                    actions = #event{type = click, actions = #state_panel_show{target = login_dialog, key = login}},
-                    delegate = session,
-                    postback = login}},
+                    actions = #event{type = click, actions = #state_panel_show{target = login_dialog, key = login}}}},
             {authenticated,
                 #link{
                     class = login_link,
