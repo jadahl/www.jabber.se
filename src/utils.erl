@@ -23,7 +23,8 @@
 -export([
         ts_to_date_s/1, ts_to_date/1, ts_to_hour_min/1, time_to_iso8601/1, to_binary/1, to_string/1,
         sub_id/2,
-        to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
+        to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5,
+        join/2, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
     ]).
 
 %
@@ -144,6 +145,11 @@ log(Level, Module, Line, Format, Args) ->
 %
 % Utility functions
 %
+
+join([], _) ->
+    [];
+join([X1 | Xs], D) ->
+    [X1 | [[D, X] || X <- Xs]].
 
 %
 % find_with(MaybeFun, Acc0, List) -> Acc1

@@ -146,7 +146,7 @@ login() ->
 
             % Update elements
             wf:wire(#state_panel_set{target = login_link, key = authenticated}),
-            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success}),
+            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success, actions = #focus{target = login_dialog_close_button}}),
             wf:insert_bottom(menu_bar_center, session_view:admin_panel()),
             wf:wire(#appear{target = admin_panel, speed = "slow"});
         _ ->

@@ -16,33 +16,20 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(feed).
--export([get_feed_links/0]).
-
+-module (element_ext_link).
+-export([reflect/0, render_element/1]).
 -include("include/ui.hrl").
 
--include("include/utils.hrl").
--include("include/menu.hrl").
+maybe(_Key, undefined) ->
+    [];
+maybe(Key, Value) ->
+    {Key, Value}.
 
-get_feed_link(#menu_element{
-        title = Title,
-        module = Module}) ->
-    try
-        case Module:atom_url() of
-            {ok, AtomUrl} ->
-                [#ext_link{
-                        url = AtomUrl,
-                        type = "application/atom+xml",
-                        rel = "alternate",
-                        title = ?T(Title) ++ " atom feed"}];
-            _ ->
-                []
-        end
-    catch
-        error:undef ->
-            []
-    end.
+reflect() -> record_info(fields, ext_link).
 
-get_feed_links() ->
-    lists:flatmap(fun get_feed_link/1, menu:get_menu_elements()).
-
+render_element(Record)->
+    wf_tags:emit_tag(link, lists:flatten([
+            maybe(href, Record#ext_link.url),
+            maybe(type, Record#ext_link.type),
+            maybe(rel, Record#ext_link.rel),
+            maybe(title, Record#ext_link.title)])).

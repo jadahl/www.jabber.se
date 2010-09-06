@@ -16,33 +16,11 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(feed).
--export([get_feed_links/0]).
+-module(action_site).
+-export([render_action/1]).
 
 -include("include/ui.hrl").
 
--include("include/utils.hrl").
--include("include/menu.hrl").
-
-get_feed_link(#menu_element{
-        title = Title,
-        module = Module}) ->
-    try
-        case Module:atom_url() of
-            {ok, AtomUrl} ->
-                [#ext_link{
-                        url = AtomUrl,
-                        type = "application/atom+xml",
-                        rel = "alternate",
-                        title = ?T(Title) ++ " atom feed"}];
-            _ ->
-                []
-        end
-    catch
-        error:undef ->
-            []
-    end.
-
-get_feed_links() ->
-    lists:flatmap(fun get_feed_link/1, menu:get_menu_elements()).
-
+render_action(#site_cast{cast = Cast, args = Args}) ->
+    CastS = utils:to_string(Cast),
+    #js_call{fname = "$Site.$" ++ CastS, args = Args}.

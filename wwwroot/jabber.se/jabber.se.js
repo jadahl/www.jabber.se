@@ -76,7 +76,7 @@ Site.prototype.$set_title = function(title) {
  * State panel
  */
 
-Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_group) {
+Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_group, callback) {
     // validate
     if (validate_group && Nitrogen.$validate_and_serialize(validate_group) == null)
     {
@@ -95,17 +95,18 @@ Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_g
     {
         // animate transition
         active.slideToggle('fast', function() {
-                next.slideToggle('fast');
+                next.slideToggle('fast', callback);
                 });
     }
     else
     {
         active.hide();
         next.show();
+        callback();
     }
 }
 
-Site.prototype.$state_panel_show = function(key, state_panel) {
+Site.prototype.$state_panel_show = function(key, state_panel, callback) {
     // retrieve the to be panel state
     var panel = $(state_panel);
 
@@ -121,10 +122,10 @@ Site.prototype.$state_panel_show = function(key, state_panel) {
     active.addClass("state_panel_active");
 
     // animate transition
-    panel.fadeIn('fast', function() { active.slideDown('fast'); });
+    panel.fadeIn('fast', function() { active.slideDown('fast', callback); });
 }
 
-Site.prototype.$state_panel_hide = function(state_panel) {
+Site.prototype.$state_panel_hide = function(state_panel, callback) {
     // retrieve current and next panel state
     var panel = $(state_panel);
     var active = $(state_panel + " .state_panel_active");
@@ -133,9 +134,7 @@ Site.prototype.$state_panel_hide = function(state_panel) {
     active.removeClass("state_panel_active");
 
     // animate transition
-    active.slideToggle('fast', function() {
-            panel.fadeOut('fast');
-            });
+    active.slideUp('fast', function() { panel.fadeOut('fast', callback); });
 }
 
 /*

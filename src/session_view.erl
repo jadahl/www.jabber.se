@@ -51,6 +51,7 @@ panel_success() ->
         #panel{
             class = center,
             body = #button{
+                id = login_dialog_close_button,
                 text = ?T(msg_id_close),
                 actions = #event{type = click, actions = #state_panel_hide{target = login_dialog}}
             }
@@ -119,7 +120,16 @@ login_link() ->
                 #link{
                     class = login_link,
                     text = ?T(msg_id_login),
-                    actions = #event{type = click, actions = #state_panel_show{target = login_dialog, key = login}}}},
+                    actions = #event{
+                        type = click,
+                        actions = #state_panel_show{
+                            target = login_dialog,
+                            key = login,
+                            actions = [#focus{target = login_username}, #select{target = login_username}]
+                        }
+                    }
+                }
+            },
             {authenticated,
                 #link{
                     class = login_link,

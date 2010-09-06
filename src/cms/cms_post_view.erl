@@ -92,7 +92,6 @@ body(#db_post{
 
                                         % enable save button
                                         #enable{target = post_dialog_save_button}
-
                                     ]},
                                 #event{type = focus, actions = [
                                         #select{}

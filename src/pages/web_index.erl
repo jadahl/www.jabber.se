@@ -17,7 +17,7 @@
 %
 
 -module(web_index).
--include_lib ("nitrogen/include/wf.inc").
+-include("include/ui.hrl").
 
 -include("include/config.hrl").
 -include("include/constants.hrl").

@@ -30,6 +30,8 @@
 -record(dyn_dialog, {?ELEMENT_BASE(element_dialog), corner = close}).
 -record(dialog, {?ELEMENT_BASE(element_dialog), body = []}).
 
+-record(ext_link, {?ELEMENT_BASE(element_ext_link), url, type, rel, title}).
+
 %
 % Actions
 %
@@ -54,5 +56,9 @@
 -record(disable, {?ACTION_BASE(action_jquery_attr)}).
 -record(enable, {?ACTION_BASE(action_jquery_attr)}).
 -record(jquery_attr, {?ACTION_BASE(action_jquery_attr), key, value}).
+
+-record(site_cast, {?ACTION_BASE(action_site), cast, args = []}).
+
+-record(js_call, {?ACTION_BASE(action_js_call), fname, args = []}).
 
 -endif.
