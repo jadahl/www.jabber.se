@@ -43,13 +43,6 @@
 -define(BLOCK, "display: block").
 
 %
-% ?UI(UI) -> Elements
-%   UI = ui(),
-%   Elements = [element()]
-%
--define(UI(UI), stk_ui:render(UI)).
-
-%
 % ?WHEN(expr(), statement()) ->
 %     statement() | undefined
 %
