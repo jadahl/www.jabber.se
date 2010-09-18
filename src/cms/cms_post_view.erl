@@ -51,7 +51,7 @@ tag(TagName) ->
 add_tag(Tag) ->
     % update client side dom
     {Element, TagId} = tag(Tag),
-    wf:wire(#js_call{fname = "$Site.current_post.add_tag", args = [Tag, TagId]}),
+    wf:wire(#site_cast{cast = current_post.add_tag, args = [Tag, TagId]}),
     wf:insert_bottom(post_dialog_tags, Element).
 
 remove_tag(ElementId) ->
@@ -94,7 +94,7 @@ body(#db_post{tags = Tags} = Post, Locale) ->
         [] ->
             ok;
         _ ->
-            wf:wire(wf:f("$Site.current_post.set_tags(~s);", [couchbeam_mochijson2:encode({lists:zip(Tags, lists:map(fun list_to_binary/1, TagIds))})]))
+            wf:wire(wf:f("$Site.$current_post.set_tags(~s);", [couchbeam_mochijson2:encode({lists:zip(Tags, lists:map(fun list_to_binary/1, TagIds))})]))
     end,
 
     % content

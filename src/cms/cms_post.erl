@@ -312,6 +312,7 @@ event_tag_alternatives() ->
     cms_post_view:tag_alternatives().
 
 event_remove_tag(ElementId, Tag) ->
+    ?LOG_INFO("remove_tag(~p, ~p)", [ElementId, Tag]),
     case current_post() of
         undefined ->
             ?LOG_WARNING("Trying to remove tag '~p' from unknown post.", [Tag]);
@@ -328,5 +329,7 @@ event_add_tag(Tag) ->
             save_new_post((empty_post())#db_post{tags = [Tag]});
         Id ->
             db_post:push_tag(Tag, Id)
-    end.
+    end,
+
+    cms_post_view:add_tag(Tag).
 

@@ -5,7 +5,7 @@ function Site()
 
     this.live_post = null;
 
-    this.current_post = null;
+    this.$current_post = null;
 
     return this;
 }
@@ -258,11 +258,11 @@ Site.prototype.$overlay_show = function(callback) {
 }
 
 /*
- *
+ * Posts
  */
 
 Site.prototype.$new_post = function() {
-    this.current_post = new Post();
+    this.$current_post = new Post();
 }
 
 /*
