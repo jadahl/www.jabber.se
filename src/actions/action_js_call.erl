@@ -45,16 +45,12 @@ escape_arg(Arg) ->
     end.
 
 escape_arg1(Arg) when is_tuple(Arg) ->
-    case wf_render_elements:render_elements([Arg]) of
-        {ok, Script} ->
-            {str, wf:js_escape(Script)};
-        _ ->
-            none
-    end;
+    {ok, Script} = wf_render_elements:render_elements([Arg]),
+    {str, wf:js_escape(Script)};
 escape_arg1([C | _Cs] = Arg) when is_integer(C) ->
     {str, Arg};
 escape_arg1(Arg) when is_list(Arg) ->
-    {raw, "[" ++ lists:join(lists:flatmap(fun escape_arg/1, Arg), ", ") ++ "]"};
+    {raw, "[" ++ utils:join(lists:flatmap(fun escape_arg/1, Arg), ", ") ++ "]"};
 escape_arg1(undefined) ->
     {raw, "undefined"};
 escape_arg1(true) ->
