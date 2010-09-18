@@ -46,10 +46,6 @@ atom(Url, SubTitle) ->
 % Events
 %
 
-event(post) ->
-    % TODO add auth check
-    %cms_post_view:show_dialog();
-    cms_post:new_post();
 event(Event) ->
     ?LOG_WARNING("Unexpected event to cms module: ~p~n", [Event]).
 

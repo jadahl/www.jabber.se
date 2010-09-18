@@ -34,6 +34,10 @@
 
 -define(TRANSLATIONS_DIRECTORY, "res/translations/").
 
+-define(ENABLED_LOCALES, [
+        sv_SE,
+        en_US
+    ]).
 %-define(DEFAULT_LOCALE, 'en').
 -define(DEFAULT_LOCALE, 'en_US').
 %-define(DEFAULT_LOCALE, 'sv_SE').

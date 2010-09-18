@@ -18,7 +18,8 @@
 
 -module(db_utils).
 -export([
-        throw_error_if_not_doc/1
+        throw_error_if_not_doc/1,
+        start_limit/2
     ]).
 
 -include("include/db/db.hrl").
@@ -30,5 +31,8 @@
 throw_error_if_not_doc({[_|_]} = Doc) ->
     Doc;
 throw_error_if_not_doc(Error) ->
-    erlang:error(Error).
+    throw({db_error, Error}).
+
+start_limit(Start, Limit) ->
+    [{<<"skip">>, Start}, {<<"limit">>, Limit}].
 

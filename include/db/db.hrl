@@ -45,6 +45,7 @@
 
 -record(db_post, {
         id,
+        rev,
         state = draft,
         title = "",
         timestamp,

@@ -1,4 +1,5 @@
 [
+    {language, "Svenska"},
     {msg_id_about, "Om"},
     {msg_id_admin_account, "Konto"},
     {msg_id_admin_content, "Innehåll"},
@@ -8,6 +9,8 @@
     {msg_id_close, "Stäng"},
     {msg_id_drafts_dialog_title, "Utkast"},
     {msg_id_drafts_empty, "Inga utkast..."},
+    {msg_id_language_unspecified, "(ospecifierat)"},
+    {msg_id_loading, "Laddar..."},
     {msg_id_login, "Logga in"},
     {msg_id_login_fail, "Försök igen"},
     {msg_id_login_password, "Lösenord"},
@@ -23,6 +26,7 @@
     {msg_id_post_dialog_add_tag, "Lägg till"},
     {msg_id_post_dialog_content, "Innehåll:"},
     {msg_id_post_dialog_discard, "Kasta"},
+    {msg_id_post_dialog_language, "Språk"},
     {msg_id_post_dialog_post, "Publicera"},
     {msg_id_post_dialog_save, "Spara"},
     {msg_id_post_dialog_saved, "Sparad..."},
@@ -35,4 +39,3 @@
     {msg_id_post_untitled, "(ingen titel)"},
     {msg_id_posts_empty, "Inga inlägg"}
 ].
-

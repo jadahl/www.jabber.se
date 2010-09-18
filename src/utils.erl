@@ -21,7 +21,8 @@
 
 -include("include/utils.hrl").
 -export([
-        ts_to_date_s/1, ts_to_date/1, ts_to_hour_min/1, time_to_iso8601/1, to_binary/1, to_string/1,
+        ts_to_date_s/1, ts_to_date/1, ts_to_hour_min/1, time_to_iso8601/1,
+        to_binary/1, to_string/1, to_atom/1,
         sub_id/2,
         to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5,
         join/2, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
@@ -74,6 +75,14 @@ to_string(Integer) when is_integer(Integer) ->
     integer_to_list(Integer);
 to_string(List) when is_list(List) ->
     List.
+
+to_atom(Atom) when is_atom(Atom) ->
+    Atom;
+to_atom(List) when is_list(List) ->
+    list_to_atom(List);
+to_atom(Binary) when is_binary(Binary) ->
+    list_to_atom(binary_to_list(Binary)).
+
 
 %
 % Ids
@@ -152,7 +161,7 @@ join([X1 | Xs], D) ->
     [X1 | [[D, X] || X <- Xs]].
 
 %
-% find_with(MaybeFun, Acc0, List) -> Acc1
+% find_with(MaybeFun, Acc0, List) -> Acc1 | nothing
 %  MaybeFun = fun(Elem, AccIn) -> {just, AccOut} | nothing
 %  Elem = term()
 %  Acc0 = Acc1 = AccOut = AccIn = term()
@@ -194,3 +203,4 @@ keyreplaceoraddwith(Key, N, Fun, [Tuple | TupleList]) ->
     end;
 keyreplaceoraddwith(_, _, Fun, []) ->
     [Fun(none)].
+

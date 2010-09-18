@@ -2,6 +2,7 @@
 function Post()
 {
     this.tags = {}; 
+    this.locale = undefined;
 
     return this;
 }
@@ -47,6 +48,12 @@ Post.prototype.validate_new_tag = function(tag) {
     }
 
     return !(tag in self.tags);
-    //return !(self.has_tag(tag));
 }
 
+Post.prototype.set_locale = function(locale) {
+    this.locale = locale;
+}
+
+Post.prototype.get_locale = function() {
+    return this.locale;
+}

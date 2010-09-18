@@ -17,11 +17,21 @@
 %
 
 -module(cms_post_view).
--export([tag/1, body/1, wire_validators/0, title/0]).
+-export([
+        tag/1, add_tag/1, remove_tag/1, tag_alternatives/0,
+        set_saved_label/0, set_save_failed_label/0,
+        set_content/2,
+        body/2, wire_validators/0, title/0]).
+
+-include_lib("nitrogen/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/ui.hrl").
 -include("include/db/db.hrl").
+
+%
+% Tags
+%
 
 tag(TagName) ->
     Id = wf_render_elements:temp_id(),
@@ -31,18 +41,55 @@ tag(TagName) ->
             class = post_dialog_tag,
             postback = {remove_tag, Id, TagName},
             delegate = cms_post,
-            actions = #event{type = click, actions = #js_call{fname = "$Site.current_post.remove_tag", args = [TagName]}},
+            actions = #event{
+                type = click,
+                actions = #site_cast{cast = current_post.remove_tag, args = [TagName]}},
             text = TagName},
         Id
     }.
 
-body(#db_post{
-        title = Title,
-        tags = Tags,
-        body = Body
-    }) ->
-    {TagElements, TagIds} = lists:unzip(lists:map(fun tag/1, Tags)),
+add_tag(Tag) ->
+    % update client side dom
+    {Element, TagId} = tag(Tag),
+    wf:wire(#js_call{fname = "$Site.current_post.add_tag", args = [Tag, TagId]}),
+    wf:insert_bottom(post_dialog_tags, Element).
 
+remove_tag(ElementId) ->
+    wf:remove(ElementId).
+
+tag_alternatives() ->
+    % FIXME
+    wf:wire(#autocomplete{anchor = post_dialog_tag_input, alternatives = ["Foo", "Bar", "Baz"]}).
+
+%
+% Saved label
+%
+
+set_saved_label() ->
+    set_saved_label(?T(msg_id_post_dialog_saved)).
+
+set_save_failed_label() ->
+    set_saved_label(?T(msg_id_post_dialog_save_failed)).
+
+set_saved_label(Text) ->
+    wf:update(post_dialog_saved_message, Text).
+
+%
+% Content
+%
+
+set_content(Subject, Body) ->
+    wf:set(post_dialog_subject_input, Subject),
+    wf:set(post_dialog_text_area, Body).
+
+%
+% Body
+%
+
+body(#db_post{tags = Tags} = Post, Locale) ->
+
+    % get tags
+    {TagElements, TagIds} = lists:unzip(lists:map(fun tag/1, Tags)),
     case TagIds of
         [] ->
             ok;
@@ -50,14 +97,50 @@ body(#db_post{
             wf:wire(wf:f("$Site.current_post.set_tags(~s);", [couchbeam_mochijson2:encode({lists:zip(Tags, lists:map(fun list_to_binary/1, TagIds))})]))
     end,
 
-    EnableSaveButtonEvent = #event{type = textchange, actions = [#enable{target = post_dialog_save_button}, #update{target = post_dialog_saved_message, elements = ""}]},
+    % content
+    Subject = case db_post:value_by_locale(Locale, Post#db_post.title) of
+        nothing -> "";
+        Subject1 -> Subject1
+    end,
+    Body = case db_post:value_by_locale(Locale, Post#db_post.body) of
+        nothing -> "";
+        Body1 -> Body1
+    end,
 
+    EnableSaveButtonEvent = #event{type = textchange, actions = [#enable{target = post_dialog_save_button}, #update{target = post_dialog_saved_message, elements = ""}]},
     #panel{
         id = edit_post_body,
         body = [
+            % language
+            #label{text = ?T(msg_id_post_dialog_language), style = ?BLOCK},
+            #panel{
+                style = ?BLOCK,
+                body = [
+                    #dropdown{
+                        id = post_dialog_language_drop_down,
+                        style = ?INLINE,
+                        postback = language,
+                        actions = #event{
+                            type = change,
+                            actions = [
+                                #site_cast{cast = disable_forms, args = [edit_post_body]},
+                                #show{target = language_loading}
+                            ]
+                        },
+                        delegate = cms_post,
+                        options = [
+                            #option{text = Language, value = LocaleTmp, selected = LocaleTmp == Locale} || {LocaleTmp, Language} <- i18n:enabled_languages()
+                        ] ++ [#option{text = ?T(msg_id_language_unspecified), value = undefined, selected = Locale == undefined}]
+                    },
+
+                    " ",
+
+                    #span{style = ?HIDDEN, text = ?T(msg_id_loading), id = language_loading}
+                ]},
+
             % subject
             #label{text = ?T(msg_id_post_dialog_subject), style = ?BLOCK},
-            #textbox{id = post_dialog_subject_input, text = Title, style = ?BLOCK, actions = EnableSaveButtonEvent},
+            #textbox{id = post_dialog_subject_input, text = Subject, style = ?BLOCK, actions = EnableSaveButtonEvent},
 
             % tags
             #label{text = ?T(msg_id_post_dialog_tags), style = ?BLOCK},
@@ -106,7 +189,7 @@ body(#db_post{
             #label{text = ?T(msg_id_post_dialog_content), style = ?BLOCK},
             #textarea{id = post_dialog_text_area, text = Body, actions = EnableSaveButtonEvent},
 
-            % post | cancel
+            % post | save | discard | cancel
             #button{
                 id = post_dialog_post_button,
                 text = ?T(msg_id_post_dialog_post),
@@ -150,6 +233,3 @@ wire_validators() ->
 title() ->
     ?T(msg_id_post_dialog_title).
 
-%show(Post) ->
-%    cms_admin_view:set_body(?T(msg_id_post_dialog_title), body(Post)),
-%    wire_validators().

@@ -43,6 +43,14 @@
 -define(BLOCK, "display: block").
 
 %
+% ?MAYBE_CONS(Expr, E, Es) -> [E | Es] | Es
+%     Expr = E = Es = expr()
+%
+% If Expr evaluates to undefined, return Es, otherwise [E | Es]
+%
+-define(MAYBE_CONS(Expr, E, Es), case Expr of undefined -> Es; _ -> [E | Es] end).
+
+%
 % ?WHEN(expr(), statement()) ->
 %     statement() | undefined
 %

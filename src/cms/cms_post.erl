@@ -17,7 +17,7 @@
 %
 
 -module(cms_post).
--export([selected/0, left/0, title/0, body/0, hook/0, event/1, new_post/0, open_post/1]).
+-export([selected/0, left/0, title/0, body/0, hook/0, event/1]).
 -behaviour(gen_cms_admin_module).
 
 -include("include/ui.hrl").
@@ -25,30 +25,54 @@
 -include("include/db/db.hrl").
 
 %
+% In-memory cache (stores document id)
+%
+
+-define(POST_KEY, cms_post_current).
+
+-spec current_post() -> undefined | binary().
+current_post() ->
+    wf:session(?POST_KEY).
+
+-spec set_current_post(undefined | binary()) -> any().
+set_current_post(Id) when is_binary(Id) orelse Id == undefined ->
+    wf:session(?POST_KEY, Id).
+
+-spec unset_current_post() -> any().
+unset_current_post() ->
+    set_current_post(undefined).
+
+%
 % Admin control
 %
 
 selected() ->
-    new_post().
+    % unset possible current document id
+    unset_current_post(),
+
+    remote_new_post().
 
 left() ->
-    close().
+    event_close().
 
 title() ->
     cms_post_view:title().
 
 body() ->
-    Post = case get_current_post() of
+    Post = case current_post() of
         undefined ->
-            new_post();
-        CurrentPost ->
-            CurrentPost
+            empty_post();
+        Id ->
+            db_post:get_post(Id)
     end,
 
     body(Post).
 
 body(Post) ->
-    cms_post_view:body(Post).
+    cms_post_view:body(Post, i18n:get_language()).
+
+body(Post, Locale) ->
+    cms_post_view:body(Post, Locale).
 
 hook() ->
     cms_post_view:wire_validators().
@@ -57,76 +81,81 @@ hook() ->
 % Events
 %
 
-event({open, Post, Back}) ->
-    ?AUTH(open(Post, Back));
+event({open, Id, Locale, Back}) ->
+    ?AUTH(event_open(Id, Locale, Back));
 
-%
 % Compose events
-%
 
 event(post) ->
-    ?AUTH(post());
+    ?AUTH(event_post());
 
 event(save) ->
-    ?AUTH(save());
+    ?AUTH(event_save());
 
 event(discard) ->
-    ?AUTH(discard());
+    ?AUTH(event_discard());
 
-%
 % Tag events
-%
+
+event(language) ->
+    ?AUTH(event_language());
 
 event(tag_alternatives) ->
-    ?AUTH(tag_alternatives());
+    ?AUTH(event_tag_alternatives());
 
 event({remove_tag, Id, Tag}) ->
-    ?AUTH(remove_tag(Id, Tag));
+    ?AUTH(event_remove_tag(Id, Tag));
 
 event(add_tag) ->
-    ?AUTH(add_tag(wf:q(post_dialog_tag_input))).
+    ?AUTH(event_add_tag(wf:q(post_dialog_tag_input))).
 
 %
 % Open / close
 %
 
-open(Post, Back) ->
-    Post1 = open_post(Post),
-    cms_admin_view:set_body_back(title(), body(Post1), ?MODULE, Back).
+event_open(Id, Locale, Back) ->
+    % set id in cache
+    set_current_post(Id),
 
-close() ->
-    set_current_post(undefined).
+    % clear remote post data
+    remote_new_post(),
 
-%close(_Back) ->
-%    set_current_post(undefined),
-%    cms_admin:back().
+    % load post from db
+    Post = db_post:get_post(Id),
+
+    % view ui
+    cms_admin_view:set_body_back(title(), body(Post, Locale), ?MODULE, Back).
+
+event_close() ->
+    unset_current_post().
 
 %
-% Read/Write
+% Database document control
 %
 
--define(POST_KEY, {cms_post, current_post}).
 
-get_current_post() ->
-    wf:session(?POST_KEY).
-
-set_current_post(Post) ->
-    wf:session(?POST_KEY, Post).
+%
+% Database document control
+%
 
 empty_post() ->
-    #db_post{authors = [wf:user()]}.
+    #db_post{
+        authors = [wf:user()],
+        timestamp = unix_timestamp()
+    }.
 
-new_post() ->
-    open_post(empty_post()).
+save_new_post(Post) ->
+    Doc = db_post:save_post(Post),
+    db_doc:get_id(Doc).
 
-open_post(Post) ->
-    set_current_post(Post),
+%
+% Remote
+%
 
+remote_new_post() ->
     % new client side post object
-    wf:wire(#js_call{fname = "$Site.$new_post"}),
+    wf:wire(#js_call{fname = "$Site.$new_post"}).
 
-    Post.
-    
 %
 % Document control
 %
@@ -135,158 +164,169 @@ unix_timestamp() ->
     {Mega, Secs, _} = now(),
     Mega*1000000 + Secs.
 
-post() ->
+-spec with_locale_do(fun((atom()) -> any())) -> any() | none().
+with_locale_do(Fun) ->
+    Locale = wf:q(post_dialog_language_drop_down),
+    case Locale == "undefined" orelse i18n:is_lang(Locale) of
+        true ->
+            Fun(list_to_atom(Locale));
+        _ ->
+            throw({invalid_locale, Locale})
+    end.
+
+event_post() ->
     ?LOG_INFO("Posting draft", []),
-    case get_current_post() of
-        undefined ->
-            ?LOG_WARNING("Trying to post unknown draft.", []);
-        Post ->
-            try
-                % save to db
-                do_save(Post#db_post{state = public}),
+    try
+        with_locale_do(
+            fun(Locale) ->
+                % publish and save
+                do_save(Locale, public),
 
                 % clear cache
-                set_current_post(undefined),
+                unset_current_post(),
 
                 % update ui
                 cms_admin_view:back()
-            catch
-                _:_ = Error ->
-                    ?LOG_ERROR("Could not post: ~p", [Error])
-            end
+            end)
+    catch
+        {invalid_locale, Locale} ->
+            ?LOG_ERROR("Couldn't figure out locale (~p), not posting.", [Locale])
     end.
 
-save() ->
+event_save() ->
     ?LOG_INFO("Saving draft", []),
-    case get_current_post() of
-        undefined ->
-            ?LOG_WARNING("Trying to save unknown draft.", []);
-        Post ->
-            % update db side
-            NewPost = do_save(Post),
+    try
+        with_locale_do(
+            fun(Locale) ->
+                % save
+                do_save(Locale),
 
-            % update cache (need to?)
-            set_current_post(NewPost),
-
-            % display saved
-            wf:update(post_dialog_saved_message, ?T(msg_id_post_dialog_saved)),
-
-            ok
+                % update ui
+                cms_post_view:set_saved_label()
+            end)
+    catch
+        {invalid_locale, Locale} ->
+            ?LOG_ERROR("Couldn't figure out locale (~p), not saving.", [Locale])
     end.
 
-do_save(Post) ->
-    Post1 = case wf:q(post_dialog_subject_input) of
-        undefined -> Post;
-        Subject -> Post#db_post{title = Subject}
+do_save(Locale) ->
+    do_save(Locale, undefined).
+do_save(Locale, State) ->
+    Post = case current_post() of
+        undefined ->
+            empty_post();
+        Id ->
+            db_post:get_post(Id)
     end,
 
-    Post2 = case wf:q(post_dialog_text_area) of
-        undefined -> Post1;
-        Body -> Post1#db_post{body = Body}
-    end,
+    Post1 = db_post:set_title(wf:q(post_dialog_subject_input), Locale, Post),
+    Post2 = db_post:set_body(wf:q(post_dialog_text_area), Locale, Post1),
+    Post3 = db_post:set_state(State, Post2),
 
-    NewPost = Post2#db_post{
-        authors = [wf:user()],
+    NewPost = Post3#db_post{
         timestamp = unix_timestamp()
     },
 
-    % update db doc
-    db_post:update_post(NewPost),
+    db_post:save_post(NewPost),
 
-    NewPost.
+    ok.
 
-discard() ->
+event_discard() ->
     ?LOG_INFO("Discarding draft", []),
-    case get_current_post() of
+    case current_post() of
         undefined ->
             ?LOG_WARNING("Trying to discard unexisting post.", []);
-        #db_post{id = Id} = Post ->
+        Id ->
             try
                 % delete from database
                 db_controller:delete_doc_by_id(Id),
 
                 % clear cache
-                set_current_post(undefined),
+                unset_current_post(),
 
                 % update ui
-                wf:wire(post_dialog, #dialog_hide{})
+                cms_admin_view:back()
             catch
                 _:_ = Error ->
-                    ?LOG_ERROR("Could not discard post '~p': ~p", [Post, Error])
+                    ?LOG_ERROR("Could not discard post '~p': ~p", [Id, Error])
             end
     end.
+
+%
+% Locale
+%
+
+-spec event_language() -> any().
+event_language() ->
+    try
+        with_locale_do(
+            fun(Locale) ->
+                case current_post() of
+                    undefined ->
+                        ?LOG_WARNING("Trying to change unknown post to locale '~p'.", [Locale]);
+                    Id ->
+                        change_locale(Locale, Id)
+                end,
+
+                wf:wire(edit_post_body, language_loading, #hide{}),
+                wf:wire(#site_cast{cast = enable_forms, args = [edit_post_body]})
+            end)
+    catch
+        {invalid_locale, InvalidLocale} ->
+            ?LOG_WARNING("Trying to set post to invalid locale '~p'.", [InvalidLocale])
+    end.
+
+-spec change_locale(atom(), binary()) -> any().
+change_locale(Locale, Id) ->
+    #db_post{body = Body, title = Title} = db_post:get_post(Id),
+
+    % update form content with other translation, or empty if none
+    io:format("lang.locale: ~p~nlang.body: ~p~nlang.title: ~p~n", [Locale, Body, Title]),
+
+    % subject
+    NewSubject = case db_post:value_by_locale(Locale, Title) of
+        nothing ->
+            "";
+        Subject ->
+            io:format("new sub: ~p~n", [Subject]),
+            Subject
+    end,
+
+    % body
+    NewBody = case db_post:value_by_locale(Locale, Body) of
+        nothing ->
+            "";
+        Body1 ->
+            Body1
+    end,
+
+    cms_post_view:set_content(NewSubject, NewBody),
+
+    ok.
 
 %
 % Tag manipulations
 %
 
-tag_alternatives() ->
-    wf:wire(#autocomplete{anchor = post_dialog_tag_input, alternatives = ["Foo", "Bar", "Baz"]}),
+event_tag_alternatives() ->
+    cms_post_view:tag_alternatives().
 
-    ok.
-
-remove_tag(Id, Tag) ->
-    case get_current_post() of
+event_remove_tag(ElementId, Tag) ->
+    case current_post() of
         undefined ->
-            ?LOG_WARNING("Trying to remove tag '~p' from nonexisting draft.", [Tag]);
-        #db_post{tags = Tags} = Post ->
-            case lists:member(Tag, Tags) of
-                true ->
-                    do_remove_tag(Post, Id, Tag);
-                _ ->
-                    ?LOG_INFO("Trying to remove nonexisting tag '~p' from draft '~p'", [Tag, Post])
-            end
+            ?LOG_WARNING("Trying to remove tag '~p' from unknown post.", [Tag]);
+        Id ->
+            db_post:pop_tag(Tag, Id),
+
+            cms_post_view:remove_tag(ElementId)
     end.
 
-do_remove_tag(Post, ElementId, Tag) ->
-    % update database draft
-    db_post:pop_tag(Tag, Post#db_post.id),
-
-    % update in-memory draft
-    set_current_post(Post#db_post{tags = Post#db_post.tags -- [Tag]}),
-
-    % update client side dom
-    wf:remove(ElementId),
-
-    ok.
-
-add_tag(Tag) ->
-    % TODO add lock mechanism to avoid collisions
+event_add_tag(Tag) ->
     ?LOG_INFO("add_tag(~p)", [Tag]),
-    case get_current_post() of
+    case current_post() of
         undefined ->
-            ?LOG_WARNING("Trying to add tag '~p' to nonexisting draft.", [Tag]);
-        #db_post{tags = Tags} = Post ->
-            case lists:member(Tag, Tags) of
-                true ->
-                    ?LOG_INFO("duplicate", []),
-                    ok;
-                _ ->
-                    do_add_tag(Post, Tag)
-            end
-    end.
-
-do_add_tag(Post, Tag) ->
-    ?LOG_INFO("Adding tag ~p to draft", [Tag]),
-
-    % add tag
-    NewPost = Post#db_post{tags = Post#db_post.tags ++ [Tag]},
-
-    % update database draft
-    case NewPost#db_post.id of
-        undefined ->
-            db_post:save_post(NewPost);
+            save_new_post((empty_post())#db_post{tags = [Tag]});
         Id ->
             db_post:push_tag(Tag, Id)
-    end,
-
-    % update in-memory draft
-    set_current_post(NewPost),
-
-    % update client side dom
-    {Element, TagId} = cms_post_view:tag(Tag),
-    wf:wire(#js_call{fname = "$Site.current_post.add_tag", args = [Tag, TagId]}),
-    wf:insert_bottom(post_dialog_tags, Element),
-
-    ok.
+    end.
 

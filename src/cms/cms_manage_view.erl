@@ -26,17 +26,33 @@
 title() ->
     ?T(msg_id_manage_dialog_title).
 
-title_link(undefined, Post, Delegate) ->
-    title_link(?T(msg_id_post_untitled), Post, Delegate);
+title_link(Titles, Post, Delegate) when is_list(Titles) ->
+    case db_post:value_prefer_locale(i18n:get_language(), Titles) of
+        nothing ->
+            title_link(undefined, undefined, Post, Delegate);
+        {Locale, Title} when is_binary(Title) ->
+            title_link(Title, Locale, Post, Delegate)
+    end;
 title_link(Title, Post, Delegate) when is_binary(Title) ->
-    title_link(binary_to_list(Title), Post, Delegate);
-title_link(Title, Post, Delegate) when is_list(Title) ->
-    case string:strip(Title) of
-        [] ->
-            title_link(undefined, Post, Delegate);
+    title_link(Title, undefined, Post, Delegate).
+
+title_link(Title, Locale, Post, Delegate) ->
+    LinkTitle = case Title of
+        undefined ->
+            ?T(msg_id_post_untitled);
         _ ->
-            #link{delegate = cms_post, postback = {open, Post, Delegate}, text = Title}
-    end.
+            case string:strip(binary_to_list(Title)) of
+                "" ->
+                    ?T(msg_id_post_untitled);
+                _ ->
+                    Title
+            end
+    end,
+
+    #link{
+        delegate = cms_post,
+        postback = {open, Post#db_post.id, Locale, Delegate},
+        text = LinkTitle}.
 
 show_date(undefined) ->
     ?T(msg_id_post_not_published);

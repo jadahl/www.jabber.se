@@ -18,6 +18,7 @@
 
 -module(i18n).
 -export([start/0, stop/0, get_language/0, update_language/0, set_language/1, t/1, t/2, alias/1,
+        enabled_languages/0,
         read_dir/1, read_translations/0, is_lang/1,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
     ]).
@@ -46,6 +47,10 @@ update_language() ->
         CurrentLang ->
             CurrentLang
     end.
+
+enabled_languages() ->
+    {ok, Languages} = gen_server:call(?MODULE, enabled_languages),
+    Languages.
 
 %
 % Returns the new set language
@@ -94,6 +99,9 @@ alias(Lang) -> Lang.
 % Internal
 %
 
+-spec is_lang(atom()|string()) -> boolean().
+is_lang(Atom) when is_atom(Atom) ->
+    is_lang(atom_to_list(Atom));
 is_lang([C1, C2, $_, C3, C4]) when 
     ((C1 >= $a) and (C1 =< $z)) and
     ((C2 >= $a) and (C2 =< $z)) and
@@ -185,6 +193,26 @@ handle_call({translate, Id, Lang}, _From, State) ->
             end
     end,
     {reply, Reply, State};
+
+handle_call(enabled_languages, _From, State) ->
+    Reply = try
+        {ok,
+            [
+                case maybe_t(language, Locale, State) of
+                    {just, Translated} ->
+                        {Locale, Translated};
+                    nothing ->
+                        throw(translation_not_found)
+                end
+                || Locale <- ?ENABLED_LOCALES
+            ]
+        }
+    catch
+        _:_ = Error ->
+            {error, Error}
+    end,
+    {reply, Reply, State};
+
 handle_call(Request, From, State) ->
     ?LOG_WARNING("Unexpected call from ~p. Request = ~p, State = ~p", [From, Request, State]),
     {noreply, State}.

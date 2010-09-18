@@ -23,9 +23,10 @@
         get_posts_by/1, get_drafts_by/1,
         get_posts_by_view/1, get_posts_by_view/2,
         new_post/0, save_post/1, save_posts/2,
-        t/1, safe_value_by_locale/2,
+        t/1,
         maybe_default_value/2, default_value/1,
-        maybe_value_by_locale/2, value_by_locale/2,
+        maybe_value_by_locale/2, value_by_locale/2, value_prefer_locale/2,
+        set_title/3, set_body/3, set_state/2,
         update_post/1, set_body/2, push_tag/2, pop_tag/2
     ]).
 
@@ -48,6 +49,7 @@ parse_rows(Rows) ->
 parse_helper({K, V}, P) ->
     case K of
         '_id' -> P#db_post{id = V};
+        '_rev' -> P#db_post{rev = V};
         state -> P#db_post{state = list_to_atom(binary_to_list(V))};
         title -> P#db_post{title = V};
         ts -> P#db_post{timestamp = list_to_integer(binary_to_list(V))};
@@ -56,40 +58,48 @@ parse_helper({K, V}, P) ->
         body -> P#db_post{body = V};
 
         type -> P;
-        '_rev' -> P;
         _ ->
             ?LOG_INFO("Parser: Unknown entry ~p", [K]),
             P
     end.
 
--define(ensure_value_is(What, Value, Type), case Type(Value) of true -> true; _ -> erlang:error({invalid_value, What, Value}) end).
+-define(ensure_value_is(What, Value, Type), Type(Value) orelse erlang:error({invalid_value, What, Value})).
 -define(ensure_all_values_are(What, Values, Type), lists:all(fun(ValueFromGivenValues) -> ?ensure_value_is(What, ValueFromGivenValues, Type) end, Values)).
 
 is_content(Value) when is_binary(Value) ->
     true;
-is_content(Value) when is_list(Value) ->
-    is_string(Value);
-is_content({List}) when is_list(List) ->
+is_content(List) when is_list(List) ->
+    is_string(List) orelse
     lists:all(
-        fun({Lang, Content}) ->
-            case {i18n:is_lang(Lang), is_content_body(Content)} of
-                {true, true} ->
+        fun(Content) ->
+            case Content of
+                {Lang, Body} ->
+                    case {Lang == undefined orelse i18n:is_lang(Lang), is_content_body(Body)} of
+                        {true, true} ->
+                            true;
+                        R ->
+                            io:format("not content body ~p~n", [R]),
+                            false
+                    end;
+                _ when is_binary(Content) ->
                     true;
                 _ ->
+                    ?LOG_ERROR("Invalid content, '~p'", [Content]),
                     false
             end
         end, List);
-is_content(_) ->
+is_content(_Value) ->
+    ?LOG_ERROR("Invalid content '~p'", [_Value]),
     false.
     
 
 is_string(String) when is_list(String) ->
-    lists:all(fun(C) -> is_integer(C) end, String);
-is_string(_) ->
+    lists:all(fun is_integer/1, String);
+is_string(_String) ->
     false.
 
 is_content_body(Content) ->
-    is_binary(Content) or is_string(Content).
+    is_binary(Content) orelse is_string(Content).
 
 check_post(#db_post{
         state = State,
@@ -106,8 +116,16 @@ check_post(#db_post{
     ?ensure_value_is(body, Body, is_content),
     ok.
 
+render_content(List) when is_list(List) ->
+    {lists:map(fun render_content/1, List)};
+render_content({Key, Value}) ->
+    {Key, render_content(Value)};
+render_content(Value) ->
+    Value.
+
 render_post(#db_post{
         id = Id,
+        rev = Rev,
         state = State,
         title = Title,
         timestamp = TimeStamp,
@@ -119,14 +137,15 @@ render_post(#db_post{
 
     {
         Id,
+        Rev,
         post,
         [
-            {title, Title},
+            {title, render_content(Title)},
             {state, State},
             {ts, TimeStamp},
             {tags, Tags},
             {authors, Authors},
-            {body, Body}
+            {body, render_content(Body)}
         ]
    
     }.
@@ -182,21 +201,18 @@ save_posts(Posts, Db) ->
 %
 
 t(Values) ->
-    safe_value_by_locale(i18n:get_language(), Values).
+    safe_value_prefer_locale(i18n:get_language(), Values).
 
-safe_value_by_locale(Locale, Values) ->
-    case value_by_locale(Locale, Values) of
-        nothing -> 
-            case default_value(Values) of
-                nothing -> 
-                    ?LOG_WARNING("No valid translation found for '~p' in '~p'", [Locale, Values]),
-                    [];
-                Value2 -> Value2
-            end;
-        Value1 -> Value1
+safe_value_prefer_locale(Locale, Values) ->
+    case value_prefer_locale(Locale, Values) of
+        nothing ->
+            ?LOG_WARNING("No valid translation found for '~p' in '~p'", [Locale, Values]),
+            [];
+        {_, Value} ->
+            Value
     end.
 
-maybe_default_value(Value, _) when is_list(Value) ->
+maybe_default_value({undefined, Value}, _) when is_binary(Value) ->
     {just, Value};
 maybe_default_value(_, _) ->
     nothing.
@@ -208,16 +224,87 @@ default_value(Values) ->
 
 maybe_value_by_locale({Locale1, Value}, Locale2) when Locale1 == Locale2 ->
     {just, Value};
+maybe_value_by_locale({undefined, Value}, undefined) when is_binary(Value) ->
+    {just, Value};
+maybe_value_by_locale(Value, undefined) when is_binary(Value) ->
+    {just, Value};
 maybe_value_by_locale(_, _) ->
     nothing.
 
-value_by_locale(_, Value) when is_binary(Value) ->
+value_by_locale(Locale, {Values}) when is_list(Values) ->
+    value_by_locale(Locale, Values);
+value_by_locale(Locale, Values) when is_list(Values) ->
+    utils:find_with(fun maybe_value_by_locale/2, Locale, Values);
+value_by_locale(undefined, Value) when is_binary(Value) ->
     Value;
-value_by_locale(Locale, Values) ->
-    utils:find_with(fun maybe_value_by_locale/2, Locale, Values).
+value_by_locale(_, _) ->
+    nothing.
 
 %
-% Editing
+% value_by_any_locale(Values) -> {Value, Locale} | nothing
+%   Values = list()
+%   Value = binary()
+%   Locale = atom()
+%
+value_by_any_locale([{Locale, Value} | _]) ->
+    {Locale, Value};
+value_by_any_locale([Value | _]) when is_binary(Value) or is_list(Value) ->
+    {undefined, Value};
+value_by_any_locale(_) ->
+    nothing.
+
+%
+% value_prefer_locale(Values) -> {Locale, Value} | nothing
+%   Values = list()
+%   Value = binary()
+%   Locale = atom()
+%
+value_prefer_locale(Locale, Values) ->
+    case value_by_locale(Locale, Values) of
+        nothing ->
+            case default_value(Values) of
+                nothing ->
+                    value_by_any_locale(Values);
+                DefaultValue ->
+                    {undefined, DefaultValue}
+            end;
+        Value ->
+            {Locale, Value}
+    end.
+
+%
+% Editing - record
+%
+
+loose_keystore(Key, [{Key, _} | Vs], T) ->
+    [T | Vs];
+loose_keystore(Key, [V | Vs], T) ->
+    [V | loose_keystore(Key, Vs, T)];
+loose_keystore(_, [], T) ->
+    [T].
+
+store_by_locale(Value, Locale, Values) when is_binary(Value) and is_atom(Locale) and is_list(Values) ->
+    io:format("store_by_locale: ~p, ~p, ~p~n", [Value, Locale, Values]),
+    loose_keystore(Locale, Values, {Locale, Value});
+store_by_locale(Value, Locale, OtherValue) when is_binary(Value) and is_atom(Locale) and is_binary(OtherValue) ->
+    [{undefined, OtherValue}, {Locale, Value}];
+store_by_locale(Value, Locale, Values) ->
+    store_by_locale(utils:to_binary(Value), utils:to_atom(Locale), Values).
+
+set_title(undefined, _, Post) -> Post;
+set_title(Title, Locale, Post) ->
+    Post#db_post{title = store_by_locale(Title, Locale, Post#db_post.title)}.
+
+set_body(undefined, _, Post) -> Post;
+set_body(Body, Locale, Post) ->
+    Post#db_post{body = store_by_locale(Body, Locale, Post#db_post.body)}.
+
+set_state(undefined, Post) -> Post;
+set_state(State, Post) ->
+    Post#db_post{state = State}.
+
+%
+% Editing - directly
 %
 
 update_post(#db_post{id = undefined} = Post) ->

@@ -22,10 +22,11 @@
         parse_doc/3, parse_rows/3, parse_row/3, render/2, view_rows/1,
         finalize_entry/1,
         edit_entry/3, push_to_entry/3, pop_from_entry/3, edit_or_add_entry/3,
-        get_rev/1, set_rev/2
+        get_rev/1, set_rev/2, get_id/1
     ]).
 
 -include("include/db/db.hrl").
+-include("include/utils.hrl").
 
 %
 % Utilities
@@ -71,12 +72,12 @@ parse_rows(ParseFun, InitData, Rows) when is_list(Rows) ->
 post_render(Doc) ->
     {lists:flatmap(fun finalize_entry/1, Doc)}.
 
+finalize_entry(V) when is_binary(V) ->
+    [V];
 finalize_entry({K, V}) ->
     case finalize_value(V) of
         undefined -> [];
-        FValue when is_atom(K) -> [{atom_to_binary(K), FValue}];
-        FValue when is_list(K) -> [{list_to_binary(K), FValue}];
-        FValue when is_binary(K) -> [{K, FValue}]
+        FValue -> [{utils:to_binary(K), FValue}]
     end.
 
 finalize_value(Value) ->
@@ -88,25 +89,18 @@ finalize_value(Value) ->
         _ when is_atom(Value) -> atom_to_binary(Value);
         [C | S] when is_number(C) and is_list(S) -> list_to_binary(Value);
         _ when is_list(Value) -> lists:map(fun finalize_value/1, Value);
-        {Entry} -> post_render(Entry)
+        {Entry} when is_list(Entry) -> post_render(Entry);
+        {Key, SubValue} -> {utils:to_binary(Key), finalize_value(SubValue)};
+        _ -> erlang:error({finalize_invalid_value, Value})
     end.
 
 render(RenderFun, InputData) when is_list(InputData) ->
     lists:map(fun(Input) -> render(RenderFun, Input) end, InputData);
 render(RenderFun, InputData) ->
-    {Id, Type, Doc} = RenderFun(InputData),
-    Doc2 = case Type of
-        undefined ->
-            Doc;
-        _ ->
-            [{type, Type} | Doc]
-    end,
-    Doc3 = case Id of
-        undefined ->
-            Doc2;
-        _ ->
-            [{'_id', Id} | Doc2]
-    end,
+    {Id, Rev, Type, Doc} = RenderFun(InputData),
+    Doc1 = ?MAYBE_CONS(Type, {type, Type}, Doc),
+    Doc2 = ?MAYBE_CONS(Id, {'_id', Id}, Doc1),
+    Doc3 = ?MAYBE_CONS(Rev, {'_rev', Rev}, Doc2),
 
     post_render(Doc3).
 
@@ -128,6 +122,9 @@ get_entry(Key, {Entries}) ->
 
 get_rev(Doc) ->
     get_entry('_rev', Doc).
+
+get_id(Doc) ->
+    get_entry('_id', Doc).
 
 %
 % Edit helpers

@@ -73,6 +73,18 @@ Site.prototype.$set_title = function(title) {
 }
 
 /*
+ * Forms
+ */
+
+Site.prototype.$disable_forms = function(id) {
+    $(id + " :input").attr("disabled", "disabled");
+}
+
+Site.prototype.$enable_forms = function(id) {
+    $(id + " :input").removeAttr("disabled");
+}
+
+/*
  * State panel
  */
 
