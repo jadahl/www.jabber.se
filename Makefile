@@ -27,5 +27,5 @@ test:
 		-s init stop
 
 dialyzer:
-	dialyzer -c ebin/*.beam
+	dialyzer --src -r src/ -pa lib/nitrogen/apps/nitrogen/ -pa lib/nitrogen/apps/simple_bridge/
 
