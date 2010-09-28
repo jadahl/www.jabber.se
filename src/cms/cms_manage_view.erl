@@ -17,11 +17,16 @@
 %
 
 -module(cms_manage_view).
--export([title/0, body/1, body/3]).
+-export([title/0, body/4, body/5, set_page/3]).
 
 -include_lib("nitrogen/include/wf.hrl").
 -include("include/utils.hrl").
 -include("include/db/db.hrl").
+-include("include/ui.hrl").
+
+-define(POSTS_PER_PAGE, 6).
+
+-type posts_provider() :: fun((integer(), integer()) -> list(#db_post{})).
 
 title() ->
     ?T(msg_id_manage_dialog_title).
@@ -54,45 +59,95 @@ title_link(Title, Locale, Post, Delegate) ->
         postback = {open, Post#db_post.id, Locale, Delegate},
         text = LinkTitle}.
 
+set_page(PostsFun, New, Count) ->
+    % update posts
+    Posts = PostsFun(?POSTS_PER_PAGE * (New - 1), ?POSTS_PER_PAGE),
+    wf_context:anchor(admin_dialog),
+    wf:wire(cms_manage_table,
+        #update_table{
+            rows = posts_to_rows(Posts, cms_manage, false)
+        }
+    ),
+
+    % update pager
+    wf:wire(cms_manage_pager,
+        #pager_set{
+            new = New,
+            count = Count,
+            adapter = cms_manage}),
+    ok.
+
 show_date(undefined) ->
     ?T(msg_id_post_not_published);
 show_date(Timestamp) ->
     utils:ts_to_date_s(Timestamp).
 
+-spec posts_to_rows(list(#db_post{}), iolist(), module()) -> list(#tablerow{}).
+posts_to_rows(Posts, Delegate) ->
+    posts_to_rows(Posts, Delegate, false).
+posts_to_rows(Posts, Delegate, Hidden) ->
+    Style = ?WHEN_S(Hidden, ?HIDDEN),
+    [
+        #tablerow{
+            style = Style,
+            cells = [
+                #tablecell{body = title_link(Post#db_post.title, Post, Delegate)},
+                #tablecell{text = Post#db_post.authors},
+                #tablecell{text = show_date(Post#db_post.timestamp)}
+            ]
+        }
+        || Post <- Posts
+    ].
 
-panel(Posts, NoPostsText, Delegate) ->
-    Rows = case Posts of
-        [] ->
-            #tablerow{
-                cells = [#tablecell{text = NoPostsText, align = center, colspan = 3}]};
-        _ ->
-            [
+-spec panel(posts_provider(), module(), integer(), iolist(), module()) -> term().
+panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
+    Posts = PostsFun(0, ?POSTS_PER_PAGE),
+    Pages = (PostCount div ?POSTS_PER_PAGE) + (if PostCount rem ?POSTS_PER_PAGE > 0 -> 1; true -> 0 end),
+
+    [
+        #table{
+            class = posts_table,
+            id = cms_manage_table,
+            rows = [
                 #tablerow{
                     cells = [
-                        #tablecell{body = title_link(Post#db_post.title, Post, Delegate)},
-                        #tablecell{text = Post#db_post.authors},
-                        #tablecell{text = show_date(Post#db_post.timestamp)}
-                    ]}
-                || Post <- Posts
+                        #tableheader{text = ?T(msg_id_post_title)},
+                        #tableheader{text = ?T(msg_id_post_authors)},
+                        #tableheader{text = ?T(msg_id_post_date)}
+                    ]
+                },
+
+                case Posts of
+                    [] ->
+                        #tablerow{
+                            cells = [
+                                #tablecell{
+                                    text = NoPostsText,
+                                    align = center,
+                                    colspan = 3
+                                }
+                            ]
+                        };
+                    _ ->
+                        posts_to_rows(Posts, Delegate)
+                end
             ]
-    end,
+        },
 
-    #table{
-        class = drafts_table,
-        rows = [
-            #tablerow{
-                cells = [
-                    #tableheader{text = ?T(msg_id_post_title)},
-                    #tableheader{text = ?T(msg_id_post_authors)},
-                    #tableheader{text = ?T(msg_id_post_date)}
-                ]
-            },
-            Rows
-        ]
-    }.
+        #pager{
+            id = cms_manage_pager,
+            count = Pages,
+            init_page = 1,
+            adapter = Adapter
+        }
+    ].
 
-body(Posts) ->
-    body(Posts, ?T(msg_id_posts_empty), cms_manage).
-body(Posts, NoPostsText, Delegate) ->
-    panel(Posts, NoPostsText, Delegate).
+
+-spec body(posts_provider(), module(), integer(), module()) -> term().
+body(PostsFun, Adapter, PostCount, Delegate) ->
+    body(PostsFun, Adapter, PostCount, ?T(msg_id_posts_empty), Delegate).
+
+-spec body(posts_provider(), module(), integer(), iolist(), module()) -> term().
+body(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
+    panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate).
 

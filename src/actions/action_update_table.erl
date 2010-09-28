@@ -16,28 +16,31 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(cms_drafts).
--export([selected/0, left/0, title/0, body/0, hook/0]).
--behaviour(gen_cms_admin_module).
+-module(action_update_table).
+-export([render_action/1]).
 
-%
-% Admin control
-%
+-include("include/ui.hrl").
 
-selected() ->
-    ok.
+render_action(#update_table{target = Target, rows = Rows, effect = Effect}) ->
+    [
+        % remove old rows except header
+        #update{
+            type = remove,
+            target = Target ++ " .tablerow:gt(0)"
+        },
 
-left() ->
-    ok.
+        % insert new rows
+        #update{
+            type = insert_bottom,
+            target = Target,
+            elements = Rows
+        },
 
-title() ->
-    cms_drafts_view:title().
-
-body() ->
-    User = wf:user(),
-    Count = db_post:get_draft_count(User),
-    cms_drafts_view:body(fun(Skip, Limit) -> db_post:get_drafts_by(User, Skip, Limit) end, ?MODULE, Count, ?MODULE).
-
-hook() ->
-    ok.
+        case Effect of
+            undefined ->
+                [];
+            _ ->
+                wf_utils:replace_with_base((wf_utils:get_actionbase(Effect))#actionbase{target = Target ++ " .tablerow:gt(0)"}, Effect)
+        end
+    ].
 

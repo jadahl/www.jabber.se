@@ -16,28 +16,22 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(cms_drafts).
--export([selected/0, left/0, title/0, body/0, hook/0]).
--behaviour(gen_cms_admin_module).
+-module(action_pager).
+-export([render_action/1]).
 
-%
-% Admin control
-%
+-include("include/ui.hrl").
+-include("include/utils.hrl").
 
-selected() ->
-    ok.
+%sub_id(Outer, Inner) ->
+%    lists:flatten([Outer, " > .wfid_", atom_to_list(Inner)]).
 
-left() ->
-    ok.
-
-title() ->
-    cms_drafts_view:title().
-
-body() ->
-    User = wf:user(),
-    Count = db_post:get_draft_count(User),
-    cms_drafts_view:body(fun(Skip, Limit) -> db_post:get_drafts_by(User, Skip, Limit) end, ?MODULE, Count, ?MODULE).
-
-hook() ->
-    ok.
+render_action(#pager_set{target = _Target, new = New, count = Count, adapter = Adapter}) ->
+    #update{
+        type = update,
+        elements = [
+            element_pager:prev(New, Count, Adapter),
+            [element_pager:num(Num, New, Count, Adapter) || Num <- utils:range(Count)],
+            element_pager:next(New, Count, Adapter)
+        ]
+    }.
 

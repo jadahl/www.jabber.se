@@ -24,6 +24,16 @@
 
 -define(DB_VIEWS,
     {[
+            {<<"posts_pub_count">>, {[
+                        {<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"public\") { for (author in doc.authors) { emit(doc.authors[author], 1); }}}">>},
+                        {<<"reduce">>, <<"function (keys, values) { return sum(values); }">>}
+                    ]}},
+
+            {<<"posts_draft_count">>, {[
+                        {<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"draft\") { for (author in doc.authors) { emit(doc.authors[author], 1); }}}">>},
+                        {<<"reduce">>, <<"function (keys, values) { return sum(values); }">>}
+                    ]}},
+
             {<<"posts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(0 - doc.ts, doc); }">>}]}},
             {<<"posts_by">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") { for(author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
             {<<"drafts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"draft\") { for (author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
@@ -61,6 +71,12 @@
         email,
         jid
     }).
+
+%
+% Configuration
+%
+
+-define(DEFAULT_POSTS_PER_PAGE, 20).
 
 %
 % Helper macros

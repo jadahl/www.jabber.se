@@ -17,8 +17,11 @@
 %
 
 -module(cms_manage).
--export([selected/0, left/0, title/0, body/0, hook/0]).
+-export([selected/0, left/0, title/0, body/0, hook/0, pager_set/2]).
 -behaviour(gen_cms_admin_module).
+-behaviour(gen_pager_adapter).
+
+-include("include/utils.hrl").
 
 %
 % Admin control
@@ -34,9 +37,21 @@ title() ->
     cms_manage_view:title().
 
 body() ->
-    Drafts = db_post:get_posts_by(wf:user()),
-    cms_manage_view:body(Drafts).
+    User = wf:user(),
+    Count = db_post:get_published_count(User),
+    cms_manage_view:body(fun(Skip, Limit) -> db_post:get_posts_by(User, Skip, Limit) end, ?MODULE, Count, ?MODULE).
 
 hook() ->
     ok.
+
+%
+% Page control
+%
+
+pager_set(Index, Count) ->
+    ?AUTH(pager_set2(Index, Count)).
+
+pager_set2(Index, Count) ->
+    User = wf:user(),
+    cms_manage_view:set_page(fun(Skip, Limit) -> db_post:get_posts_by(User, Skip, Limit) end, Index, Count).
 

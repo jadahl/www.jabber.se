@@ -17,7 +17,7 @@
 %
 
 -module(cms_drafts_view).
--export([title/0, body/1]).
+-export([title/0, body/4]).
 
 -include("include/utils.hrl").
 -include("include/ui.hrl").
@@ -26,5 +26,5 @@
 title() ->
     ?T(msg_id_drafts_dialog_title).
 
-body(Drafts) ->
-    cms_manage_view:body(Drafts, ?T(msg_id_drafts_empty), cms_drafts).
+body(PostsFun, Adapter, Count, Delegate) ->
+    cms_manage_view:body(PostsFun, Adapter, Count, ?T(msg_id_drafts_empty), Delegate).

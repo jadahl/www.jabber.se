@@ -25,7 +25,7 @@
         to_binary/1, to_string/1, to_atom/1,
         sub_id/2,
         to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5,
-        join/2, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
+        join/2, range/1, range/2, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
     ]).
 
 %
@@ -159,6 +159,17 @@ join([], _) ->
     [];
 join([X1 | Xs], D) ->
     [X1 | [[D, X] || X <- Xs]].
+
+range(Num) ->
+    range(1, Num).
+
+range(Start, Num) ->
+    range1(Start, Start + Num).
+
+range1(I, Num) when I < Num ->
+    [I | range1(I + 1, Num)];
+range1(_, _) ->
+    [].
 
 %
 % find_with(MaybeFun, Acc0, List) -> Acc1 | nothing

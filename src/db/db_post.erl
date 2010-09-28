@@ -20,7 +20,8 @@
 -export([
         parse_doc/1, parse_row/1, parse_helper/2, render_post/1,
         open_post/1, get_post/1,
-        get_posts_by/1, get_drafts_by/1,
+        get_published_count/1, get_draft_count/1,
+        get_posts_by/1, get_posts_by/3, get_drafts_by/1, get_drafts_by/3,
         get_posts_by_view/1, get_posts_by_view/2,
         new_post/0, save_post/1, save_posts/2,
         t/1,
@@ -163,17 +164,40 @@ open_post(Key) ->
 
     db_controller:open_doc(Key2).
 
+get_published_count(Username) ->
+    get_post_count(Username, posts_pub_count).
+
+get_draft_count(Username) ->
+    get_post_count(Username, posts_draft_count).
+
+get_post_count(Username, ViewName) ->
+    ViewB = utils:to_binary(ViewName),
+    UsernameB = list_to_binary(Username),
+    View = db_controller:get_view(ViewB, [{<<"key">>, UsernameB}]),
+    case db_doc:view_rows(View) of
+        [{_, _, Count}] -> Count;
+        [] -> 0
+    end.
+
 get_post(Key) ->
     Doc = open_post(Key),
     parse_doc(Doc).
 
 get_posts_by(Username) when is_list(Username) ->
+    get_posts_by(Username, 0).
+get_posts_by(Username, StartIndex) ->
+    get_posts_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
+get_posts_by(Username, StartIndex, PostsPerPage) ->
     UsernameB = utils:to_binary(Username),
-    get_posts_by_view("posts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]}]).
+    get_posts_by_view("posts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 get_drafts_by(Username) when is_list(Username) ->
+    get_drafts_by(Username, 0).
+get_drafts_by(Username, StartIndex) ->
+    get_drafts_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
+get_drafts_by(Username, StartIndex, PostsPerPage) ->
     UsernameB = utils:to_binary(Username),
-    get_posts_by_view("drafts", [{<<"startkey">>, [UsernameB, null]}]).
+    get_posts_by_view("drafts", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 get_posts_by_view(ViewName) ->
     get_posts_by_view(ViewName, []).

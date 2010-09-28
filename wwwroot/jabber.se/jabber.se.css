@@ -365,7 +365,7 @@ div.wfid_admin_panel {
 }
 
 /*
- * Admin panel
+ * Admin dialog
  */
 
 .wfid_admin_dialog div.dyn_dialog_title {
@@ -399,17 +399,40 @@ ul.admin_modules {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-table.drafts_table tr:nth-child(2n) {
+.wfid_admin_dialog table.posts_table tr:nth-child(2n) {
     background-color: rgba(20, 20, 20, 0.5);
 }
 
-table.drafts_table tr:nth-child(2n+3) {
+.wfid_admin_dialog table.posts_table tr:nth-child(2n+3) {
     background-color: rgba(40, 40, 40, 0.5);
 }
 
-table.drafts_table tr:nth-child(n+2):hover {
+.wfid_admin_dialog table.posts_table tr:nth-child(n+2):hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+.wfid_admin_dialog div.pager_container {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.wfid_admin_dialog .pager_num {
+    padding: 10px;
+}
+
+.wfid_admin_dialog span.pager_num {
+    color: gray;
+}
+
+.wfid_admin_dialog .pager_num_current {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.wfid_admin_dialog a.pager_num:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+
 
 /*
  * Blog content

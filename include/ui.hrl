@@ -32,6 +32,8 @@
 
 -record(ext_link, {?ELEMENT_BASE(element_ext_link), url, type, rel, title}).
 
+-record(pager, {?ELEMENT_BASE(element_pager), count = 1, init_page = 1, adapter}).
+
 %
 % Actions
 %
@@ -60,5 +62,9 @@
 -record(site_cast, {?ACTION_BASE(action_site), cast, args = []}).
 
 -record(js_call, {?ACTION_BASE(action_js_call), fname, args = []}).
+
+-record(pager_set, {?ACTION_BASE(action_pager), last, new, count, adapter}).
+
+-record(update_table, {?ACTION_BASE(action_update_table), rows, effect}).
 
 -endif.
