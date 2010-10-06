@@ -36,7 +36,8 @@
 
             {<<"posts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(0 - doc.ts, doc); }">>}]}},
             {<<"posts_by">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") { for(author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
-            {<<"drafts">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"draft\") { for (author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
+            {<<"published_by">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"public\") { for (author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
+            {<<"drafts_by">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"draft\") { for (author in doc.authors) { emit([doc.authors[author], 0 - doc.ts], doc); }}}">>}]}},
             {<<"news">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\" && doc.state == \"public\" && doc.tags.indexOf(\"news\") >= 0) emit(0 - doc.ts, doc); }">>}]}},
             {<<"posts_by_id">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"post\") emit(doc._id, doc); }">>}]}},
             {<<"user_login">>, {[{<<"map">>, <<"function (doc) { if (doc.type == \"user\") emit(doc._id, doc.password_hash); }">>}]}}
@@ -57,11 +58,11 @@
         id,
         rev,
         state = draft,
-        title = "",
+        title = {[]},
         timestamp,
         tags = [],
         authors = [],
-        body = ""
+        body = {[]}
     }).
 
 -record(db_user, {

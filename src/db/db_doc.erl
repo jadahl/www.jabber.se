@@ -48,7 +48,7 @@ simplify_entries(Entries) when is_list(Entries) ->
     lists:map(fun simplify_entries1/1, Entries).
 
 simplify_entries1({Key, {Values}}) when is_list(Values) ->
-    {binary_to_atom(Key), lists:map(fun simplify_entries1/1, Values)};
+    {binary_to_atom(Key), {lists:map(fun simplify_entries1/1, Values)}};
 simplify_entries1({Key, Value}) ->
     {binary_to_atom(Key), Value}.
 
@@ -74,6 +74,8 @@ post_render(Doc) ->
 
 finalize_entry(V) when is_binary(V) ->
     [V];
+finalize_entry(S) when is_list(S) and is_integer(hd(S)) ->
+    [list_to_binary(S)];
 finalize_entry({K, V}) ->
     case finalize_value(V) of
         undefined -> [];

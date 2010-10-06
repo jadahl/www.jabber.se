@@ -64,6 +64,8 @@ init_database() ->
 % DB functionality
 %
 
+% dialyzer inferrs the none()
+%-spec open_or_create_database(#db_state{}) -> {created|opened, pid()}.
 open_or_create_database(State) ->
     ?LOG_INFO("Opening database connection", []),
     Connection = couchbeam_server:start_connection_link(),

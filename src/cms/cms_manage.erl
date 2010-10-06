@@ -17,7 +17,10 @@
 %
 
 -module(cms_manage).
--export([selected/0, left/0, title/0, body/0, hook/0, pager_set/2]).
+-export([
+        selected/0, left/0, title/0, body/0, hook/0,
+        no_posts_text/0, pager_set/2, event/1
+    ]).
 -behaviour(gen_cms_admin_module).
 -behaviour(gen_pager_adapter).
 
@@ -39,13 +42,49 @@ title() ->
 body() ->
     User = wf:user(),
     Count = db_post:get_published_count(User),
-    cms_manage_view:body(fun(Skip, Limit) -> db_post:get_posts_by(User, Skip, Limit) end, ?MODULE, Count, ?MODULE).
+    cms_manage_view:body(posts_fun(User), ?MODULE, Count).
 
 hook() ->
     ok.
 
 %
-% Page control
+% Utils
+%
+
+posts_fun(User) ->
+    fun(Skip, Limit) ->
+            db_post:get_published_by(User, Skip, Limit)
+    end.
+
+%
+% Events
+%
+
+event({remove_post, Id, CurrentPage}) ->
+    ?AUTH(event_remove_post(Id, CurrentPage)).
+
+%
+% Event handlers
+%
+
+event_remove_post(Id, CurrentPage) ->
+    % remove post
+    db_controller:delete_doc_by_id(Id),
+
+    % update pager and table
+    User = wf:user(),
+    PostCount = db_post:get_published_count(User),
+    cms_manage_view:set_page_recounted(posts_fun(User), ?MODULE, CurrentPage, PostCount).
+
+%
+% Manage view adapter
+%
+
+no_posts_text() ->
+    cms_manage_view:no_posts_text().
+
+%
+% Pager adapter
 %
 
 pager_set(Index, Count) ->
@@ -53,5 +92,5 @@ pager_set(Index, Count) ->
 
 pager_set2(Index, Count) ->
     User = wf:user(),
-    cms_manage_view:set_page(fun(Skip, Limit) -> db_post:get_posts_by(User, Skip, Limit) end, Index, Count).
+    cms_manage_view:set_page(fun(Skip, Limit) -> db_post:get_published_by(User, Skip, Limit) end, ?MODULE, Index, Count).
 

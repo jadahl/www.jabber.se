@@ -399,6 +399,27 @@ ul.admin_modules {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+.wfid_admin_dialog table.posts_table td {
+    overflow: hidden;
+}
+
+.wfid_admin_dialog table.posts_table th {
+    padding-left: 5px;
+    padding-right: 14px;
+}
+
+.wfid_admin_dialog table.posts_table .title {
+    width: 100%;
+}
+
+.wfid_admin_dialog table.posts_table .remove a {
+    color: gray;
+}
+
+.wfid_admin_dialog table.posts_table .remove a:hover {
+    color: rgb(250, 125, 125);
+}
+
 .wfid_admin_dialog table.posts_table tr:nth-child(2n) {
     background-color: rgba(20, 20, 20, 0.5);
 }

@@ -281,14 +281,12 @@ change_locale(Locale, Id) ->
     #db_post{body = Body, title = Title} = db_post:get_post(Id),
 
     % update form content with other translation, or empty if none
-    io:format("lang.locale: ~p~nlang.body: ~p~nlang.title: ~p~n", [Locale, Body, Title]),
 
     % subject
     NewSubject = case db_post:value_by_locale(Locale, Title) of
         nothing ->
             "";
         Subject ->
-            io:format("new sub: ~p~n", [Subject]),
             Subject
     end,
 

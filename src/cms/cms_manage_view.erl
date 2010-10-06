@@ -17,7 +17,7 @@
 %
 
 -module(cms_manage_view).
--export([title/0, body/4, body/5, set_page/3]).
+-export([title/0, no_posts_text/0, body/3, set_page/4, set_page_recounted/4]).
 
 -include_lib("nitrogen/include/wf.hrl").
 -include("include/utils.hrl").
@@ -31,7 +31,73 @@
 title() ->
     ?T(msg_id_manage_dialog_title).
 
-title_link(Titles, Post, Delegate) when is_list(Titles) ->
+no_posts_text() ->
+    ?T(msg_id_posts_empty).
+
+%
+% Pager
+%
+
+-spec num_pages(integer()) -> integer().
+num_pages(PostCount) ->
+    (PostCount div ?POSTS_PER_PAGE) + (if PostCount rem ?POSTS_PER_PAGE > 0 -> 1; true -> 0 end).
+
+-spec set_page_recounted(posts_provider(), module(), integer(), integer()) -> ok.
+set_page_recounted(PostsFun, Adapter, New, PostCount) ->
+    Pages = num_pages(PostCount),
+    set_page(PostsFun, Adapter, New, Pages).
+
+-spec set_page(posts_provider(), module(), integer(), integer()) -> ok.
+set_page(PostsFun, Adapter, New, Count) ->
+    % set anchor to dialog
+    wf_context:anchor(admin_dialog),
+
+    if
+        Count == 0 ->
+            % no more posts
+            wf:wire(cms_manage_table,
+                #update_table{rows = [no_posts_cell(Adapter)]}
+            ),
+
+            set_pager(New, Count, Adapter);
+        true ->
+            % update posts
+            Posts = PostsFun(?POSTS_PER_PAGE * (New - 1), ?POSTS_PER_PAGE),
+
+            if
+                (Posts == []) and (New > 1) ->
+                    set_page(PostsFun, Adapter, New - 1, Count);
+                true ->
+                    wf:wire(cms_manage_table,
+                        #update_table{
+                            rows = posts_to_rows(Posts, New, Adapter)
+                        }
+                    ),
+
+                    set_pager(New, Count, Adapter)
+            end
+    end.
+
+-spec set_pager(integer(), integer(), module()) -> ok.
+set_pager(New, Count, Adapter) ->
+    % update pager
+    if
+        Count > 1 ->
+            wf:wire(cms_manage_pager,
+                #pager_set{
+                    new = New,
+                    count = Count,
+                    adapter = Adapter});
+        true ->
+            wf:remove(cms_manage_pager)
+    end,
+    ok.
+
+%
+% Table content
+%
+
+title_link({Titles}, Post, Delegate) when is_list(Titles) ->
     case db_post:value_prefer_locale(i18n:get_language(), Titles) of
         nothing ->
             title_link(undefined, undefined, Post, Delegate);
@@ -57,52 +123,59 @@ title_link(Title, Locale, Post, Delegate) ->
     #link{
         delegate = cms_post,
         postback = {open, Post#db_post.id, Locale, Delegate},
-        text = LinkTitle}.
+        text = LinkTitle,
+        title = ?T(msg_id_post_open)
+    }.
 
-set_page(PostsFun, New, Count) ->
-    % update posts
-    Posts = PostsFun(?POSTS_PER_PAGE * (New - 1), ?POSTS_PER_PAGE),
-    wf_context:anchor(admin_dialog),
-    wf:wire(cms_manage_table,
-        #update_table{
-            rows = posts_to_rows(Posts, cms_manage, false)
-        }
-    ),
-
-    % update pager
-    wf:wire(cms_manage_pager,
-        #pager_set{
-            new = New,
-            count = Count,
-            adapter = cms_manage}),
-    ok.
+remove_link(Post, CurrentPage, Delegate) ->
+    #link{
+        postback = {remove_post, Post#db_post.id, CurrentPage},
+        delegate = Delegate,
+        text = "✕",
+        title = ?T(msg_id_post_remove)}.
 
 show_date(undefined) ->
     ?T(msg_id_post_not_published);
 show_date(Timestamp) ->
     utils:ts_to_date_s(Timestamp).
 
--spec posts_to_rows(list(#db_post{}), iolist(), module()) -> list(#tablerow{}).
-posts_to_rows(Posts, Delegate) ->
-    posts_to_rows(Posts, Delegate, false).
-posts_to_rows(Posts, Delegate, Hidden) ->
-    Style = ?WHEN_S(Hidden, ?HIDDEN),
+no_posts_cell(Adapter) ->
+    #tablerow{
+        cells = [
+            #tablecell{
+                text = Adapter:no_posts_text(),
+                align = center,
+                colspan = 4
+            }
+        ]
+    }.
+
+-spec posts_to_rows(list(#db_post{}), integer(), module()) -> list(#tablerow{}).
+posts_to_rows(Posts, CurrentPage, Delegate) ->
     [
         #tablerow{
-            style = Style,
             cells = [
-                #tablecell{body = title_link(Post#db_post.title, Post, Delegate)},
-                #tablecell{text = Post#db_post.authors},
-                #tablecell{text = show_date(Post#db_post.timestamp)}
+                #tablecell{
+                    body = title_link(Post#db_post.title, Post, Delegate),
+                    class = title},
+                #tablecell{
+                    text = Post#db_post.authors,
+                    class = authors},
+                #tablecell{
+                    text = show_date(Post#db_post.timestamp),
+                    class = date},
+                #tablecell{
+                    body = remove_link(Post, CurrentPage, Delegate),
+                    class = remove}
             ]
         }
         || Post <- Posts
     ].
 
--spec panel(posts_provider(), module(), integer(), iolist(), module()) -> term().
-panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
+-spec panel(posts_provider(), module(), integer()) -> term().
+panel(PostsFun, Adapter, PostCount) ->
     Posts = PostsFun(0, ?POSTS_PER_PAGE),
-    Pages = (PostCount div ?POSTS_PER_PAGE) + (if PostCount rem ?POSTS_PER_PAGE > 0 -> 1; true -> 0 end),
+    Pages = num_pages(PostCount),
 
     [
         #table{
@@ -111,25 +184,18 @@ panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
             rows = [
                 #tablerow{
                     cells = [
-                        #tableheader{text = ?T(msg_id_post_title)},
-                        #tableheader{text = ?T(msg_id_post_authors)},
-                        #tableheader{text = ?T(msg_id_post_date)}
+                        #tableheader{text = ?T(msg_id_post_title), class = title},
+                        #tableheader{text = ?T(msg_id_post_authors), class = authors},
+                        #tableheader{text = ?T(msg_id_post_date), class = date},
+                        #tableheader{class = remove}
                     ]
                 },
 
                 case Posts of
                     [] ->
-                        #tablerow{
-                            cells = [
-                                #tablecell{
-                                    text = NoPostsText,
-                                    align = center,
-                                    colspan = 3
-                                }
-                            ]
-                        };
+                        no_posts_cell(Adapter);
                     _ ->
-                        posts_to_rows(Posts, Delegate)
+                        posts_to_rows(Posts, 1, Adapter)
                 end
             ]
         },
@@ -143,11 +209,7 @@ panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
     ].
 
 
--spec body(posts_provider(), module(), integer(), module()) -> term().
-body(PostsFun, Adapter, PostCount, Delegate) ->
-    body(PostsFun, Adapter, PostCount, ?T(msg_id_posts_empty), Delegate).
-
--spec body(posts_provider(), module(), integer(), iolist(), module()) -> term().
-body(PostsFun, Adapter, PostCount, NoPostsText, Delegate) ->
-    panel(PostsFun, Adapter, PostCount, NoPostsText, Delegate).
+-spec body(posts_provider(), module(), integer()) -> term().
+body(PostsFun, Adapter, PostCount) ->
+    panel(PostsFun, Adapter, PostCount).
 

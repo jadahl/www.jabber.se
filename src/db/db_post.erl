@@ -22,6 +22,7 @@
         open_post/1, get_post/1,
         get_published_count/1, get_draft_count/1,
         get_posts_by/1, get_posts_by/3, get_drafts_by/1, get_drafts_by/3,
+        get_published_by/1, get_published_by/2, get_published_by/3,
         get_posts_by_view/1, get_posts_by_view/2,
         new_post/0, save_post/1, save_posts/2,
         t/1,
@@ -69,7 +70,11 @@ parse_helper({K, V}, P) ->
 
 is_content(Value) when is_binary(Value) ->
     true;
-is_content(List) when is_list(List) ->
+is_content([]) ->
+    true;
+is_content(String) when is_list(String) and is_integer(hd(String)) ->
+    true;
+is_content({List}) when is_list(List) ->
     is_string(List) orelse
     lists:all(
         fun(Content) ->
@@ -78,12 +83,9 @@ is_content(List) when is_list(List) ->
                     case {Lang == undefined orelse i18n:is_lang(Lang), is_content_body(Body)} of
                         {true, true} ->
                             true;
-                        R ->
-                            io:format("not content body ~p~n", [R]),
+                        _ ->
                             false
                     end;
-                _ when is_binary(Content) ->
-                    true;
                 _ ->
                     ?LOG_ERROR("Invalid content, '~p'", [Content]),
                     false
@@ -94,7 +96,7 @@ is_content(_Value) ->
     false.
     
 
-is_string(String) when is_list(String) ->
+is_string(String) when is_list(String) and (String /= "") ->
     lists:all(fun is_integer/1, String);
 is_string(_String) ->
     false.
@@ -113,16 +115,9 @@ check_post(#db_post{
     ?ensure_value_is(title, Title, is_content),
     ?ensure_value_is(timestamp, TimeStamp, fun(V) -> is_integer(V) or (V == undefined) end),
     ?ensure_all_values_are(tags, Tags, is_content_body),
-    ?ensure_all_values_are(authors, Authors, fun(W) -> is_string(W) or is_binary(W) end),
+    ?ensure_all_values_are(authors, Authors, fun(W) -> is_string(W) or (is_binary(W) and (W /= <<>>)) end),
     ?ensure_value_is(body, Body, is_content),
     ok.
-
-render_content(List) when is_list(List) ->
-    {lists:map(fun render_content/1, List)};
-render_content({Key, Value}) ->
-    {Key, render_content(Value)};
-render_content(Value) ->
-    Value.
 
 render_post(#db_post{
         id = Id,
@@ -141,12 +136,12 @@ render_post(#db_post{
         Rev,
         post,
         [
-            {title, render_content(Title)},
+            {title, Title},
             {state, State},
             {ts, TimeStamp},
             {tags, Tags},
             {authors, Authors},
-            {body, render_content(Body)}
+            {body, Body}
         ]
    
     }.
@@ -191,13 +186,22 @@ get_posts_by(Username, StartIndex, PostsPerPage) ->
     UsernameB = utils:to_binary(Username),
     get_posts_by_view("posts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
+get_published_by(Username) when is_list(Username) ->
+    get_published_by(Username, 0).
+get_published_by(Username, StartIndex) ->
+    get_published_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
+get_published_by(Username, StartIndex, PostsPerPage) ->
+    UsernameB = utils:to_binary(Username),
+    get_posts_by_view("published_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
+
+
 get_drafts_by(Username) when is_list(Username) ->
     get_drafts_by(Username, 0).
 get_drafts_by(Username, StartIndex) ->
     get_drafts_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
 get_drafts_by(Username, StartIndex, PostsPerPage) ->
     UsernameB = utils:to_binary(Username),
-    get_posts_by_view("drafts", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
+    get_posts_by_view("drafts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 get_posts_by_view(ViewName) ->
     get_posts_by_view(ViewName, []).
@@ -307,13 +311,12 @@ loose_keystore(Key, [V | Vs], T) ->
 loose_keystore(_, [], T) ->
     [T].
 
-store_by_locale(Value, Locale, Values) when is_binary(Value) and is_atom(Locale) and is_list(Values) ->
-    io:format("store_by_locale: ~p, ~p, ~p~n", [Value, Locale, Values]),
-    loose_keystore(Locale, Values, {Locale, Value});
+store_by_locale(Value, Locale, {Values}) when is_binary(Value) and is_atom(Locale) and is_list(Values) ->
+    {loose_keystore(Locale, Values, {Locale, Value})};
 store_by_locale(Value, Locale, OtherValue) when is_binary(Value) and is_atom(Locale) and is_binary(OtherValue) ->
-    [{undefined, OtherValue}, {Locale, Value}];
-store_by_locale(Value, Locale, Values) ->
-    store_by_locale(utils:to_binary(Value), utils:to_atom(Locale), Values).
+    {[{undefined, OtherValue}, {Locale, Value}]};
+store_by_locale(Value, Locale, {Values}) when is_list(Values) ->
+    store_by_locale(utils:to_binary(Value), utils:to_atom(Locale), {Values}).
 
 set_title(undefined, _, Post) -> Post;
 set_title(Title, Locale, Post) ->

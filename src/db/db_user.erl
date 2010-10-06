@@ -54,6 +54,7 @@ render_user(#db_user{
         jid = Jid}) ->
     {
         Username,
+        undefined,
         user,
         [
             {password_hash, PasswordHash},
