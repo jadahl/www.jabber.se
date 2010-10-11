@@ -31,7 +31,8 @@
 %
 
 get_default_menu_element() ->
-    menu:get_element_by_module(?DEFAULT_INDEX_MODULE).
+    {just, Element} = menu:get_element_by_module(?DEFAULT_INDEX_MODULE),
+    Element.
 
 load_content(Module) ->
     load_content(Module, []).
@@ -41,7 +42,7 @@ load_content(Module, Options) ->
     case menu:get_element_by_module(Module) of
         nothing ->
             ?LOG_WARNING("load_content called for nonexisting module \"~p\",", [Module]);
-        MenuElement ->
+        {just, MenuElement} ->
             try
                 Body = Module:body(),
                 change_body(MenuElement, Body, Options)
@@ -223,7 +224,7 @@ api_event(load_content, load_content, [Fragment]) when is_list(Fragment) ->
     ?LOG_INFO("load_content(~p);", [Fragment]),
     session:env(),
     case menu:get_element_by_url(Fragment) of
-        #menu_element{module = Module} ->
+        {just, #menu_element{module = Module}} ->
             load_content(Module, [animate]);
         _ ->
             ?LOG_WARNING("Unknown url requested: ~p", [Fragment])

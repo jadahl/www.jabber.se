@@ -30,7 +30,7 @@ main() ->
     case menu:get_element_by_path(Path, menu:get_menu_elements()) of
         nothing ->
             web_error:main();
-        MenuElement ->
+        {just, MenuElement} ->
             Module = MenuElement#menu_element.module,
             try
                 Body = Module:atom(),

@@ -97,16 +97,16 @@ set_pager(New, Count, Adapter) ->
 % Table content
 %
 
-title_link({Titles}, Post, Delegate) when is_list(Titles) ->
+-spec title_link(db_post:content(), db_post:post(), module()) -> #link{}.
+title_link(Titles, Post, Delegate) ->
     case db_post:value_prefer_locale(i18n:get_language(), Titles) of
         nothing ->
             title_link(undefined, undefined, Post, Delegate);
-        {Locale, Title} when is_binary(Title) ->
+        {Locale, Title} ->
             title_link(Title, Locale, Post, Delegate)
-    end;
-title_link(Title, Post, Delegate) when is_binary(Title) ->
-    title_link(Title, undefined, Post, Delegate).
+    end.
 
+-spec title_link(undefined | binary(), atom(), db_post:post(), module()) -> #link{}.
 title_link(Title, Locale, Post, Delegate) ->
     LinkTitle = case Title of
         undefined ->

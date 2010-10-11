@@ -69,8 +69,11 @@ menu_items() ->
 %   Url = string()
 %   Result = #menu_element{} | none
 %
+-spec get_element_by_url(string()) -> {just, #menu_element{}} | nothing.
 get_element_by_url(Url) ->
     get_element_by_url(Url, menu:get_menu_elements()).
+
+-spec get_element_by_url(string(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
 get_element_by_url(Url, Elements) ->
     utils:find_with(fun maybe_element_by_url/2, Url, Elements).
 
@@ -84,8 +87,11 @@ maybe_element_by_url(_, _) ->
 %   Module = atom()
 %   Result = #menu_element{} | none
 %
+-spec get_element_by_module(module()) -> {just, #menu_element{}} | nothing.
 get_element_by_module(Module) ->
     get_element_by_module(Module, menu:get_menu_elements()).
+
+-spec get_element_by_module(module(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
 get_element_by_module(Module, Elements) ->
     utils:find_with(fun maybe_element_by_module/2, Module, Elements).
 
@@ -99,8 +105,11 @@ maybe_element_by_module(_, _) ->
 %   Path = string()
 %   Result = #menu_element{} | none
 %
+-spec get_element_by_path(string()) -> {just, #menu_element{}} | nothing.
 get_element_by_path(Path) ->
     get_element_by_path(Path, menu:get_menu_elements()).
+
+-spec get_element_by_path(string(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
 get_element_by_path(Path, Elements) ->
     utils:find_with(fun maybe_element_by_path/2, Path, Elements).
 

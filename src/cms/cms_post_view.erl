@@ -78,9 +78,12 @@ set_saved_label(Text) ->
 % Content
 %
 
+drop_locale(nothing) -> "";
+drop_locale({_, Content}) -> Content.
+
 set_content(Subject, Body) ->
-    wf:set(post_dialog_subject_input, Subject),
-    wf:set(post_dialog_text_area, Body).
+    wf:set(post_dialog_subject_input, drop_locale(Subject)),
+    wf:set(post_dialog_text_area, drop_locale(Body)).
 
 %
 % Body
@@ -98,14 +101,8 @@ body(#db_post{tags = Tags} = Post, Locale) ->
     end,
 
     % content
-    Subject = case db_post:value_by_locale(Locale, Post#db_post.title) of
-        nothing -> "";
-        Subject1 -> Subject1
-    end,
-    Body = case db_post:value_by_locale(Locale, Post#db_post.body) of
-        nothing -> "";
-        Body1 -> Body1
-    end,
+    Subject = drop_locale(db_post:value_by_locale(Locale, Post#db_post.title)),
+    Body = drop_locale(db_post:value_by_locale(Locale, Post#db_post.body)),
 
     EnableSaveButtonEvent = #event{type = textchange, actions = [#enable{target = post_dialog_save_button}, #update{target = post_dialog_saved_message, elements = ""}]},
     #panel{

@@ -36,6 +36,15 @@
 -include("include/db/db.hrl").
 
 %
+% Types
+%
+
+-type locale()  :: undefined | sv_SE | en_US.
+-type post()    :: #db_post{}.
+-type value()   :: {locale(), binary()}.
+-type content() :: binary() | {[value()]}.
+
+%
 % Doc <--> Post
 %
 
@@ -94,7 +103,6 @@ is_content({List}) when is_list(List) ->
 is_content(_Value) ->
     ?LOG_ERROR("Invalid content '~p'", [_Value]),
     false.
-    
 
 is_string(String) when is_list(String) and (String /= "") ->
     lists:all(fun is_integer/1, String);
@@ -119,6 +127,7 @@ check_post(#db_post{
     ?ensure_value_is(body, Body, is_content),
     ok.
 
+-spec render_post(post()) -> {binary(), binary(), post, any()}.
 render_post(#db_post{
         id = Id,
         rev = Rev,
@@ -228,43 +237,51 @@ save_posts(Posts, Db) ->
 % Locale
 %
 
+-spec t(content()) -> binary().
 t(Values) ->
     safe_value_prefer_locale(i18n:get_language(), Values).
 
+%
+% Simple function for getting any value hoping for the right locale
+%
+
+-spec safe_value_prefer_locale(locale(), content()) -> binary().
 safe_value_prefer_locale(Locale, Values) ->
     case value_prefer_locale(Locale, Values) of
         nothing ->
             ?LOG_WARNING("No valid translation found for '~p' in '~p'", [Locale, Values]),
-            [];
+            <<>>;
         {_, Value} ->
             Value
     end.
 
-maybe_default_value({undefined, Value}, _) when is_binary(Value) ->
+%
+% Locale functions
+%
+
+maybe_default_value({undefined, _} = Value, _) ->
     {just, Value};
 maybe_default_value(_, _) ->
     nothing.
 
+-spec default_value(content()) -> value() | nothing.
 default_value(Value) when is_binary(Value) ->
-    Value;
-default_value(Values) ->
-    utils:find_with(fun maybe_default_value/2, none, Values).
+    {undefined, Value};
+default_value({Values}) when is_list(Values) ->
+    utils:just(utils:find_with(fun maybe_default_value/2, none, Values)).
 
-maybe_value_by_locale({Locale1, Value}, Locale2) when Locale1 == Locale2 ->
+maybe_value_by_locale({Locale, _} = Value, Locale) ->
     {just, Value};
-maybe_value_by_locale({undefined, Value}, undefined) when is_binary(Value) ->
-    {just, Value};
-maybe_value_by_locale(Value, undefined) when is_binary(Value) ->
+maybe_value_by_locale({undefined, _} = Value, undefined) ->
     {just, Value};
 maybe_value_by_locale(_, _) ->
     nothing.
 
+-spec value_by_locale(locale(), content()) -> value() | nothing.
 value_by_locale(Locale, {Values}) when is_list(Values) ->
-    value_by_locale(Locale, Values);
-value_by_locale(Locale, Values) when is_list(Values) ->
-    utils:find_with(fun maybe_value_by_locale/2, Locale, Values);
+    utils:just(utils:find_with(fun maybe_value_by_locale/2, Locale, Values));
 value_by_locale(undefined, Value) when is_binary(Value) ->
-    Value;
+    {undefined, Value};
 value_by_locale(_, _) ->
     nothing.
 
@@ -272,21 +289,21 @@ value_by_locale(_, _) ->
 % value_by_any_locale(Values) -> {Value, Locale} | nothing
 %   Values = list()
 %   Value = binary()
-%   Locale = atom()
+%   Locale = locale()
 %
-value_by_any_locale([{Locale, Value} | _]) ->
-    {Locale, Value};
-value_by_any_locale([Value | _]) when is_binary(Value) or is_list(Value) ->
-    {undefined, Value};
-value_by_any_locale(_) ->
+-spec value_by_any_locale(content()) -> value() | nothing.
+value_by_any_locale({[{_, _} = Value | _]}) ->
+    Value;
+value_by_any_locale({[]}) ->
     nothing.
 
 %
 % value_prefer_locale(Values) -> {Locale, Value} | nothing
-%   Values = list()
+%   Values = {list()}
 %   Value = binary()
-%   Locale = atom()
+%   Locale = locale()
 %
+-spec value_prefer_locale(locale(), content()) -> value() | nothing.
 value_prefer_locale(Locale, Values) ->
     case value_by_locale(Locale, Values) of
         nothing ->
@@ -294,10 +311,10 @@ value_prefer_locale(Locale, Values) ->
                 nothing ->
                     value_by_any_locale(Values);
                 DefaultValue ->
-                    {undefined, DefaultValue}
+                    DefaultValue
             end;
         Value ->
-            {Locale, Value}
+            Value
     end.
 
 %

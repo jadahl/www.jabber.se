@@ -282,21 +282,9 @@ change_locale(Locale, Id) ->
 
     % update form content with other translation, or empty if none
 
-    % subject
-    NewSubject = case db_post:value_by_locale(Locale, Title) of
-        nothing ->
-            "";
-        Subject ->
-            Subject
-    end,
-
-    % body
-    NewBody = case db_post:value_by_locale(Locale, Body) of
-        nothing ->
-            "";
-        Body1 ->
-            Body1
-    end,
+    % content
+    NewSubject = db_post:value_by_locale(Locale, Title),
+    NewBody = db_post:value_by_locale(Locale, Body),
 
     cms_post_view:set_content(NewSubject, NewBody),
 
@@ -324,7 +312,8 @@ event_add_tag(Tag) ->
     ?LOG_INFO("add_tag(~p)", [Tag]),
     case current_post() of
         undefined ->
-            save_new_post((empty_post())#db_post{tags = [Tag]});
+            Id = save_new_post((empty_post())#db_post{tags = [Tag]}),
+            set_current_post(Id);
         Id ->
             db_post:push_tag(Tag, Id)
     end,

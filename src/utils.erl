@@ -25,7 +25,7 @@
         to_binary/1, to_string/1, to_atom/1,
         sub_id/2,
         to_xml/1, t_to_ht/1, ts_to_ht/1, text_to_hyper_text/1, texts_to_hyper_text/1, text_to_ht/1, log/5,
-        join/2, range/1, range/2, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
+        join/2, range/1, range/2, just/1, find_with/3, forall/2, keyreplacewith/4, keyreplaceoraddwith/4
     ]).
 
 %
@@ -171,6 +171,10 @@ range1(I, Num) when I < Num ->
 range1(_, _) ->
     [].
 
+-spec just({just, Value} | nothing) -> Value | nothing.
+just({just, Value}) -> Value;
+just(nothing) -> nothing.
+
 %
 % find_with(MaybeFun, Acc0, List) -> Acc1 | nothing
 %  MaybeFun = fun(Elem, AccIn) -> {just, AccOut} | nothing
@@ -178,10 +182,11 @@ range1(_, _) ->
 %  Acc0 = Acc1 = AccOut = AccIn = term()
 %  List = [term()]
 %
+-spec find_with(fun((Elem, Elem) -> {just, Elem} | nothing), Elem, [Elem]) -> {just, Elem} | nothing.
 find_with(MaybeFun, AccIn, [Elem| Elements]) ->
     case MaybeFun(Elem, AccIn) of
         {just, AccOut} ->
-            AccOut;
+            {just, AccOut};
         nothing ->
             find_with(MaybeFun, AccIn, Elements)
     end;
