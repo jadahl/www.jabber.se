@@ -40,11 +40,8 @@ back() ->
     action_dialog:back(?DIALOG_ID).
 
 show_dialog() ->
-    Dialog = #dyn_dialog{id = ?DIALOG_ID, class = top_dialog},
-    wf:insert_bottom(dialogs, Dialog),
-    set_body_close(?T(msg_id_admin_title), body()),
-    wf:wire(?DIALOG_ID, #dialog_show{}),
-    ok.
+    Dialog = #dialog{id = ?DIALOG_ID},
+    dialog:show(Dialog, fun() -> set_body_close(?T(msg_id_admin_title), body()) end).
 
 title() ->
     ?T(msg_id_admin_title).

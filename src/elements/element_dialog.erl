@@ -24,6 +24,8 @@
 -include("include/utils.hrl").
 -include("include/ui.hrl").
 
+-type dialog() :: #dialog{}.
+
 corner_symbol(Corner) ->
     case Corner of
         back -> "↩";
@@ -40,34 +42,18 @@ render_corner(Corner, Actions) ->
         }
     }.
 
-render_element(#dyn_dialog{id = Id, class = Class}) ->
-    Corner = #panel{
-        id = corner},
+-spec render_element(dialog()) -> term().
+render_element(#dialog{id = Id, class = Class, title = Title, body = Body}) ->
+    Corner = #panel{id = corner},
 
-    #panel{
-        class = [dyn_dialog, Class],
-        id = Id,
-        style = ?HIDDEN,
-        body = [
-            #panel{class = dyn_dialog_title, body = [#h2{id = title}, Corner]},
-            #hr{},
-            #panel{id = body}
-        ]
-    };
-
-render_element(#dialog{body = Body, id = Id, class = Class}) ->
     #panel{
         class = [dialog, Class],
         id = Id,
         style = ?HIDDEN,
         body = [
-            #link{
-                body = #image{
-                    class = close_button,
-                    image = "/res/close.png"},
-                actions = #event{type = click, actions = #dialog_hide{target = Id}}
-            },
-            #panel{class = dialog_content, body = Body}
+            #panel{class = dyn_dialog_title, body = [#h2{id = title, text = Title}, Corner]},
+            #hr{},
+            #panel{id = body, body = Body}
         ]
     }.
 

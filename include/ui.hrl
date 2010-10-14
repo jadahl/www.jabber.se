@@ -27,8 +27,7 @@
 
 -record(strong, {?ELEMENT_BASE(element_typeface), body = "", text = "", html_encode = true}).
 -record(state_panel, {?ELEMENT_BASE(element_state_panel), bodies, inline = false, visible = false, init_state}).
--record(dyn_dialog, {?ELEMENT_BASE(element_dialog), corner = close}).
--record(dialog, {?ELEMENT_BASE(element_dialog), body = []}).
+-record(dialog, {?ELEMENT_BASE(element_dialog), corner = close, title = "", body = ""}).
 
 -record(ext_link, {?ELEMENT_BASE(element_ext_link), url, type, rel, title}).
 

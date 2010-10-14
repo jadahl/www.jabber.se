@@ -223,6 +223,7 @@ Site.prototype.$dialog_hide = function(dialog_id, callback) {
 }
 
 Site.prototype.$dialog_show = function(dialog_id, callback) {
+    var dialog = $(dialog_id);
     if (this.active_dialog)
     {
         this.active_dialog = null;
@@ -230,7 +231,6 @@ Site.prototype.$dialog_show = function(dialog_id, callback) {
     }
     else
     {
-        var dialog = $(dialog_id);
         this.active_dialog = dialog;
         this.$overlay_show(function() { dialog.fadeIn('fast', function() { dialog.trigger('foo'); if (callback) callback(); }); });
     }
