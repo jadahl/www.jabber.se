@@ -31,6 +31,5 @@ show(Dialog, ContentFun) ->
     Class = Dialog#dialog.class,
     wf:update(dialogs, Dialog#dialog{class = lists:flatten([top_dialog, Class])}),
     ContentFun(),
-    io:format("show ing dialog ~p~n", [Id]),
     wf:wire(Id, #dialog_show{}).
 

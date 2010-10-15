@@ -40,5 +40,8 @@
     {msg_id_post_remove, "Remove post"},
     {msg_id_post_title, "Post content"},
     {msg_id_post_untitled, "(untitled)"},
-    {msg_id_posts_empty, "No posts..."}
+    {msg_id_posts_empty, "No posts..."},
+    {msg_id_reload, "Reload"},
+    {msg_id_reload_page, "Page needs to be reloaded"},
+    {msg_id_unauthorized_request, "Unauthorized request"}
 ].

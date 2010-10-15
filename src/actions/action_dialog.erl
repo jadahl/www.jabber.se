@@ -34,17 +34,17 @@ render_action(#dialog_show{target = Target}) ->
 render_action(#dialog_hide{target = Target}) ->
     #js_call{fname = "$Site.$dialog_hide", args = [Target]};
 
-render_action(#dyn_dialog_back{target = Id}) ->
+render_action(#dialog_back{target = Id}) ->
     #jquery_cast{anchor = Id, target = corner_link, cast = click};
 
-render_action(#dyn_dialog_corner{
+render_action(#dialog_corner{
         target = Target,
         corner = Corner,
         actions = Actions
     }) ->
     #update{anchor = Target, target = corner, elements = element_dialog:render_corner(Corner, Actions)};
 
-render_action(#dyn_dialog_set{
+render_action(#dialog_set{
         target = Target,
         title = Title,
         body = Body}) ->
@@ -61,16 +61,16 @@ hide(Id) ->
 
 reset_actions(Id, Title, Body, Corner, Actions) ->
     [
-        #dyn_dialog_corner{target = Id, corner = Corner, actions = Actions},
-        #dyn_dialog_set{target = Id, title = Title, body = Body}
+        #dialog_corner{target = Id, corner = Corner, actions = Actions},
+        #dialog_set{target = Id, title = Title, body = Body}
     ].
 
 set(Id, Title, Body) ->
-    wf:wire(#dyn_dialog_set{target = Id, title = Title, body = Body}).
+    wf:wire(#dialog_set{target = Id, title = Title, body = Body}).
 
 corner(Id, Corner, Actions) ->
-    wf:wire(#dyn_dialog_corner{target = Id, corner = Corner, actions = Actions}).
+    wf:wire(#dialog_corner{target = Id, corner = Corner, actions = Actions}).
 
 back(Id) ->
-    wf:wire(#dyn_dialog_back{target = Id}).
+    wf:wire(#dialog_back{target = Id}).
 

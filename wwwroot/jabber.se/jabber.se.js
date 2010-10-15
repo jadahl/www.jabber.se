@@ -227,7 +227,7 @@ Site.prototype.$dialog_show = function(dialog_id, callback) {
     if (this.active_dialog)
     {
         this.active_dialog = null;
-        dialog.fadeIn('fast', function() { $Site.show_dialog(dialog_id, callback); });
+        dialog.fadeIn('fast', function() { $Site.$dialog_show(dialog_id, callback); });
     }
     else
     {
@@ -245,6 +245,10 @@ Site.prototype.$overlay_hide = function(callback) {
     {
         this.overlay.fadeOut('fast', callback);
     }
+}
+
+Site.prototype.$overlay_inhibit_hide = function() {
+    this.overlay.unbind('click');
 }
 
 Site.prototype.$set_overlay_size = function() {

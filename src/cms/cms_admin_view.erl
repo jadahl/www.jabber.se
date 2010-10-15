@@ -34,7 +34,7 @@ set_body_close(Title, Body) ->
     action_dialog:corner(?DIALOG_ID, close, #dialog_hide{target = ?DIALOG_ID}).
 
 back_action() ->
-    #dyn_dialog_back{target = ?DIALOG_ID}.
+    #dialog_back{target = ?DIALOG_ID}.
 
 back() ->
     action_dialog:back(?DIALOG_ID).

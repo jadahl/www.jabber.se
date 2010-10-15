@@ -40,5 +40,8 @@
     {msg_id_post_remove, "Ta bort"},
     {msg_id_post_title, "Titel"},
     {msg_id_post_untitled, "(ingen titel)"},
-    {msg_id_posts_empty, "Inga inlägg"}
+    {msg_id_posts_empty, "Inga inlägg"},
+    {msg_id_reload, "Sidan behöver laddas om"},
+    {msg_id_reload_page, "Ladda om"},
+    {msg_id_unauthorized_request, "Åtkomst förbjuden"}
 ].

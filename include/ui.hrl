@@ -27,7 +27,7 @@
 
 -record(strong, {?ELEMENT_BASE(element_typeface), body = "", text = "", html_encode = true}).
 -record(state_panel, {?ELEMENT_BASE(element_state_panel), bodies, inline = false, visible = false, init_state}).
--record(dialog, {?ELEMENT_BASE(element_dialog), corner = close, title = "", body = ""}).
+-record(dialog, {?ELEMENT_BASE(element_dialog), corner = close, title = "", title_class = [], body = ""}).
 
 -record(ext_link, {?ELEMENT_BASE(element_ext_link), url, type, rel, title}).
 
@@ -41,9 +41,9 @@
 -record(state_panel_show, {?ACTION_BASE(action_state_panel), key}).
 -record(state_panel_hide, {?ACTION_BASE(action_state_panel)}).
 
--record(dyn_dialog_back, {?ACTION_BASE(action_dialog)}).
--record(dyn_dialog_set, {?ACTION_BASE(action_dialog), title, body}).
--record(dyn_dialog_corner, {?ACTION_BASE(action_dialog), corner}).
+-record(dialog_back, {?ACTION_BASE(action_dialog)}).
+-record(dialog_set, {?ACTION_BASE(action_dialog), title, body}).
+-record(dialog_corner, {?ACTION_BASE(action_dialog), corner}).
 
 -record(dialog_show, {?ACTION_BASE(action_dialog)}).
 -record(dialog_hide, {?ACTION_BASE(action_dialog)}).

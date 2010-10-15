@@ -43,15 +43,21 @@ render_corner(Corner, Actions) ->
     }.
 
 -spec render_element(dialog()) -> term().
-render_element(#dialog{id = Id, class = Class, title = Title, body = Body}) ->
+render_element(#dialog{
+        id = Id,
+        class = Class,
+        title = Title,
+        title_class = TitleClass,
+        body = Body}) ->
     Corner = #panel{id = corner},
+    FinalTitleClass = lists:flatten([TitleClass, dyn_dialog_title]),
 
     #panel{
         class = [dialog, Class],
         id = Id,
         style = ?HIDDEN,
         body = [
-            #panel{class = dyn_dialog_title, body = [#h2{id = title, text = Title}, Corner]},
+            #panel{class = FinalTitleClass, body = [#h2{id = title, text = Title}, Corner]},
             #hr{},
             #panel{id = body, body = Body}
         ]

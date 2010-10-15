@@ -18,11 +18,13 @@
 
 -module(session).
 -include_lib("nitrogen/include/wf.inc").
--export([authenticated/0, event/1, env/0, language/1, page_init/0]).
+-export([authenticated/0, event/1, env/0, language/1, page_init/0, unauthorized_request/0]).
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
 -include("include/ui.hrl").
+
+-include_lib("nitrogen/include/wf.hrl").
 
 %
 % Constants
@@ -112,8 +114,7 @@ event(do_logout) ->
     session:env(),
 
     wf:clear_session(),
-    wf:wire(admin_panel, #fade{actions = #update{type = remove}}),
-    wf:wire(#state_panel_set{target = login_link, key = anonymous});
+    session_view:logged_out();
 
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
@@ -123,13 +124,8 @@ event(Event) ->
 %
 
 page_init() ->
-    case wf:user() of
-        undefined ->
-            ok;
-        _ ->
-            wf:insert_top(menu_bar_center, session_view:admin_panel()),
-            wf:wire(#show{target = admin_panel})
-    end.
+    User = wf:user(),
+    session_view:page_init(User).
 
 %
 % Login
@@ -144,13 +140,10 @@ login() ->
             % Set session user value
             wf:user(Username),
 
-            % Update elements
-            wf:wire(#state_panel_set{target = login_link, key = authenticated}),
-            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success, actions = #focus{target = login_dialog_close_button}}),
-            wf:insert_bottom(menu_bar_center, session_view:admin_panel()),
-            wf:wire(#appear{target = admin_panel, speed = "slow"});
+            % Update view
+            session_view:logged_in();
         _ ->
-            wf:wire(#state_panel_set{target = login_dialog, animate = true, key = fail})
+            session_view:login_failed()
     end.
 
 
@@ -182,3 +175,11 @@ authenticate1(Username, Password) ->
         _ ->
             denied
     end.
+
+%
+% Timeout
+%
+
+unauthorized_request() ->
+    session_view:unauthorized_request().
+

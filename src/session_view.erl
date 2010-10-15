@@ -17,7 +17,11 @@
 %
 
 -module(session_view).
--export([login_dialog/0, login_panel/0, admin_panel/0]).
+-export([
+        login_dialog/0, login_panel/0, admin_panel/0,
+        logged_out/0, logged_in/0, login_failed/0, page_init/1,
+        unauthorized_request/0
+    ]).
 
 -include_lib("nitrogen/include/wf.hrl").
 -include("include/utils.hrl").
@@ -177,3 +181,44 @@ admin_panel() ->
         ]
     }.
 
+logged_out() ->
+    wf:wire(admin_panel, #fade{actions = #update{type = remove}}),
+    wf:wire(#state_panel_set{target = login_link, key = anonymous}).
+
+logged_in() ->
+    % Update elements
+    wf:wire(#state_panel_set{target = login_link, key = authenticated}),
+    wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success, actions = #focus{target = login_dialog_close_button}}),
+    wf:insert_bottom(menu_bar_center, admin_panel()),
+    wf:wire(#appear{target = admin_panel, speed = "slow"}).
+
+login_failed() ->
+    wf:wire(#state_panel_set{target = login_dialog, animate = true, key = fail}).
+
+page_init(undefined) ->
+    ok;
+page_init(_User) ->
+    wf:insert_top(menu_bar_center, admin_panel()),
+    wf:wire(#show{target = admin_panel}).
+
+unauthorized_request() ->
+    % display logged out dialog
+    Dialog = #dialog{
+        id = unauthorized_request_dialog,
+        title = ?T(msg_id_unauthorized_request),
+        title_class = [center, warning],
+        body = #panel{
+            class = center,
+            body = [
+                % TODO add ability to login
+                % TODO add reason: session timed out/other (?)
+                #p{body = ?T(msg_id_reload_page)},
+                #button{
+                    text = ?T(msg_id_reload),
+                    actions = #event{type = click, actions = #script{script = "location.reload();"}}
+                }
+            ]
+        }
+    },
+    wf:wire(#site_cast{cast = overlay_inhibit_hide}),
+    dialog:show(Dialog).
