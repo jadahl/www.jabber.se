@@ -20,7 +20,7 @@
 -export([
         tag/1, add_tag/1, remove_tag/1, tag_alternatives/0,
         set_saved_label/0, set_save_failed_label/0,
-        set_content/2,
+        set_content/2, set_post_state/1,
         body/2, wire_validators/0, title/0]).
 
 -include_lib("nitrogen/include/wf.hrl").
@@ -75,6 +75,13 @@ set_saved_label(Text) ->
     wf:update(post_dialog_saved_message, Text).
 
 %
+% Publish / Unpublish button
+%
+
+set_post_state(State) ->
+    action_state_panel:set_panel(State, post_dialog_publish_unpublish).
+
+%
 % Content
 %
 
@@ -89,7 +96,7 @@ set_content(Subject, Body) ->
 % Body
 %
 
-body(#db_post{tags = Tags} = Post, Locale) ->
+body(#db_post{tags = Tags, state = State} = Post, Locale) ->
 
     % get tags
     {TagElements, TagIds} = lists:unzip(lists:map(fun tag/1, Tags)),
@@ -186,12 +193,33 @@ body(#db_post{tags = Tags} = Post, Locale) ->
             #label{text = ?T(msg_id_post_dialog_content), style = ?BLOCK},
             #textarea{id = post_dialog_text_area, text = Body, actions = EnableSaveButtonEvent},
 
-            % post | save | discard | cancel
-            #button{
-                id = post_dialog_post_button,
-                text = ?T(msg_id_post_dialog_post),
-                postback = post,
-                delegate = cms_post},
+            % publish/unpublish | save | discard | cancel
+            #state_panel{
+                id = post_dialog_publish_unpublish,
+                inline = true,
+                visible = true,
+                init_state = State,
+                bodies = [
+                    {public, 
+                        #button{
+                            id = post_dialog_unpublish_button,
+                            text = ?T(msg_id_post_dialog_unpublish),
+                            actions = #event{type = click, actions = #disable{}},
+                            postback = unpublish,
+                            delegate = cms_post
+                        }
+                    },
+                    {draft,
+                        #button{
+                            id = post_dialog_publish_button,
+                            text = ?T(msg_id_post_dialog_publish),
+                            actions = #event{type = click, actions = #disable{}},
+                            postback = publish,
+                            delegate = cms_post
+                        }
+                    }
+                ]
+            },
 
             #button{
                 id = post_dialog_save_button,
@@ -205,11 +233,6 @@ body(#db_post{tags = Tags} = Post, Locale) ->
                 text = ?T(msg_id_post_dialog_discard),
                 postback = discard,
                 delegate = cms_post},
-
-            #button{
-                id = post_dialog_cancel_button,
-                text = ?T(msg_id_cancel),
-                actions = #event{type = click, actions = cms_admin_view:back_action()}},
 
             " ",
 

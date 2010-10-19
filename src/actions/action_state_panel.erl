@@ -17,7 +17,7 @@
 %
 
 -module(action_state_panel).
--export([render_action/1, set_action/4, show_action/2, show_action/3, hide_action/1]).
+-export([render_action/1, set_panel/2, set_action/4, show_action/2, show_action/3, hide_action/1]).
 
 -include("include/ui.hrl").
 
@@ -41,6 +41,9 @@ render_action(#state_panel_hide{target = Target}) ->
 % API
 %
 
+set_panel(Key, Target) ->
+    wf:wire(Target, #state_panel_set{key = Key}).
+
 set_action(Key, Animate, ValidateGroup, Id) ->
     set_action(Key, Animate, ValidateGroup, Id, []).
 set_action(Key, Animate, ValidateGroup, Id, Actions) ->
@@ -53,4 +56,3 @@ show_action(Key, Id, Actions) ->
 
 hide_action(Id) ->
     #js_call{fname = "$Site.$state_panel_hide", args = [Id]}.
-

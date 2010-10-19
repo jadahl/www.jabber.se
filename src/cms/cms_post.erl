@@ -86,8 +86,11 @@ event({open, Id, Locale, Back}) ->
 
 % Compose events
 
-event(post) ->
-    ?AUTH(event_post());
+event(publish) ->
+    ?AUTH(event_publish());
+
+event(unpublish) ->
+    ?AUTH(event_unpublish());
 
 event(save) ->
     ?AUTH(event_save());
@@ -174,8 +177,8 @@ with_locale_do(Fun) ->
             throw({invalid_locale, Locale})
     end.
 
-event_post() ->
-    ?LOG_INFO("Posting draft", []),
+event_publish() ->
+    ?LOG_INFO("Publishing draft", []),
     try
         with_locale_do(
             fun(Locale) ->
@@ -191,6 +194,19 @@ event_post() ->
     catch
         {invalid_locale, Locale} ->
             ?LOG_ERROR("Couldn't figure out locale (~p), not posting.", [Locale])
+    end.
+
+event_unpublish() ->
+    ?LOG_INFO("Unpublishing post", []),
+    case current_post() of
+        undefined ->
+            ?LOG_ERROR("Trying to unpublish undefined post.", []);
+        Id ->
+            Post = db_post:get_post(Id),
+            db_post:save_post(db_post:set_state(draft, Post)),
+
+            % update ui
+            cms_post_view:set_post_state(draft)
     end.
 
 event_save() ->
