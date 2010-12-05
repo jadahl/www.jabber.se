@@ -251,7 +251,10 @@ event_discard() ->
     ?LOG_INFO("Discarding draft", []),
     case current_post() of
         undefined ->
-            ?LOG_WARNING("Trying to discard unexisting post.", []);
+            ?LOG_WARNING("Trying to discard unexisting post.", []),
+
+            % update ui
+            cms_admin_view:back();
         Id ->
             try
                 % delete from database
