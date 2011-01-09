@@ -134,8 +134,15 @@ div#menu {
     bottom: 0px;
 }
 
-div.wfid_menu_bar_center {
-    padding: 5px;
+div#menu_bar_admin {
+    position: absolute;
+    right: 0px;
+}
+
+div#menu_bar_center {
+    position: absolute;
+    right: 0px;
+    padding: 5px 10px 5px 10px;
 }
 
 div#menu_bar_right {
@@ -344,12 +351,9 @@ div.wfid_admin_panel {
 
     text-align: center;
 
-    width: 300px;
     height: 18px;
 
-    padding: 5px;
-    margin-left: auto;
-    margin-right: auto;
+    padding: 5px 15px 5px 15px;
 
     /* style */
     border-radius: 20px;

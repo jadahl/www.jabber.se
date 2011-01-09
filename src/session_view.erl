@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -117,38 +117,24 @@ login_dialog() ->
 %
 
 login_link() ->
-    #state_panel{
+    Style = case session:authenticated() of
+        true -> ?HIDDEN;
+        false -> ""
+    end,
+    #link{
         id = login_link,
-        bodies = [
-            {anonymous, 
-                #link{
-                    class = login_link,
-                    text = ?T(msg_id_login),
-                    actions = #event{
-                        type = click,
-                        actions = #state_panel_show{
-                            target = login_dialog,
-                            key = login,
-                            actions = [#focus{target = login_username}, #select{target = login_username}]
-                        }
-                    }
-                }
-            },
-            {authenticated,
-                #link{
-                    class = login_link,
-                    text = ?T(msg_id_logout),
-                    delegate = session,
-                    postback = do_logout}
+        style = Style,
+        class = login_link,
+        text = ?T(msg_id_login),
+        actions = #event{
+            type = click,
+            actions = #state_panel_show{
+                target = login_dialog,
+                key = login,
+                actions = [#focus{target = login_username}, #select{target = login_username}]
             }
-        ],
-        visible = true,
-        init_state = ?EITHER(wf:user() == undefined, anonymous, authenticated)
+        }
     }.
-
-%
-% Login panel
-%
 
 login_panel() ->
     [
@@ -171,34 +157,43 @@ admin_panel() ->
                 text = ?T(msg_id_admin_content),
                 delegate = cms_admin,
                 postback = admin
+            },
+
+            " | ",
+
+            #link{
+                text = ?T(msg_id_logout),
+                delegate = session,
+                postback = do_logout
             }
-
-            %" | ",
-
-            %#link{
-            %    class = admin_panel_button,
-            %    text = ?T(msg_id_admin_account)}
         ]
     }.
 
 logged_out() ->
-    wf:wire(admin_panel, #fade{actions = #update{type = remove}}),
-    wf:wire(#state_panel_set{target = login_link, key = anonymous}).
+    wf:wire(admin_panel, #fade{actions = [#update{type = remove},
+                                          #appear{target = login_link}]}).
 
 logged_in() ->
     % Update elements
-    wf:wire(#state_panel_set{target = login_link, key = authenticated}),
-    wf:wire(#state_panel_set{target = login_dialog, animate = true, key = success, actions = #focus{target = login_dialog_close_button}}),
-    wf:insert_bottom(menu_bar_center, admin_panel()),
+    wf:wire(login_link, #fade{}),
+    wf:wire(#state_panel_set{
+                target = login_dialog,
+                animate = true,
+                key = success,
+                actions = #focus{target = login_dialog_close_button}}),
+    wf:update("#menu_bar_center", admin_panel()),
     wf:wire(#appear{target = admin_panel, speed = "slow"}).
 
 login_failed() ->
-    wf:wire(#state_panel_set{target = login_dialog, animate = true, key = fail}).
+    wf:wire(#state_panel_set{
+                target = login_dialog,
+                animate = true,
+                key = fail}).
 
 page_init(undefined) ->
     ok;
 page_init(_User) ->
-    wf:insert_top(menu_bar_center, admin_panel()),
+    wf:update("#menu_bar_center", admin_panel()),
     wf:wire(#show{target = admin_panel}).
 
 unauthorized_request() ->
