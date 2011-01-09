@@ -21,11 +21,11 @@
 
 -include("include/ui.hrl").
 
--spec show(element:dialog()) -> any().
+-spec show(element_dialog:dialog()) -> any().
 show(Dialog) ->
     show(Dialog, fun() -> ok end).
 
--spec show(element:dialog(), fun(() -> term())) -> any().
+-spec show(element_dialog:dialog(), fun(() -> term())) -> any().
 show(Dialog, ContentFun) ->
     Id = Dialog#dialog.id,
     Class = Dialog#dialog.class,
