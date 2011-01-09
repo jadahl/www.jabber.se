@@ -21,43 +21,33 @@
 
 -include("include/ui.hrl").
 
-render_action(#js_call {
-    fname = FName,
-    args = Args}) ->
+render_action(#js_call{fname = FName, args = Args}) ->
 
-    EscapedArgs = lists:map(fun escape_arg/1, Args),
+    EscapedArgs = lists:map(fun escape/1, Args),
     [FName, "(", utils:join(EscapedArgs, ","), ");"].
 
-escape_arg({lambda, Actions}) ->
-    ["function() { ", Actions, "}"];
-escape_arg(Arg) when is_integer(Arg) ->
-    [integer_to_list(Arg)];
-escape_arg(Arg) when is_float(Arg) ->
-    [float_to_list(Arg)];
-escape_arg(Arg) ->
-    case escape_arg1(Arg) of
-        none ->
-            [];
-        {str, Arg2} ->
-            ["\"" ++ Arg2 ++ "\""];
-        {raw, Arg3} ->
-            [Arg3]
-    end.
+escape({function, Actions})              -> ["function() { ", Actions, "}"];
+escape({list, List})                     -> [escape(Item) || Item <- List];
+escape(undefined)                        -> jkeyword(undefined);
+escape(true)                             -> jkeyword(true);
+escape(false)                            -> jkeyword(false);
+escape(Atom) when is_atom(Atom)          -> atom_to_id(Atom);
+escape(Tuple) when is_tuple(Tuple)       -> render(Tuple);
+escape(Integer) when is_integer(Integer) -> integer_to_list(Integer);
+escape(Float) when is_float(Float)       -> float_to_list(Float);
+escape(Binary) when is_binary(Binary)    -> jstr(Binary);
+escape(IOList) when is_list(IOList)      -> jstr(IOList).
 
-escape_arg1(Arg) when is_tuple(Arg) ->
-    {ok, Script} = wf_render_elements:render_elements([Arg]),
-    {str, wf:js_escape(Script)};
-escape_arg1([C | _Cs] = Arg) when is_integer(C) ->
-    {str, Arg};
-escape_arg1(Arg) when is_list(Arg) ->
-    {raw, "[" ++ utils:join(lists:flatmap(fun escape_arg/1, Arg), ", ") ++ "]"};
-escape_arg1(undefined) ->
-    {raw, "undefined"};
-escape_arg1(true) ->
-    {raw, "true"};
-escape_arg1(false) ->
-    {raw, "false"};
-escape_arg1(Arg) when is_atom(Arg) ->
-    {str, wf_render_actions:normalize_path(Arg)};
-escape_arg1(_) ->
-    none.
+jkeyword(Atom) ->
+    atom_to_list(Atom).
+
+jstr(IOList) ->
+    ["\"", IOList, "\""].
+
+render(Element) ->
+    Rendered = wf_render:render_elements([Element]),
+    wf:js_escape(Rendered).
+
+atom_to_id(Atom) ->
+    jstr(wf_render_actions:normalize_path(Atom)).
+

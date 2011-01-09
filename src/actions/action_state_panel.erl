@@ -47,12 +47,12 @@ set_panel(Key, Target) ->
 set_action(Key, Animate, ValidateGroup, Id) ->
     set_action(Key, Animate, ValidateGroup, Id, []).
 set_action(Key, Animate, ValidateGroup, Id, Actions) ->
-    #site_cast{cast = state_panel_set, args = [Id, Key, Animate, ValidateGroup, {lambda, Actions}]}.
+    #site_cast{cast = state_panel_set, args = [Id, Key, Animate, ValidateGroup, {function, Actions}]}.
 
 show_action(Key, Id) ->
     show_action(Key, Id, []).
 show_action(Key, Id, Actions) ->
-    #site_cast{cast = state_panel_show, args = [Key, Id, {lambda, Actions}]}.
+    #site_cast{cast = state_panel_show, args = [Key, Id, {function, Actions}]}.
 
 hide_action(Id) ->
     #js_call{fname = "$Site.$state_panel_hide", args = [Id]}.
