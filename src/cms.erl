@@ -23,7 +23,8 @@
 -include("include/utils.hrl").
 -include("include/menu.hrl").
 -include("include/db/db.hrl").
--export([body_single/1, body/0, atom/2, event/1]).
+
+-export([body_single/1, body/2, atom/3, event/1]).
 
 %
 % Entry points
@@ -31,16 +32,18 @@
 
 body_single(Id) ->
     Post = db_post:get_post(Id),
-    Title = db_post:t(Post#db_post.title),
-    [#h2{text = Title}, cms_view:post_to_html(Post, true)].
+    #db_post{title = Title} = Post,
+    [#h2{text = db_post:t(Title)}, cms_view:post_to_html(Post, true)].
 
-body() ->
-    Posts = db_post:get_posts_by_view("news"),
-    [#h2{text = ?T(msg_id_news)} | lists:map(fun cms_view:post_to_html/1, Posts)].
+body(Title, View) ->
+    Posts = db_post:get_posts_by_view(View),
+    Title = ?T(msg_id_news),
+    [#h2{text = Title} | lists:map(fun cms_view:post_to_html/1, Posts)].
 
-atom(Url, SubTitle) ->
-    Contents = db_post:get_posts_by_view("news"),
-    [<<"<?xml version=\"1.0\" encoding=\"utf-8\" ?>">>, cms_view:posts_to_atom(Contents, Url, ?TITLE, SubTitle)].
+atom(URL, SubTitle, View) ->
+    Contents = db_post:get_posts_by_view(View),
+    [<<"<?xml version=\"1.0\" encoding=\"utf-8\" ?>">>,
+     cms_view:posts_to_atom(Contents, URL, config:title(), SubTitle)].
 
 %
 % Events

@@ -16,6 +16,18 @@ var $Site = new Site();
  * Content management
  */
 
+Site.prototype.$boot = function() {
+    var hash = window.location.hash;
+    if ((new RegExp(/^#!/)).test(hash))
+    {
+        page.init_content(hash.replace(/^#!/, ""));
+    }
+    else
+    {
+        page.init_content();
+    }
+}
+
 Site.prototype.$menu_set_current = function(id) {
     // set active menu element
     if (id)
@@ -25,26 +37,23 @@ Site.prototype.$menu_set_current = function(id) {
     }
 }
 
-Site.prototype.$do_load_content = function(url, id) {
-    this.$menu_set_current(id);
-
-    // request content
-    page.load_content(url);
-}
-
 Site.prototype.$reload_content = function() {
     location.reload();
-    //$Site.$do_load_content(window.location.hash);
 }
 
-Site.prototype.$load_content = function(url, id) {
-    // don't reload the same page
-    if (url == window.location.hash)
+Site.prototype.$trigger_menu = function(url, id) {
+    if (!history.replaceState)
     {
-        return;
+        // don't reload the same page
+        if (url == window.location.hash)
+        {
+            return;
+        }
+        window.location.hash = "#!" + url;
     }
 
-    this.$do_load_content(url, id);
+    this.$menu_set_current(id);
+    page.menu_triggered(url);
 }
 
 Site.prototype.$history_event = function(url, state) {
@@ -55,16 +64,31 @@ Site.prototype.$history_event = function(url, state) {
         return;
     }
     
-    this.$do_load_content(url);
+    // If this is the initial history event, we don't want to reload
+    // the page.
+    if (state.init)
+    {
+        state.init = false;
+        history.replaceState(state, state.title, state.path);
+    }
+    else
+    {
+        page.history_load(state.path);
+    }
+}
+
+Site.prototype.$history_push_initial = function(title, path) {
+    if (history.replaceState)
+    {
+        history.replaceState({ path: path, init: true, title: title },
+                             title, path);
+    }
 }
 
 Site.prototype.$history_push = function(title, path) {
-    // check if function is implemented by the browser
-    if (history.replaceState) {
-        history.replaceState({ page: path}, title, path);
-    }
-    else {
-        // not supported by browser
+    if (history.replaceState)
+    {
+        history.pushState({ path: path}, title, path);
     }
 }
 
@@ -158,15 +182,6 @@ Site.prototype.$clear_form_fields = function(ids) {
     {
         $("#" + id).val("");
     }
-}
-
-/*
- * Fragment
- */
-
-Site.prototype.$get_fragment_path = function() {
-    var hash = window.location.hash;
-    return hash.replace(/#/, "");
 }
 
 /*

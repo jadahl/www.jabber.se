@@ -27,7 +27,8 @@
         to_xml/1,
         log/5,
         join/2, range/1, range/2, just/1, find_with/3, forall/2,
-        keyreplacewith/4, keyreplaceoraddwith/4
+        keyreplacewith/4, keyreplaceoraddwith/4,
+        maybe_append/2
     ]).
 
 %
@@ -186,4 +187,8 @@ keyreplaceoraddwith(Key, N, Fun, [Tuple | TupleList]) ->
     end;
 keyreplaceoraddwith(_, _, Fun, []) ->
     [Fun(none)].
+
+maybe_append([ToAppend], ToAppend) -> [ToAppend];
+maybe_append([], ToAppend)         -> [ToAppend];
+maybe_append([X | XS], ToAppend)   -> [X | maybe_append(XS, ToAppend)].
 

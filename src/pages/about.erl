@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -19,12 +19,15 @@
 -module (about).
 -include_lib("nitrogen/include/wf.inc").
 
+-include("include/content.hrl").
 -include("include/utils.hrl").
 -include("include/menu.hrl").
 -compile(export_all).
 
-body() ->
-    cms:body_single("page_about").
+body(_, _) ->
+    #content{
+        body = cms:body_single("page_about"),
+        title = ?T(msg_id_about)}.
 	
 event(Event) ->
     ?LOG_WARNING("Unexpected event: ~p", [Event]).

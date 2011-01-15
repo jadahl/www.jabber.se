@@ -27,7 +27,7 @@
 -define(ENABLE_LOG_WARNING, true).
 -define(ENABLE_LOG_ERROR, true).
 
--define(MODULES, [db_controller, i18n]).
+-define(MODULES, [config, db_controller, i18n]).
 -define(HOOKS, [session]).
 
 -define(TITLE, "Jabber.se").
@@ -58,16 +58,16 @@
 
 -define(DEFAULT_INDEX_MODULE, news).
 
+-define(ENABLED_CONTENT, [about, news]).
+
 -define(MENU_ELEMENTS,
     [
         #menu_element{
             module = news,
-            title = msg_id_news,
-            url = "#news"},
+            title = msg_id_news},
         #menu_element{
             module = about,
-            title = msg_id_about,
-            url = "#about"}
+            title = msg_id_about}
     ]).
 
 -define(CMS_ADMIN_MODULES,

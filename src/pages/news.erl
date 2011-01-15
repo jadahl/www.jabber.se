@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -17,14 +17,19 @@
 %
 
 -module(news).
--include("include/config.hrl").
--export([body/0, atom/0, atom_url/0]).
 
-body() ->
-    cms:body().
+-export([body/2, atom/1]).
 
-atom() ->
-    cms:atom("#news", "News"). % FIXME better configuration
+-include("include/utils.hrl").
+-include("include/content.hrl").
 
-atom_url() ->
-    {ok, ?URL_BASE ++ "feed/news"}.
+-define(CMS_VIEW, "news").
+
+body(_SubPath, _Optins) ->
+    Title = ?T(msg_id_news),
+    #content{body = cms:body(Title, ?CMS_VIEW),
+             title = Title}.
+
+atom(URL) ->
+    cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).
+

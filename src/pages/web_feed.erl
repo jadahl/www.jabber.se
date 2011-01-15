@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -26,14 +26,13 @@
 %
 
 main() ->
-    Path = wf:path_info(),
-    case menu:get_element_by_path(Path, menu:get_menu_elements()) of
-        nothing ->
+    Module = list_to_atom(wf:path_info()),
+    case config:content_enabled(Module) of
+        false ->
             web_error:main();
-        {just, MenuElement} ->
-            Module = MenuElement#menu_element.module,
+        true ->
             try
-                Body = Module:atom(),
+                Body = Module:atom("/web/feed/" ++ wf:path_info()),
                 wf:content_type("application/atom+xml"),
                 Body
             catch

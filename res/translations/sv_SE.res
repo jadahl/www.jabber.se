@@ -9,6 +9,8 @@
     {msg_id_close, "Stäng"},
     {msg_id_drafts_dialog_title, "Utkast"},
     {msg_id_drafts_empty, "Inga utkast..."},
+    {msg_id_error_title, "Fel"},
+    {msg_id_error_occured, "Ett fel inträffade: ~w"},
     {msg_id_language_unspecified, "(ospecifierat)"},
     {msg_id_loading, "Laddar..."},
     {msg_id_login, "Logga in"},

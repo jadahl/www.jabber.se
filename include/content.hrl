@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -16,13 +16,9 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--ifndef(menu_hrl).
--define(menu_hrl, true).
+-record(content, {
+        body      :: term(),
+        title     :: iolist() | binary(),
+        post_eval :: undefined | fun()
+        }).
 
--record(menu_element, {
-        index,
-        module,
-        title
-    }).
-
--endif.

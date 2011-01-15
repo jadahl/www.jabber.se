@@ -9,6 +9,8 @@
     {msg_id_close, "Close"},
     {msg_id_drafts_dialog_title, "Drafts"},
     {msg_id_drafts_empty, "No drafts..."},
+    {msg_id_error_occured, "An error occured: ~w"},
+    {msg_id_error_title, "Error"},
     {msg_id_language_unspecified, "(unspecified)"},
     {msg_id_loading, "Loading..."},
     {msg_id_login, "Login"},

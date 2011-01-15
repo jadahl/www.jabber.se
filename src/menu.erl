@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -28,59 +28,36 @@
     [
         menu/0,
         get_menu_elements/0,
-        full_title/1, full_url/1,
-        get_element_by_url/1, get_element_by_url/2,
-        get_element_by_module/1, get_element_by_module/2,
-        get_element_by_path/1, get_element_by_path/2
+        menu_element_id/1,
+        full_title/1,
+        get_element_by_module/1, get_element_by_module/2
     ]).
 
 get_menu_elements() ->
     ?MENU_ELEMENTS.
 
-menu_event(#menu_element{url = Url, module = Module}) ->
-    #event{type = click, actions = [#js_call{fname = "$Site.$load_content", args = [Url, Module]}]}.
+menu_element_id(#menu_element{module = Module}) ->
+    list_to_atom("menu_" ++ atom_to_list(Module)).
+
+menu_event(#menu_element{module = Module} = MenuElement) ->
+    #event{type = click,
+           actions = [#js_call{fname = "$Site.$trigger_menu",
+                               args = [list_to_binary(atom_to_list(Module)),
+                                       menu_element_id(MenuElement)]}]}.
 
 full_title(#menu_element{title = Title}) ->
     ?TITLE ++ " - " ++ ?T(Title).
 
-full_url(#menu_element{url = Url}) ->
-    ?BASE_DIR ++ "index" ++ Url.
-
-%
-% menu_items() -> MenuItems
-%   MenuItems = [MenuElement]
-%   MenuElement = #menu_element{}
-%
+-spec menu_items() -> list(#listitem{}).
 menu_items() ->
     MenuElements = menu:get_menu_elements(),
     [#listitem{
-            body = #link{text = i18n:t(Title),
-                url = Url,
-                id = Module,
+            body = #link{
+                text = i18n:t(Title),
+                id = menu_element_id(MenuElement),
                 actions = [menu_event(MenuElement)]
             }}
-        || #menu_element{
-            title = Title,
-            module = Module,
-            url = Url} = MenuElement <- MenuElements].
-
-%
-% get_menu_element_by_url(Url) -> Result
-%   Url = string()
-%   Result = #menu_element{} | none
-%
--spec get_element_by_url(string()) -> {just, #menu_element{}} | nothing.
-get_element_by_url(Url) ->
-    get_element_by_url(Url, menu:get_menu_elements()).
-
--spec get_element_by_url(string(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
-get_element_by_url(Url, Elements) ->
-    utils:find_with(fun maybe_element_by_url/2, Url, Elements).
-
-maybe_element_by_url(Element, Url) when Url == Element#menu_element.url ->
-    {just, Element};
-maybe_element_by_url(_, _) ->
-    nothing.
+        || #menu_element{title = Title} = MenuElement <- MenuElements].
 
 %
 % get_menu_element_by_module(Module) -> Result
@@ -91,31 +68,14 @@ maybe_element_by_url(_, _) ->
 get_element_by_module(Module) ->
     get_element_by_module(Module, menu:get_menu_elements()).
 
--spec get_element_by_module(module(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
+-spec get_element_by_module(module(), [#menu_element{}]) ->
+    {just, #menu_element{}} | nothing.
 get_element_by_module(Module, Elements) ->
     utils:find_with(fun maybe_element_by_module/2, Module, Elements).
 
-maybe_element_by_module(Element, Module) when Module == Element#menu_element.module ->
+maybe_element_by_module(#menu_element{module = Module} = Element, Module) ->
     {just, Element};
 maybe_element_by_module(_, _) ->
-    nothing.
-
-%
-% get_menu_element_by_path(Path) -> Result
-%   Path = string()
-%   Result = #menu_element{} | none
-%
--spec get_element_by_path(string()) -> {just, #menu_element{}} | nothing.
-get_element_by_path(Path) ->
-    get_element_by_path(Path, menu:get_menu_elements()).
-
--spec get_element_by_path(string(), [#menu_element{}]) -> {just, #menu_element{}} | nothing.
-get_element_by_path(Path, Elements) ->
-    utils:find_with(fun maybe_element_by_path/2, Path, Elements).
-
-maybe_element_by_path(#menu_element{url = [$# | Url]} = Element, Path) when Path == Url ->
-    {just, Element};
-maybe_element_by_path(_, _) ->
     nothing.
 
 %

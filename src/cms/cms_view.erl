@@ -66,14 +66,18 @@ get_last_updated(Contents) ->
                 end
         end, 0, Contents).
 
-posts_to_atom(Contents, Url, Title, SubTitle) ->
+posts_to_atom(Contents, URL, Title, SubTitle) ->
+    Proto = case (wf_context:request_bridge()):scheme() of
+        https -> "https://";
+        _     -> "http://"
+    end,
     utils:to_xml({
             feed,
             [{xmlns, "http://www.w3.org/2005/Atom"}],
             {[
                 {title, Title},
                 {subtitle, SubTitle},
-                {link, [{href, ?URL_BASE ++ Url}], []},
+                {link, [{href, Proto ++ config:host() ++ URL}], []},
                 {updated, utils:time_to_iso8601(get_last_updated(Contents))},
                 {lists:map(fun post_to_atom_entry/1, Contents)}
             ]}}).
