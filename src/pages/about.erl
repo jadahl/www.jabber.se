@@ -24,7 +24,7 @@
 -include("include/menu.hrl").
 -compile(export_all).
 
-body(_, _) ->
+body([], _) ->
     #content{
         body = cms:body_single("page_about"),
         title = ?T(msg_id_about)}.

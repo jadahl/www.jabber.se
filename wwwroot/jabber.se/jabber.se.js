@@ -69,7 +69,7 @@ Site.prototype.$history_event = function(url, state) {
     if (state.init)
     {
         state.init = false;
-        history.replaceState(state, state.title, state.path);
+        history.replaceState(state, state.title, state.url);
     }
     else
     {
@@ -77,18 +77,24 @@ Site.prototype.$history_event = function(url, state) {
     }
 }
 
-Site.prototype.$history_push_initial = function(title, path) {
+Site.prototype.$history_push_initial = function(title, path, dir) {
     if (history.replaceState)
     {
-        history.replaceState({ path: path, init: true, title: title },
-                             title, path);
+        url = dir + path;
+        history.replaceState({ path: path, url: url, init: true, title: title },
+                             title, url);
     }
 }
 
-Site.prototype.$history_push = function(title, path) {
+Site.prototype.$history_push = function(title, path, dir) {
     if (history.replaceState)
     {
-        history.pushState({ path: path}, title, path);
+        url = dir + path;
+        history.pushState({ path: path, url: url }, title, url);
+    }
+    else
+    {
+        window.location.hash = "#!" + path;
     }
 }
 

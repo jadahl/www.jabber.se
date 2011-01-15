@@ -61,7 +61,7 @@ load_url(URL, Type) ->
     end.
 
 load_content(Module, SubPath, URL, Type) ->
-    ?LOG_INFO("load_content(~w, ~w, ~w, ~w)", [Module, SubPath, URL, Type]),
+    ?LOG_INFO("load_content(~p, ~p, ~p, ~p)", [Module, SubPath, URL, Type]),
     case lists:member(Module, config:content()) of
         true  -> do_load_content(Module, SubPath, URL, Type);
         false -> content_error(not_allowed, Type)
@@ -106,13 +106,14 @@ set_body(Body, Title, Module, URL, Type) ->
     end,
 
     % if this is an init call, initialize history, otherwise update history
+    Dir = utils:maybe_append(config:path(), $/) ++ "index/",
     case Type of
         init ->
             wf:wire(#js_call{fname = "$Site.$history_push_initial",
-                             args = [Title, URL]});
+                             args = [Title, URL, Dir]});
         trigger ->
             wf:wire(#js_call{fname = "$Site.$history_push",
-                             args = [Title, URL]});
+                             args = [Title, URL, Dir]});
         _ ->
             ok
     end,

@@ -25,7 +25,7 @@
 
 -define(CMS_VIEW, "news").
 
-body(_SubPath, _Optins) ->
+body([], _Optins) ->
     Title = ?T(msg_id_news),
     #content{body = cms:body(Title, ?CMS_VIEW),
              title = Title}.
