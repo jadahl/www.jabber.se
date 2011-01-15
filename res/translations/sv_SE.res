@@ -5,6 +5,7 @@
     {msg_id_admin_content, "Innehåll"},
     {msg_id_admin_post, "Skapa"},
     {msg_id_admin_title, "Hantera Innehåll"},
+    {msg_id_by, "av"},
     {msg_id_cancel, "Avbryt"},
     {msg_id_close, "Stäng"},
     {msg_id_drafts_dialog_title, "Utkast"},

@@ -5,6 +5,7 @@
     {msg_id_admin_content, "Content"},
     {msg_id_admin_post, "Post"},
     {msg_id_admin_title, "Content Management"},
+    {msg_id_by, "by"},
     {msg_id_cancel, "Cancel"},
     {msg_id_close, "Close"},
     {msg_id_drafts_dialog_title, "Drafts"},

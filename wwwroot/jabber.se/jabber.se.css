@@ -475,8 +475,14 @@ label.blog_title {
     font-size: 17px;
 }
 
-span.blog_by {
+span.cms_post_date {
     font-size: 11px;
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+span.cms_post_by {
+    font-size: 9px;
     color: #a0a0a0;
 }
 

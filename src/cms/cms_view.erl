@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -93,6 +93,7 @@ post_to_html(#db_post{
         authors = Authors,
         title = Titles,
         body = Bodies,
+        timestamp = Timestamp,
         tags = _Tags}, Single) ->
 
     Body = db_post:t(Bodies),
@@ -103,8 +104,13 @@ post_to_html(#db_post{
             [
                 #label{class = blog_title, text = db_post:t(Titles)},
                 #br{},
-                #span{class = blog_by,
-                    text = "by " ++
+                #span{
+                    class = cms_post_date,
+                    text = [" ", utils:ts_to_date_s(Timestamp), " "]
+                },
+                " ",
+                #span{class = cms_post_by,
+                    text = ?T(msg_id_by) ++ " " ++
                     case Authors of
                         [Author] -> utils:to_string(Author);
                         _ -> "unknown"
@@ -117,7 +123,10 @@ post_to_html(#db_post{
             body=
             [
                 Title,
-                #p{class = blog_body, body = Body}]},
-        #br{}].
+                #p{class = blog_body, body = Body},
+                #br{}
+            ]
+        }
+    ].
 
 

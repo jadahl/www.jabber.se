@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -35,6 +35,8 @@
 % Converters
 %
 
+ts_to_date_s(undefined) ->
+    "undefined";
 ts_to_date_s(TS) when is_integer(TS) ->
     {{Year, Month, Day}, _} = ts_to_date(TS),
     io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B", [Year, Month, Day]).
