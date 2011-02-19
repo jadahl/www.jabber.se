@@ -18,7 +18,7 @@
 
 -module(cms).
 -include_lib("xmerl/include/xmerl.hrl").
--include_lib("nitrogen/include/wf.inc").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/menu.hrl").

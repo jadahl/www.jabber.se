@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -16,28 +16,15 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(menu_tests).
+-module(element_form).
+-export([render_element/1]).
 
--include_lib("eunit/include/eunit.hrl").
--include("include/menu.hrl").
+-include("include/ui.hrl").
 
--define(MENU_ELEMENTS, 
-    [
-        #menu_element{
-            module = element1,
-            title = "Element 1"},
-        #menu_element{
-            module = element2,
-            title = "Element 2"},
-        #menu_element{
-            module = element3,
-            title = "Element 3"}
+render_element(#form{action = Action, method = Method, controls = Controls}) ->
+    wf_tags:emit_tag(form, Controls, [
+        {action, Action} |
+        if Method == undefined -> [];
+           true                -> [{method, Method}]
+        end
     ]).
-
-getters_test() ->
-    MenuElements = ?MENU_ELEMENTS,
-    ?assert(nothing /= menu:get_element_by_module(element2, MenuElements)),
-
-    ?assert(nothing == menu:get_element_by_module(no_element, MenuElements)),
-
-    ok.

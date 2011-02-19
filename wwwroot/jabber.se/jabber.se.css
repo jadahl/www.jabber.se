@@ -76,6 +76,15 @@ ul.contact {
     color: rgb(245, 100, 100);
 }
 
+div.inline_spinner_container {
+    position: absolute;
+    display: inline;
+}
+
+span.code {
+    font-family: courier, monospace;
+}
+
 /*
  * Basic elements
  */
@@ -594,3 +603,19 @@ a.post_dialog_tag {
 a:hover.post_dialog_tag {
     background: rgba(250, 150, 150, 0.8);
 }
+
+/*
+ * Register
+ */
+
+.body input.textbox {
+    width: 200px;
+    border: 1px solid #b4b4b4;
+    margin-right: 6px;
+}
+
+.body span.LV_invalid {
+    color: #ef2323;
+}
+
+

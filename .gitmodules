@@ -1,6 +1,12 @@
 [submodule "lib/couchbeam"]
 	path = lib/couchbeam
 	url = git://github.com/benoitc/couchbeam.git
-[submodule "lib/nitrogen"]
-	path = lib/nitrogen
-	url = git://github.com/jadahl/nitrogen.git
+[submodule "lib/nitrogen_core"]
+	path = lib/nitrogen_core
+	url = https://github.com/jadahl/nitrogen_core.git
+[submodule "lib/simple_bridge"]
+	path = lib/simple_bridge
+	url = https://github.com/jadahl/simple_bridge.git
+[submodule "lib/nprocreg"]
+	path = lib/nprocreg
+	url = https://github.com/nitrogen/nprocreg.git

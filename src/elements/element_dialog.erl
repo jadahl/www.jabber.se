@@ -19,7 +19,7 @@
 -module(element_dialog).
 -export([render_element/1, render_corner/2]).
 
--include_lib("nitrogen/include/wf.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/ui.hrl").

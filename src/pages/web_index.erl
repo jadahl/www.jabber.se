@@ -37,7 +37,10 @@
         dialogs/0,
         body/0,
         title/0,
-        language/0
+        language/0,
+
+        % content module helpers
+        content_error/2
     ]).
 
 -type load_type() :: trigger | init | history.
@@ -46,10 +49,11 @@
 % Content loading
 %
 
--spec content_error(atom(), load_type()) -> any().
-content_error(Error, Type) ->
-    set_body(io_lib:format(?T(msg_id_error_occured), [Error]),
-        ?T(msg_id_error_title), undefined, "error", Type).
+-spec content_error(atom() | iolist(), load_type()) -> any().
+content_error(Error, Type) when is_atom(Error) ->
+    content_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
+content_error(Message, Type) ->
+    set_body(Message, ?T(msg_id_error_title), undefined, "error", Type).
 
 -spec load_url(string(), load_type()) -> any().
 load_url(URL, Type) ->
@@ -62,15 +66,18 @@ load_url(URL, Type) ->
 
 load_content(Module, SubPath, URL, Type) ->
     ?LOG_INFO("load_content(~p, ~p, ~p, ~p)", [Module, SubPath, URL, Type]),
-    case lists:member(Module, config:content()) of
+    case config:content_enabled(Module) of
         true  -> do_load_content(Module, SubPath, URL, Type);
         false -> content_error(not_allowed, Type)
     end.
 
 do_load_content(Module, SubPath, URL, Type) ->
     case catch Module:body(SubPath, Type) of
-        #content{body = Body, title = Title} ->
-            set_body(Body, Title, Module, URL, Type);
+        #content{body = Body, title = Title, post_eval = PostEval} ->
+            set_body(Body, Title, Module, URL, Type),
+            if is_function(PostEval) -> PostEval();
+               true -> ok
+            end;
         {'EXIT', _Error} ->
             ?LOG_WARNING("An error occurred when loading content: ~p",
                 [_Error]),

@@ -23,7 +23,7 @@
         set_content/2, set_post_state/1,
         body/2, wire_validators/0, title/0]).
 
--include_lib("nitrogen/include/wf.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/ui.hrl").

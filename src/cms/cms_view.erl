@@ -19,7 +19,7 @@
 -module(cms_view).
 -export([post_to_html/1, post_to_html/2, posts_to_atom/4]).
 
--include_lib("nitrogen/include/wf.inc").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/db/db.hrl").

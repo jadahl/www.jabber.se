@@ -22,7 +22,8 @@
 
 -define(TESTS, [
         menu_tests,
-        db_tests
+        db_tests,
+        register_tests
     ]).
 
 all_test() ->

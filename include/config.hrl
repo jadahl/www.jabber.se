@@ -58,13 +58,24 @@
 
 -define(DEFAULT_INDEX_MODULE, news).
 
--define(ENABLED_CONTENT, [about, news]).
+-define(ENABLED_CONTENT, [about, news, register]).
+
+-define(CONTENT_CONFIG,
+    [
+        {register, [{hostname, "localhost"},
+                    {server, "localhost"},
+                    {port, 8088},
+                    {key, "abc123"}]}
+    ]).
 
 -define(MENU_ELEMENTS,
     [
         #menu_element{
             module = news,
             title = msg_id_news},
+        #menu_element{
+            module = register,
+            title = msg_id_register},
         #menu_element{
             module = about,
             title = msg_id_about}
@@ -78,5 +89,6 @@
     ]).
 
 -define(SPINNER_IMAGE, "/res/spinner.gif").
+-define(SMALL_SPINNER_IMAGE, "/res/spinner-small.gif").
 
 -endif.

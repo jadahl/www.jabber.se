@@ -17,14 +17,13 @@
 %
 
 -module(session).
--include_lib("nitrogen/include/wf.inc").
 -export([authenticated/0, event/1, env/0, language/1, page_init/0, unauthorized_request/0]).
+
+-include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
 -include("include/ui.hrl").
-
--include_lib("nitrogen/include/wf.hrl").
 
 %
 % Constants

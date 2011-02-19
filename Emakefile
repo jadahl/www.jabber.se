@@ -7,8 +7,9 @@
 	{ i, "./include" },
 	{ i, "lib/" },
 	{ i, "lib/couchbeam/include" },
-	{ i, "lib/nitrogen/apps" },
-	{ i, "lib/nitrogen/apps/nitrogen/include" },
+	{ i, "lib/nitrogen_core/ebin" },
+	{ i, "lib/simple_bridge/ebin" },
+	{ i, "lib/nprocreg/ebin" },
 	{ outdir, "./ebin" },
 	debug_info
 ]}.
@@ -17,8 +18,9 @@
 	{ i, "./include" },
 	{ i, "lib/" },
 	{ i, "lib/couchbeam/include" },
-	{ i, "lib/nitrogen/apps" },
-	{ i, "lib/nitrogen/apps/nitrogen/include" },
+	{ i, "lib/nitrogen_core/ebin" },
+	{ i, "lib/simple_bridge/ebin" },
+	{ i, "lib/nprocreg/ebin" },
 	{ outdir, "./ebin" },
 	debug_info
 ]}.
@@ -27,8 +29,9 @@
 	{ i, "./include" },
 	{ i, "lib/" },
 	{ i, "lib/couchbeam/include" },
-	{ i, "lib/nitrogen/apps" },
-	{ i, "lib/nitrogen/apps/nitrogen/include" },
+	{ i, "lib/nitrogen_core/ebin" },
+	{ i, "lib/simple_bridge/ebin" },
+	{ i, "lib/nprocreg/ebin" },
 	{ outdir, "./ebin" },
 	debug_info
 ]}.

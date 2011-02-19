@@ -31,11 +31,14 @@
         % config access functions
         title/0,
         modules/0,
-        content/0,
+        enabled_content/0,
         menu/0,
         languages/0,
         host/0,
         path/0,
+
+        % content config helper functions
+        content/1, content/2,
 
         % config helper functions
         content_enabled/1,
@@ -52,12 +55,12 @@
 -record(state, {
         title = []              :: iolist(),
         modules = []            :: list(module()),
-        content = []            :: list(module()),
+        enabled_content = []    :: list(module()),
         menu = []               :: list(module()),
         languages = []          :: list(atom()),
         host = "localhost:8000" :: string(),
-        path = "/web"           :: string()
-
+        path = "/web"           :: string(),
+        content = []            :: [{atom(), term()}]
     }).
 
 start() -> start_link().
@@ -68,15 +71,21 @@ start_link() ->
 stop() ->
     gen_server:call(?MODULE, stop).
 
-title()     -> get_config(title).
-modules()   -> get_config(modules).
-content()   -> get_config(content).
-menu()      -> get_config(menu).
-languages() -> get_config(languages).
-host()      -> get_config(host).
-path()      -> get_config(path).
+title()           -> get_config(title).
+modules()         -> get_config(modules).
+enabled_content() -> get_config(enabled_content).
+menu()            -> get_config(menu).
+languages()       -> get_config(languages).
+host()            -> get_config(host).
+path()            -> get_config(path).
 
-content_enabled(Module) -> lists:member(Module, get_config(content)).
+content(Content)  -> get_config({content, Content}).
+content(Content, Key) ->
+    ContentConfig = get_config({content, Content}),
+    proplists:get_value(Key, ContentConfig).
+
+content_enabled(Module) ->
+    lists:member(Module, get_config(enabled_content)).
 
 get_config(Config) ->
     {ok, Value} = gen_server:call(?MODULE, {get, Config}),
@@ -90,9 +99,10 @@ init(_) ->
     {ok, #state{
             title = ?TITLE,
             modules = ?MODULES,
-            content = ?ENABLED_CONTENT,
+            enabled_content = ?ENABLED_CONTENT,
             menu = ?MENU_ELEMENTS,
-            languages = ?ENABLED_LOCALES
+            languages = ?ENABLED_LOCALES,
+            content = ?CONTENT_CONFIG
         }}.
 
 handle_call({get, Configs}, _From, S) when is_list(Configs) ->
@@ -102,7 +112,7 @@ handle_call({get, Configs}, _From, S) when is_list(Configs) ->
         not_found ->
             {reply, {error, not_found}, S}
     end;
-handle_call({get, Config}, _From, S) when is_atom(Config) ->
+handle_call({get, Config}, _From, S) ->
     try
         {reply, {ok, internal_get_config(Config, S)}, S}
     catch
@@ -112,15 +122,6 @@ handle_call(stop, _From, S) ->
     {stop, normal, S};
 handle_call(_Request, _From, S) ->
     {reply, {error, badarg}, S}.
-
-internal_get_config(title, S)     -> S#state.title;
-internal_get_config(modules, S)   -> S#state.modules;
-internal_get_config(content, S)   -> S#state.content;
-internal_get_config(menu, S)      -> S#state.menu;
-internal_get_config(languages, S) -> S#state.languages;
-internal_get_config(host, S)      -> S#state.host;
-internal_get_config(path, S)      -> S#state.path;
-internal_get_config(_, _S) -> throw(not_found).
 
 handle_cast(_Message, S) ->
     {noreply, S}.
@@ -133,3 +134,24 @@ code_change(_OldVsn, S, _Extra) ->
 
 terminate(_Reason, _S) ->
     ok.
+
+%
+% Internal
+%
+
+internal_get_config(title, S)           -> S#state.title;
+internal_get_config(modules, S)         -> S#state.modules;
+internal_get_config(enabled_content, S) -> S#state.enabled_content;
+internal_get_config(menu, S)            -> S#state.menu;
+internal_get_config(languages, S)       -> S#state.languages;
+internal_get_config(host, S)            -> S#state.host;
+internal_get_config(path, S)            -> S#state.path;
+internal_get_config(config, S)          -> S#state.content;
+internal_get_config({content, Content}, S) ->
+    get_content_config(S#state.content, Content);
+internal_get_config(_, _S) ->
+    throw(not_found).
+
+get_content_config(ContentPropList, Content) ->
+    proplists:get_value(Content, ContentPropList).
+

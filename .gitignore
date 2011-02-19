@@ -1,3 +1,7 @@
 *.beam
 .*.swp
 *.dump
+*.diff
+*.bak
+*.po
+*.mo

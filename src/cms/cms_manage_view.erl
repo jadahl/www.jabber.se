@@ -19,7 +19,7 @@
 -module(cms_manage_view).
 -export([title/0, no_posts_text/0, body/3, set_page/4, set_page_recounted/4]).
 
--include_lib("nitrogen/include/wf.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 -include("include/utils.hrl").
 -include("include/db/db.hrl").
 -include("include/ui.hrl").

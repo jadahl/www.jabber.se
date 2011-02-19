@@ -19,7 +19,7 @@
 -ifndef(ui_hrl).
 -define(ui_hrl, true).
 
--include_lib("nitrogen/include/wf.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 %
 % Elements
@@ -32,6 +32,9 @@
 -record(ext_link, {?ELEMENT_BASE(element_ext_link), url, type, rel, title}).
 
 -record(pager, {?ELEMENT_BASE(element_pager), count = 1, init_page = 1, adapter}).
+
+-record(form, {?ELEMENT_BASE(element_form), action = "", method = "", controls = []}).
+-record(reset, {?ELEMENT_BASE(element_reset), text = "Reset", html_encode = true}).
 
 %
 % Actions
@@ -65,5 +68,11 @@
 -record(pager_set, {?ACTION_BASE(action_pager), last, new, count, adapter}).
 
 -record(update_table, {?ACTION_BASE(action_update_table), rows, effect}).
+
+%
+% Validators
+%
+
+-record(maybe_email, {?VALIDATOR_BASE(validator_maybe_email)}).
 
 -endif.

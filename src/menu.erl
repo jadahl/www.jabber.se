@@ -17,7 +17,7 @@
 %
 
 -module(menu).
--include_lib ("nitrogen/include/wf.inc").
+-include_lib ("nitrogen_core/include/wf.hrl").
 
 -include("include/ui.hrl").
 -include("include/config.hrl").

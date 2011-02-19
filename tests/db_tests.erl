@@ -51,13 +51,14 @@ test_new_and_delete_doc() ->
         #db_post{
             id = Id,
             state = draft,
-            title = [],
+            title = {[]},
             tags = [],
             authors = [],
-            body = ""} ->
+            body = {[]}} ->
             ?assert(is_binary(Id)),
             Id;
-        _ ->
+        _Res ->
+            ?debugFmt("db_post:new_post returned ~p", [_Res]),
             ?assert(false)
     end,
 
@@ -69,34 +70,44 @@ ensure_deleted(Id) ->
         {Entries} = db_controller:delete_doc_by_id(Id),
         ?assert(lists:nth(1, Entries) =:= {<<"_deleted">>, true})
     catch
-        error:not_found ->
+        {db_error, not_found} ->
             ok;
         error:Error ->
             ?debugFmt("Error caught: '~p'", [Error]),
             ?assert(false)
     end.
 
-test_save_read_post() ->
-    OriginalPost = #db_post{
+-define(ORIGINAL_POST, #db_post{
         id = <<"test_post">>,
         state = public,
         title = <<"test title">>,
         tags = [<<"foo">>, <<"bar">>],
         authors = [<<"Tester">>],
-        body = <<"Testing various things.">>},
+        body = <<"Testing various things.">>}).
 
+test_save_read_post() ->
     ensure_deleted("test_post"),
 
-    {Entries} = db_post:save_post(OriginalPost),
+    {Entries} = db_post:save_post(?ORIGINAL_POST),
     ?assert(is_list(Entries)),
 
     NewPost = db_post:get_post("test_post"),
 
-    ?assertEqual(OriginalPost, NewPost),
+    ?assertMatch(?ORIGINAL_POST, NewPost),
 
     ensure_deleted("test_post"),
 
     ok.
+
+-define(assertPostsEqual(ExpectedPost, NewPost),
+    (fun() ->
+        ?assertEqual(ExpectedPost#db_post.id, NewPost#db_post.id),
+        ?assertEqual(ExpectedPost#db_post.state, NewPost#db_post.state),
+        ?assertEqual(ExpectedPost#db_post.title, NewPost#db_post.title),
+        ?assertEqual(ExpectedPost#db_post.tags, NewPost#db_post.tags),
+        ?assertEqual(ExpectedPost#db_post.authors, NewPost#db_post.authors),
+        ?assertEqual(ExpectedPost#db_post.body, NewPost#db_post.body)
+    end)()).
 
 test_edit_post() ->
     OriginalPost = #db_post{
@@ -126,7 +137,7 @@ test_edit_post() ->
 
     NewPost = db_post:get_post(test_post),
 
-    ?assertEqual(NewPost, ExpectedPost),
+    ?assertPostsEqual(ExpectedPost, NewPost),
 
     ok.
 
@@ -165,7 +176,7 @@ test_drafts() ->
 
     Posts = db_post:get_drafts_by("Tester"),
 
-    ?assertEqual(Posts, lists:sublist(Drafts, 2)),
+    [?assertPostsEqual(Draft, Post) || {Draft, Post} <- lists:zip(lists:sublist(Drafts, 2), Posts)],
 
     ensure_deleted("test_post0"),
     ensure_deleted("test_post1"),

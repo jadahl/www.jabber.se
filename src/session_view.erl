@@ -23,7 +23,7 @@
         unauthorized_request/0
     ]).
 
--include_lib("nitrogen/include/wf.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 -include("include/utils.hrl").
 -include("include/ui.hrl").
 
