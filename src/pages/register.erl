@@ -112,7 +112,7 @@ is_available(Username, Host) ->
             not Value
     end.
 
-try_register(Username, Password, Host, _EMail) ->
+try_register(Username, Password, Host, Email) ->
     Key = list_to_binary(server_key()),
     Path = url_path_encode(["api", "register", "register"], []),
     JSON = {struct, [
@@ -120,6 +120,11 @@ try_register(Username, Password, Host, _EMail) ->
             {username, Username},
             {host, Host},
             {password, Password}
+            |
+            case Email of
+                "" -> [];
+                _  -> [{email, Email}]
+            end
         ]},
     case rest:request_post_json(server_address(), server_port(), Path, JSON) of
         {ok, Result} ->
@@ -133,8 +138,10 @@ try_register(Username, Password, Host, _EMail) ->
                     end;
                 <<"ok">> ->
                     ok;
+                <<"email_not_set">> ->
+                    email_not_set;
                 _ ->
-                    {error, unknown}
+                    {error, invalid}
             end;
         {error, Reason} ->
             {error, Reason}
@@ -149,17 +156,19 @@ event(create) ->
 
     [Username, Password] = [
         list_to_binary(wf:q(Param)) || Param <- [username, password]],
-    EMail = case wf:q(email) of
+    Email = case wf:q(email) of
         undefined -> undefined;
         List -> list_to_binary(List)
     end,
     Hostname = list_to_binary(hostname()),
 
-    case try_register(Username, Password, Hostname, EMail) of
+    case try_register(Username, Password, Hostname, Email) of
         exists ->
             register_view:on_exists();
         ok ->
             register_view:on_success(Username, Hostname);
+        email_not_set ->
+            register_view:on_email_not_set(Username, Hostname);
         {error, Reason} ->
             ?LOG_ERROR("Failed to register ~p: ~p", [Username, Reason]),
             register_view:on_failed(Reason)

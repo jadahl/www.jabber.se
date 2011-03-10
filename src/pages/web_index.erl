@@ -78,6 +78,10 @@ do_load_content(Module, SubPath, URL, Type) ->
             if is_function(PostEval) -> PostEval();
                true -> ok
             end;
+        {exception, _, _, _} = _Error ->
+            ?LOG_WARNING("An exception occurred when loading content: ~p",
+                [_Error]),
+            content_error(error, Type);
         {'EXIT', _Error} ->
             ?LOG_WARNING("An error occurred when loading content: ~p",
                 [_Error]),

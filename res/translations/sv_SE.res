@@ -59,8 +59,10 @@
     {msg_id_register_pwd_confirm, "[msg_id_register_pwd_confirm]"}, % not translated
     {msg_id_register_required, "[msg_id_register_required]"}, % not translated
     {msg_id_register_success, "[msg_id_register_success]"}, % not translated
+    {msg_id_register_success_email_not_set, "[msg_id_register_success_email_not_set]"}, % not translated
     {msg_id_register_success_msg_part1, "[msg_id_register_success_msg_part1]"}, % not translated
     {msg_id_register_success_msg_part2, "[msg_id_register_success_msg_part2]"}, % not translated
+    {msg_id_register_success_note, "[msg_id_register_success_note]"}, % not translated
     {msg_id_register_taken, "[msg_id_register_taken]"}, % not translated
     {msg_id_register_username, "[msg_id_register_username]"}, % not translated
     {msg_id_register_valid_email, "[msg_id_register_valid_email]"}, % not translated

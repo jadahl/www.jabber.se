@@ -25,7 +25,8 @@
         on_back/0,
         on_failed/1,
         on_exists/0,
-        on_success/2
+        on_success/2,
+        on_email_not_set/2
     ]).
 
 -include("include/utils.hrl").
@@ -169,14 +170,26 @@ on_back() ->
     wf:update(register_view, Body),
     wire_validators(Validators).
 
-on_success(Username, Hostname) ->
-    Body = [
+success_body(Username, Hostname) ->
+    [
         #h3{text = ?T(msg_id_register_success)},
         #p{body = [
                 ?T(msg_id_register_success_msg_part1),
-                #span{class = code, text = lists:flatten([Username, <<"@">>, Hostname])},
+                #span{class = code,
+                      text = lists:flatten([Username, <<"@">>, Hostname])},
                 ?T(msg_id_register_success_msg_part2)
             ]}
-        ],
+    ].
 
+on_success(Username, Hostname) ->
+    set_body(success_body(Username, Hostname)).
+
+on_email_not_set(Username, Hostname) ->
+    Body = success_body(Username, Hostname) ++ [
+        #span{class = warning, style = ?BLOCK,
+              text = ?T(msg_id_register_success_note)},
+        #span{class = warning,
+              text = ?T(msg_id_register_success_email_not_set)}
+    ],
     set_body(Body).
+
