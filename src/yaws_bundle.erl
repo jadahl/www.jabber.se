@@ -22,6 +22,7 @@
 -export([start/0, stop/0]).
 
 -define(PORT, 8000).
+-define(SSL_PORT, 8008).
 -define(SITE_APP, www_jabber_se_app).
 
 start() ->
@@ -29,29 +30,28 @@ start() ->
 	{ok, App} = application:get_application(),
 	Id = atom_to_list(App),
 
-	SC = #sconf {
-		docroot = "./wwwroot",
-		port = ?PORT,
-        listen = {0, 0, 0, 0},
-		appmods = [{"/web", ?SITE_APP}]
-	},
-	DefaultGC = yaws_config:make_default_gconf(false, Id),
-	GC = DefaultGC#gconf {
-		logdir = "./logs",
-		cache_refresh_secs = 5
-	},
+    Base = [{allowed_scripts, []},
+            {appmods, [{"/", ?SITE_APP}]}],
 
-	% Following code adopted from yaws:start_embedded/4. 
-	% This will need to change if Yaws changes!!!
-	ok = application:set_env(yaws, embedded, true),
-	ok = application:set_env(App, embedded, true),
-	ok = application:set_env(App, id, Id),
-	{ok, Pid} = yaws_sup:start_link(),
-	yaws_config:add_yaws_soap_srv(GC),
-	SCs = yaws_config:add_yaws_auth([SC]),
-	yaws_api:setconf(GC, [SCs]),
-	{ok, Pid}.
-	
+    GL = [{logdir, "./logs"},
+          {cache_refresh_secs, 5}],
+
+    Normal = [{port, ?PORT} | Base],
+
+    SSL = [{ssl, #ssl{keyfile = "server.key",
+                      certfile = "server.crt"}},
+           {port, ?SSL_PORT} | Base],
+
+    SL = [[{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | Normal],
+          [{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | SSL]],
+
+    % Default on Linux and other OSs is to bind IPv6 ports to IPv4 as well,
+    % so might not need the following IPv4 configurations.
+    % [{listen, {0, 0, 0, 0}} | Normal],
+    % [{listen, {0, 0, 0, 0}} | SSL]
+
+    yaws:start_embedded("./wwwroot", SL, GL, Id).
+
 stop() -> 
 	% Stop the Yaws server.
 	Pid = application_controller:get_master(yaws),
