@@ -56,9 +56,9 @@
 %-define(URL_BASE, "http://www.jabber.se").
 -define(URL_BASE, "http://localhost:8000" ++ ?BASE_DIR).
 
--define(DEFAULT_INDEX_MODULE, news).
+-define(DEFAULT_CONTENT, news).
 
--define(ENABLED_CONTENT, [about, news, register]).
+-define(ENABLED_CONTENT, [content_about, content_news, content_register]).
 
 -define(CONTENT_CONFIG,
     [

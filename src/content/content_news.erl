@@ -16,18 +16,21 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module (about).
--include_lib("nitrogen_core/include/wf.hrl").
+-module(content_news).
 
--include("include/content.hrl").
+-export([body/1, atom/1]).
+
 -include("include/utils.hrl").
--include("include/menu.hrl").
--compile(export_all).
+-include("include/content.hrl").
 
-body([], _) ->
-    #content{
-        body = cms:body_single("page_about"),
-        title = ?T(msg_id_about)}.
-	
-event(Event) ->
-    ?LOG_WARNING("Unexpected event: ~p", [Event]).
+-define(CMS_VIEW, "news").
+
+body([]) ->
+    Title = ?T(msg_id_news),
+    #content{body = cms:body(Title, ?CMS_VIEW),
+             title = Title};
+body(_) -> [].
+
+atom(URL) ->
+    cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).
+

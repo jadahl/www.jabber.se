@@ -36,6 +36,7 @@
         languages/0,
         host/0,
         path/0,
+        default_content/0,
 
         % content config helper functions
         content/1, content/2,
@@ -59,7 +60,8 @@
         menu = []               :: list(module()),
         languages = []          :: list(atom()),
         host = "localhost:8000" :: string(),
-        path = "/web"           :: string(),
+        path = "/"              :: string(),
+        default_content         :: module(),
         content = []            :: [{atom(), term()}]
     }).
 
@@ -78,6 +80,7 @@ menu()            -> get_config(menu).
 languages()       -> get_config(languages).
 host()            -> get_config(host).
 path()            -> get_config(path).
+default_content() -> get_config(default_content).
 
 content(Content)  -> get_config({content, Content}).
 content(Content, Key) ->
@@ -100,6 +103,7 @@ init(_) ->
             title = ?TITLE,
             modules = ?MODULES,
             enabled_content = ?ENABLED_CONTENT,
+            default_content = ?DEFAULT_CONTENT,
             menu = ?MENU_ELEMENTS,
             languages = ?ENABLED_LOCALES,
             content = ?CONTENT_CONFIG
@@ -116,7 +120,7 @@ handle_call({get, Config}, _From, S) ->
     try
         {reply, {ok, internal_get_config(Config, S)}, S}
     catch
-        not_found -> {reply, {error, not_Found}, S}
+        not_found -> {reply, {error, not_found}, S}
     end;
 handle_call(stop, _From, S) ->
     {stop, normal, S};
@@ -146,6 +150,7 @@ internal_get_config(menu, S)            -> S#state.menu;
 internal_get_config(languages, S)       -> S#state.languages;
 internal_get_config(host, S)            -> S#state.host;
 internal_get_config(path, S)            -> S#state.path;
+internal_get_config(default_content, S) -> S#state.default_content;
 internal_get_config(config, S)          -> S#state.content;
 internal_get_config({content, Content}, S) ->
     get_content_config(S#state.content, Content);

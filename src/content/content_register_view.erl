@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(register_view).
+-module(content_register_view).
 -export(
     [
         body/0,

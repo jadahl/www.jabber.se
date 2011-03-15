@@ -39,8 +39,7 @@
         title/0,
         language/0,
 
-        % content module helpers
-        content_error/2
+        content_error/1
     ]).
 
 -type load_type() :: trigger | init | history.
@@ -49,44 +48,70 @@
 % Content loading
 %
 
--spec content_error(atom() | iolist(), load_type()) -> any().
-content_error(Error, Type) when is_atom(Error) ->
-    content_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
-content_error(Message, Type) ->
+-spec load_error(atom() | iolist(), load_type()) -> any().
+load_error(Error, Type) when is_atom(Error) ->
+    load_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
+load_error(Message, Type) ->
     set_body(Message, ?T(msg_id_error_title), undefined, "error", Type).
 
--spec load_url(string(), load_type()) -> any().
-load_url(URL, Type) ->
+content_error(Error) when is_atom(Error) ->
+    content_error(io_lib:format(?T(msg_id_error_occured), [Error]));
+content_error(Message) ->
+    #content{body = Message,
+             title = ?T(msg_id_error_title)}.
+
+content_to_module(List) when is_list(List) ->
+    list_to_atom("content_" ++ List);
+content_to_module(Atom) when is_atom(Atom) ->
+    content_to_module(atom_to_list(Atom)).
+
+get_content(Module, SubPath) ->
+    case config:content_enabled(Module) of
+        true  -> do_get_content(Module, SubPath);
+        false -> content_error(not_allowed)
+    end.
+
+do_get_content(Module, SubPath) ->
+    case catch Module:body(SubPath) of
+        #content{} = Content -> Content;
+        {exception, _, _, _} -> content_error(exception);
+        {'EXIT', _}          -> content_error(error)
+    end.
+
+load_content(URL, Type) ->
     case parse_url(URL) of
         {[ModuleS | SubPath], _Params} ->
-            load_content(list_to_atom(ModuleS), SubPath, URL, Type);
-        _ ->
-            content_error(not_found, Type)
-    end.
-
-load_content(Module, SubPath, URL, Type) ->
-    ?LOG_INFO("load_content(~p, ~p, ~p, ~p)", [Module, SubPath, URL, Type]),
-    case config:content_enabled(Module) of
-        true  -> do_load_content(Module, SubPath, URL, Type);
-        false -> content_error(not_allowed, Type)
-    end.
-
-do_load_content(Module, SubPath, URL, Type) ->
-    case catch Module:body(SubPath, Type) of
-        #content{body = Body, title = Title, post_eval = PostEval} ->
+            Module = content_to_module(ModuleS),
+            #content{body = Body,
+                     title = Title,
+                     post_eval = PostEval} = get_content(Module, SubPath),
             set_body(Body, Title, Module, URL, Type),
             if is_function(PostEval) -> PostEval();
                true -> ok
             end;
-        {exception, _, _, _} = _Error ->
-            ?LOG_WARNING("An exception occurred when loading content: ~p",
-                [_Error]),
-            content_error(error, Type);
-        {'EXIT', _Error} ->
-            ?LOG_WARNING("An error occurred when loading content: ~p",
-                [_Error]),
-            content_error(error, Type)
+        _ ->
+            load_error(not_found, Type)
     end.
+
+cached_content() ->
+    get(content).
+
+cache_content() ->
+    case wf:path_info() of
+        []  -> URL = atom_to_list(config:default_content());
+        URL -> ok
+    end,
+
+    Content = case parse_url(URL) of
+        {[ModuleS | SubPath], _Params} ->
+            Module = content_to_module(ModuleS),
+            get_content(Module, SubPath);
+        _ ->
+            content_error('404')
+    end,
+
+    % Store the content in the process dictionary
+    put(content, Content).
 
 %
 % Document body modification
@@ -117,7 +142,7 @@ set_body(Body, Title, Module, URL, Type) ->
     end,
 
     % if this is an init call, initialize history, otherwise update history
-    Dir = utils:maybe_append(config:path(), $/) ++ "index/",
+    Dir = utils:maybe_append(config:path(), $/),
     case Type of
         init ->
             wf:wire(#js_call{fname = "$Site.$history_push_initial",
@@ -240,27 +265,24 @@ site_api() ->
     [wf:wire(API) || API <- APIs],
     ok.
 
+api_event(init_content, content, Args) ->
+    ?LOG_INFO("init_content(~p)", [Args]),
+    session:env(),
+    page_init_hooks();
 api_event(Name, content, Args) ->
     ?LOG_INFO("~s(~p)", [Name, Args]),
     session:env(),
 
     case Args of
-        []                      -> URL = undefined;
-        [URL] when is_list(URL) -> ok
-    end,
-
-    case Name of
-        init_content ->
-            InitURL = case URL of
-                undefined -> wf:path_info();
-                _         -> URL
-            end,
-            load_url(InitURL, init),
-            page_init_hooks();
-        menu_triggered ->
-            load_url(URL, trigger);
-        history_load ->
-            load_url(URL, history)
+        [] ->
+            ok;
+        [URL] ->
+            case Name of
+                menu_triggered ->
+                    load_content(URL, trigger);
+                history_load ->
+                    load_content(URL, history)
+            end
     end;
 
 api_event(A, B, C) ->
@@ -279,6 +301,9 @@ main() ->
     % initial post back
     wf:wire("$Site.$boot();"),
 
+    % store content data in process dict
+    cache_content(),
+
     % return template
     #template { file="./wwwroot/template.html" }.
 
@@ -290,7 +315,8 @@ head() ->
     feed:get_feed_links().
 
 title() ->
-    ?TITLE.
+    #content{title = Title} = cached_content(),
+    ?TITLE ++ " - " ++ Title.
 
 language() ->
     [
@@ -304,7 +330,18 @@ language() ->
     ].
 
 body() ->
-    #panel{id = content_body}.
+    % Get the content cached by the main function.
+    #content{body = Body,
+             post_eval = PostEval} = cached_content(),
+
+    % Since wired actions will be called later by the template
+    % we can evaluate the function now.
+    if is_function(PostEval) -> PostEval();
+       true                  -> ok
+    end,
+
+    #panel{id = content_body,
+           body = Body}.
 
 foot() ->
     [].

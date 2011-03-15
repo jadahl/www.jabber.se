@@ -17,7 +17,7 @@
 %
 
 -module (www_jabber_se_app).
--export ([start/2, stop/0, stop/1, out/1, out/2, out/3]).
+-export ([start/2, stop/1, out/1, out/2, out/3]).
 -behavior(application).
 
 -include("include/config.hrl").
@@ -26,20 +26,39 @@
 -define(PORT, 8000).
 
 start(_, _) ->
+    application:set_env(nitrogen, session_timeout, 1),
+
     % start jabber.se modules
     lists:foreach(fun(Module) -> Module:start() end, ?MODULES),
 
     % start yaws
-    yaws_bundle:start().
+    yaws_bundle:start(),
 
-stop(_) -> stop().
-stop() ->
-    yaws_bundle:stop().
+    Pid = spawn_link(fun() -> receive close -> ok end end),
+
+    {ok, Pid, Pid}.
+
+stop(Pid) ->
+    yaws_bundle:stop(),
+    Pid ! close.
 
 out(Arg) ->
     RequestBridge = simple_bridge:make_request(yaws_request_bridge, Arg),
     ResponseBridge = simple_bridge:make_response(yaws_response_bridge, Arg),
     nitrogen:init_request(RequestBridge, ResponseBridge),
+    Contents = config:enabled_content(),
+
+    nitrogen:handler(named_route_handler,
+        % Content
+        [{[$/ | atom_to_list(Content)], web_index} || Content <- [''|Contents]] ++
+
+        % Static files
+        [
+            {"/res", static_file},
+            {"/nitrogen", static_file},
+            {"/jabber.se", static_file}
+        ]),
+
     nitrogen:run().
 
 out(Arg, Module) -> out(Arg, Module, "").

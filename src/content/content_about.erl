@@ -16,20 +16,19 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(news).
+-module(content_about).
+-include_lib("nitrogen_core/include/wf.hrl").
 
--export([body/2, atom/1]).
-
--include("include/utils.hrl").
 -include("include/content.hrl").
+-include("include/utils.hrl").
+-include("include/menu.hrl").
 
--define(CMS_VIEW, "news").
+-export([
+        body/1
+    ]).
 
-body([], _Optins) ->
-    Title = ?T(msg_id_news),
-    #content{body = cms:body(Title, ?CMS_VIEW),
-             title = Title}.
-
-atom(URL) ->
-    cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).
+body([]) ->
+    #content{
+        body = cms:body_single("page_about"),
+        title = ?T(msg_id_about)}.
 

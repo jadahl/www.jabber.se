@@ -20,7 +20,7 @@ Site.prototype.$boot = function() {
     var hash = window.location.hash;
     if ((new RegExp(/^#!/)).test(hash))
     {
-        page.init_content(hash.replace(/^#!/, ""));
+        window.location = hash.replace(/^#!/, "");
     }
     else
     {

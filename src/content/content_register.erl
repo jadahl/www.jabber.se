@@ -16,10 +16,10 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(register).
+-module(content_register).
 -export(
     [
-        body/2, event/1, event_invalid/1,
+        body/1, event/1, event_invalid/1,
 
         hostname/0,
 
@@ -37,8 +37,8 @@
 % Content
 %
 
-body(_, _) ->
-    register_view:body().
+body(_) ->
+    content_register_view:body().
 
 %
 % Text utils
@@ -106,7 +106,7 @@ is_available(Username, Host) ->
     case rest:request_get(server_address(), server_port(), Path) of
         {error, _Error} ->
             ?LOG_ERROR("Error in username taken validator: ~p", [_Error]),
-            register_view:on_failed(error),
+            content_register_view:on_failed(error),
             true;
         {ok, Value} when is_boolean(Value) ->
             not Value
@@ -164,20 +164,20 @@ event(create) ->
 
     case try_register(Username, Password, Hostname, Email) of
         exists ->
-            register_view:on_exists();
+            content_register_view:on_exists();
         ok ->
-            register_view:on_success(Username, Hostname);
+            content_register_view:on_success(Username, Hostname);
         email_not_set ->
-            register_view:on_email_not_set(Username, Hostname);
+            content_register_view:on_email_not_set(Username, Hostname);
         {error, Reason} ->
             ?LOG_ERROR("Failed to register ~p: ~p", [Username, Reason]),
-            register_view:on_failed(Reason)
+            content_register_view:on_failed(Reason)
     end;
 event(back) ->
     session:env(),
-    register_view:on_back().
+    content_register_view:on_back().
 
 event_invalid(create) ->
     session:env(),
-    register_view:on_validation_failed().
+    content_register_view:on_validation_failed().
 
