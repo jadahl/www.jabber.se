@@ -106,6 +106,7 @@ is_available(Username, Host) ->
     case rest:request_get(server_address(), server_port(), Path) of
         {error, _Error} ->
             ?LOG_ERROR("Error in username taken validator: ~p", [_Error]),
+            session:env(),
             content_register_view:on_failed(error),
             true;
         {ok, Value} when is_boolean(Value) ->

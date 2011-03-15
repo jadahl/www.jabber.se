@@ -88,7 +88,7 @@ register_form() ->
                                            #enable{target = create_button},
                                            #enable{target = clear_button}
                                        ],
-                                       delegate = register},
+                                       delegate = content_register},
                                #panel{class = inline_spinner_container,
                                       body = #image{image = ?SMALL_SPINNER_IMAGE,
                                                     class = inline_spinner,
@@ -117,8 +117,8 @@ register_form() ->
 %
 % Validator
 
-is_available_validator(_, Value) ->
-    register:is_available(Value, register:hostname()).
+is_available_validator(_A, Value) ->
+    content_register:is_available(Value, content_register:hostname()).
 
 %
 % Internal
@@ -152,7 +152,7 @@ on_failed(Reason) ->
         #h3{text = ?T(msg_id_register_failed)},
         #p{body = Message},
         #button{text = ?T(msg_id_back),
-                delegate = register,
+                delegate = content_register,
                 postback = back}
     ],
 

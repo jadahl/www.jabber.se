@@ -62,10 +62,10 @@
 
 -define(CONTENT_CONFIG,
     [
-        {register, [{hostname, "localhost"},
-                    {server, "localhost"},
-                    {port, 8088},
-                    {key, "abc123"}]}
+        {content_register, [{hostname, "localhost"},
+                            {server, "localhost"},
+                            {port, 8088},
+                            {key, "abc123"}]}
     ]).
 
 -define(MENU_ELEMENTS,
