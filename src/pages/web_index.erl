@@ -36,6 +36,7 @@
         foot/0,
         dialogs/0,
         body/0,
+        page_title/0,
         title/0,
         language/0,
 
@@ -313,6 +314,9 @@ main() ->
 
 head() ->
     feed:get_feed_links().
+
+page_title() ->
+    ?TITLE.
 
 title() ->
     #content{title = Title} = cached_content(),
