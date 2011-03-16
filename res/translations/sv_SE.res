@@ -50,6 +50,7 @@
     {msg_id_register, "Registrera"},
     {msg_id_register_at_least, "[msg_id_register_at_least]"}, % not translated
     {msg_id_register_email, "[msg_id_register_email]"}, % not translated
+    {msg_id_register_email_comment, "[msg_id_register_email_comment]"}, % not translated
     {msg_id_register_exists, "[msg_id_register_exists]"}, % not translated
     {msg_id_register_failed, "[msg_id_register_failed]"}, % not translated
     {msg_id_register_internal_error, "[msg_id_register_internal_error]"}, % not translated

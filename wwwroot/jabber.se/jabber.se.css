@@ -40,6 +40,10 @@ textarea {
     border: 2px solid #ffffff;
 }
 
+label.small {
+    font-size: 10px;
+}
+
 span.contact {
     font-weight: bold;
 }

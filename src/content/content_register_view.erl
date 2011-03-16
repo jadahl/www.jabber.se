@@ -67,8 +67,12 @@ register_form() ->
                        style = ?BLOCK},
                 #password{id = pwd_confirm, class = textbox},
                 #p{},
-                #label{text = ?T(msg_id_register_email),
-                       style = ?BLOCK},
+                #panel{body = [
+                        #label{text = ?T(msg_id_register_email)},
+                        #label{text = ?T(msg_id_register_email_note),
+                               class = small},
+                        #label{text = ": "}
+                    ]},
                 #textbox{id = email},
                 #p{},
                 #panel{body = [#reset{id = clear_button,
