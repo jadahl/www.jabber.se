@@ -36,14 +36,16 @@
         languages/0,
         host/0,
         path/0,
-        default_content/0,
+        default_content_url/0,
+
+        read/1,
 
         % content config helper functions
-        content/1, content/2,
+        content/2,
 
         % config helper functions
         content_enabled/1,
-        
+
         % gen_server
         init/1,
         handle_call/3,
@@ -54,15 +56,7 @@
     ]).
 
 -record(state, {
-        title = []              :: iolist(),
-        modules = []            :: list(module()),
-        enabled_content = []    :: list(module()),
-        menu = []               :: list(module()),
-        languages = []          :: list(atom()),
-        host = "localhost:8000" :: string(),
-        path = "/"              :: string(),
-        default_content         :: module(),
-        content = []            :: [{atom(), term()}]
+        table
     }).
 
 start() -> start_link().
@@ -73,24 +67,21 @@ start_link() ->
 stop() ->
     gen_server:call(?MODULE, stop).
 
-title()           -> get_config(title).
-modules()         -> get_config(modules).
-enabled_content() -> get_config(enabled_content).
-menu()            -> get_config(menu).
-languages()       -> get_config(languages).
-host()            -> get_config(host).
-path()            -> get_config(path).
-default_content() -> get_config(default_content).
+title()               -> read(title).
+modules()             -> read(modules).
+enabled_content()     -> read(enabled_content).
+menu()                -> read(menu).
+languages()           -> read(languages).
+host()                -> read(host).
+path()                -> read(path).
+default_content_url() -> read(default_content_url).
 
-content(Content)  -> get_config({content, Content}).
-content(Content, Key) ->
-    ContentConfig = get_config({content, Content}),
-    proplists:get_value(Key, ContentConfig).
+content(Content, Key) -> read({c, Content, Key}).
 
 content_enabled(Module) ->
-    lists:member(Module, get_config(enabled_content)).
+    lists:member(Module, read(enabled_content)).
 
-get_config(Config) ->
+read(Config) ->
     {ok, Value} = gen_server:call(?MODULE, {get, Config}),
     Value.
 
@@ -99,28 +90,43 @@ get_config(Config) ->
 %
 
 init(_) ->
-    {ok, #state{
-            title = ?TITLE,
-            modules = ?MODULES,
-            enabled_content = ?ENABLED_CONTENT,
-            default_content = ?DEFAULT_CONTENT,
-            menu = ?MENU_ELEMENTS,
-            languages = ?ENABLED_LOCALES,
-            content = ?CONTENT_CONFIG
-        }}.
+    Table = ets:new(config, []),
 
-handle_call({get, Configs}, _From, S) when is_list(Configs) ->
-    try
-        {reply, {ok, [internal_get_config(Config, S) || Config <- Configs], S}}
-    catch
-        not_found ->
-            {reply, {error, not_found}, S}
-    end;
+    % Basic configuration
+    ets:insert(Table, [
+            {title, ?TITLE},
+            {host, ?HOST},
+            {path, ?BASE_DIR},
+            {http_port, ?HTTP_PORT},
+            {https_port, ?HTTPS_PORT},
+            {modules, ?MODULES},
+            {enabled_content, ?ENABLED_CONTENT},
+            {default_content_url, ?DEFAULT_CONTENT_URL},
+            {menu, ?MENU_ELEMENTS},
+            {languages, ?ENABLED_LOCALES}
+        ]),
+
+    ets:insert(Table,
+        lists:flatten([
+            [
+                {{c, Content, Key}, Value}
+                ||
+                {Key, Value} <- ContentConfig
+            ]
+            ||
+            {Content, ContentConfig} <- ?CONTENT_CONFIG
+        ])),
+    {ok, #state{table = Table}}.
+
 handle_call({get, Config}, _From, S) ->
     try
-        {reply, {ok, internal_get_config(Config, S)}, S}
+        if is_list(Config) ->
+                {reply, {ok, [lookup(C, S) || C <- Config]}, S};
+           true ->
+                {reply, {ok, lookup(Config, S)}, S}
+        end
     catch
-        not_found -> {reply, {error, not_found}, S}
+        {not_found, Key} -> {reply, {error, {not_found, Key}}, S}
     end;
 handle_call(stop, _From, S) ->
     {stop, normal, S};
@@ -143,20 +149,9 @@ terminate(_Reason, _S) ->
 % Internal
 %
 
-internal_get_config(title, S)           -> S#state.title;
-internal_get_config(modules, S)         -> S#state.modules;
-internal_get_config(enabled_content, S) -> S#state.enabled_content;
-internal_get_config(menu, S)            -> S#state.menu;
-internal_get_config(languages, S)       -> S#state.languages;
-internal_get_config(host, S)            -> S#state.host;
-internal_get_config(path, S)            -> S#state.path;
-internal_get_config(default_content, S) -> S#state.default_content;
-internal_get_config(config, S)          -> S#state.content;
-internal_get_config({content, Content}, S) ->
-    get_content_config(S#state.content, Content);
-internal_get_config(_, _S) ->
-    throw(not_found).
-
-get_content_config(ContentPropList, Content) ->
-    proplists:get_value(Content, ContentPropList).
+lookup(Key, State) ->
+    case ets:lookup(State#state.table, Key) of
+        [{Key, Value}] -> Value;
+        _              -> throw({not_found, Key})
+    end.
 

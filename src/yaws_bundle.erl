@@ -21,8 +21,6 @@
 -include_lib("simple_bridge/include/yaws_api.hrl").
 -export([start/0, stop/0]).
 
--define(PORT, 8000).
--define(SSL_PORT, 8008).
 -define(SITE_APP, www_jabber_se_app).
 
 start() ->
@@ -36,11 +34,14 @@ start() ->
     GL = [{logdir, "./logs"},
           {cache_refresh_secs, 5}],
 
-    Normal = [{port, ?PORT} | Base],
+    HTTPPort = config:read(http_port),
+    HTTPSPort = config:read(https_port),
+
+    Normal = [{port, HTTPPort} | Base],
 
     SSL = [{ssl, #ssl{keyfile = "server.key",
                       certfile = "server.crt"}},
-           {port, ?SSL_PORT} | Base],
+           {port, HTTPSPort} | Base],
 
     SL = [[{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | Normal],
           [{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | SSL]],
@@ -50,7 +51,9 @@ start() ->
     % [{listen, {0, 0, 0, 0}} | Normal],
     % [{listen, {0, 0, 0, 0}} | SSL]
 
-    yaws:start_embedded("./wwwroot", SL, GL, Id).
+    yaws:start_embedded("./wwwroot", SL, GL, Id),
+
+    {ok, application_controller:get_master(yaws)}.
 
 stop() -> 
 	% Stop the Yaws server.

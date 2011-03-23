@@ -27,7 +27,7 @@
 -define(ENABLE_LOG_WARNING, true).
 -define(ENABLE_LOG_ERROR, true).
 
--define(MODULES, [config, db_controller, i18n]).
+-define(MODULES, [config, db_controller, i18n, yaws_bundle]).
 -define(HOOKS, [session]).
 
 -define(TITLE, "Jabber.se").
@@ -51,12 +51,16 @@
         jid = "admin@localhost"
     }).
 
--define(BASE_DIR, "/web/").
 
-%-define(URL_BASE, "http://www.jabber.se").
--define(URL_BASE, "http://localhost:8000" ++ ?BASE_DIR).
+%-define(URL_BASE, "www.jabber.se").
+-define(HOST, "localhost").
 
--define(DEFAULT_CONTENT, news).
+-define(BASE_DIR, "/").
+
+-define(HTTP_PORT, 8000).
+-define(HTTPS_PORT, 8008).
+
+-define(DEFAULT_CONTENT_URL, "news").
 
 -define(ENABLED_CONTENT, [content_about, content_news, content_register]).
 

@@ -61,10 +61,8 @@ content_error(Message) ->
     #content{body = Message,
              title = ?T(msg_id_error_title)}.
 
-content_to_module(List) when is_list(List) ->
-    list_to_atom("content_" ++ List);
-content_to_module(Atom) when is_atom(Atom) ->
-    content_to_module(atom_to_list(Atom)).
+content_url_to_module(List) when is_list(List) ->
+    list_to_atom("content_" ++ List).
 
 get_content(Module, SubPath) ->
     case config:content_enabled(Module) of
@@ -82,7 +80,7 @@ do_get_content(Module, SubPath) ->
 load_content(URL, Type) ->
     case parse_url(URL) of
         {[ModuleS | SubPath], _Params} ->
-            Module = content_to_module(ModuleS),
+            Module = content_url_to_module(ModuleS),
             #content{body = Body,
                      title = Title,
                      post_eval = PostEval} = get_content(Module, SubPath),
@@ -99,13 +97,13 @@ cached_content() ->
 
 cache_content() ->
     case wf:path_info() of
-        []  -> URL = atom_to_list(config:default_content());
+        []  -> URL = config:default_content_url();
         URL -> ok
     end,
 
     Content = case parse_url(URL) of
         {[ModuleS | SubPath], _Params} ->
-            Module = content_to_module(ModuleS),
+            Module = content_url_to_module(ModuleS),
             get_content(Module, SubPath);
         _ ->
             content_error('404')
@@ -294,19 +292,26 @@ api_event(A, B, C) ->
 %
 
 main() ->
-    session:env(),
+    case (wf_context:request_bridge()):scheme() of
+        http ->
+            wf:status_code(302),
+            wf:header("Location", cf_url:url(https, config:path() ++ wf:path_info())),
+            "";
+        https ->
+            session:env(),
 
-    % site api
-    site_api(),
+            % site api
+            site_api(),
 
-    % initial post back
-    wf:wire("$Site.$boot();"),
+            % initial post back
+            wf:wire("$Site.$boot();"),
 
-    % store content data in process dict
-    cache_content(),
+            % store content data in process dict
+            cache_content(),
 
-    % return template
-    #template { file="./wwwroot/template.html" }.
+            % return template
+            #template{file = "./wwwroot/template.html"}
+    end.
 
 %
 % Template entry points

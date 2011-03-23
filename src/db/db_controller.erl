@@ -39,8 +39,7 @@
 
 start() ->
     InitialState = #db_state{},
-    {ok, _} = gen_server:start_link({local, ?MODULE}, ?MODULE, InitialState, []),
-    init_database().
+    gen_server:start_link({local, ?MODULE}, ?MODULE, InitialState, []).
 
 stop() ->
     gen_server:cast(?MODULE, terminate).
@@ -56,9 +55,6 @@ get_database() ->
         Pid2 ->
             Pid2
     end.
-
-init_database() ->
-    ok.
 
 %
 % DB functionality

@@ -17,8 +17,9 @@
 %
 
 -module (www_jabber_se_app).
--export ([start/2, stop/1, out/1, out/2, out/3]).
--behavior(application).
+-export ([start/2, stop/1, init/1, out/1, out/2, out/3]).
+-behaviour(application).
+-behaviour(supervisor).
 
 -include("include/config.hrl").
 -include("include/utils.hrl").
@@ -27,20 +28,30 @@
 
 start(_, _) ->
     application:set_env(nitrogen, session_timeout, 1),
+    case supervisor:start_link(?MODULE, []) of
+        ignore    -> {error, ignore};
+        {ok, Pid} -> {ok, Pid, Pid};
+        Error     -> Error
+    end.
 
-    % start jabber.se modules
-    lists:foreach(fun(Module) -> Module:start() end, ?MODULES),
-
-    % start yaws
-    yaws_bundle:start(),
-
-    Pid = spawn_link(fun() -> receive close -> ok end end),
-
-    {ok, Pid, Pid}.
+init(_Args) ->
+    {ok, {{one_for_one, 30, 60},
+           [{Module, {Module, start, []},
+             permanent, brutal_kill, worker, [Module]}
+            || Module <- ?MODULES]}}.
 
 stop(Pid) ->
-    yaws_bundle:stop(),
-    Pid ! close.
+    exit(Pid, shutdown).
+
+contents([Content | Contents]) ->
+    case atom_to_list(Content) of
+        "content_" ++ ContentS ->
+            [ContentS | contents(Contents)];
+        ContentS ->
+            [ContentS | contents(Contents)]
+    end;
+contents([]) ->
+    [].
 
 out(Arg) ->
     RequestBridge = simple_bridge:make_request(yaws_request_bridge, Arg),
@@ -50,7 +61,8 @@ out(Arg) ->
 
     nitrogen:handler(named_route_handler,
         % Content
-        [{[$/ | atom_to_list(Content)], web_index} || Content <- [''|Contents]] ++
+        [{[$/ | Content], web_index}
+         || Content <- [""|contents(Contents)]] ++
 
         % Static files
         [
