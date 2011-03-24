@@ -298,6 +298,9 @@ main() ->
             wf:header("Location", cf_url:url(https, config:path() ++ wf:path_info())),
             "";
         https ->
+            % HSTS, set to 7 days
+            wf:header("Strict-Transport-Security", "max-age=604800"),
+
             session:env(),
 
             % site api
