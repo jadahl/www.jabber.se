@@ -76,7 +76,8 @@ do_get_content(Module, SubPath) ->
     catch
         {exception, _, _, _} -> content_error(exception);
         {'EXIT', _}          -> content_error(exit);
-        error:_              -> content_error(error)
+        error:_              -> content_error(error);
+        throw:_              -> content_error(throw)
     end.
 
 load_content(URL, Type) ->
