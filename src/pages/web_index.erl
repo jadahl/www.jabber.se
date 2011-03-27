@@ -99,8 +99,8 @@ cached_content() ->
     get(content).
 
 cache_content() ->
-    case wf:path_info() of
-        []  -> URL = config:default_content_url();
+    case cf_url:path() of
+        "" -> URL = config:default_content_url();
         URL -> ok
     end,
 
@@ -299,7 +299,7 @@ main() ->
     case (wf_context:request_bridge()):scheme() of
         http ->
             wf:status_code(302),
-            wf:header("Location", cf_url:url(https, config:path() ++ wf:path_info())),
+            wf:header("Location", cf_url:url(https, config:path() ++ cf_url:path())),
             "";
         https ->
             % HSTS, set to 7 days

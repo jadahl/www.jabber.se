@@ -17,10 +17,15 @@
 %
 
 -module(cf_url).
--export([url/1, url/2]).
+-export([path/0, url/1, url/2]).
+
+path() ->
+    [$/ | Path] = (wf_context:request_bridge()):path(),
+    Path.
 
 url(Path) ->
     url((wf:request_bridge()):scheme(), Path).
+
 
 url(Scheme, Path) ->
     Host = config:host(),
