@@ -278,7 +278,8 @@ api_event(Name, content, Args) ->
         [URL] ->
             case Name of
                 menu_triggered ->
-                    load_content(URL, trigger);
+                    load_content(URL, trigger),
+                    menu:hide_spinner();
                 history_load ->
                     load_content(URL, history)
             end

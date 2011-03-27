@@ -26,7 +26,7 @@
 
 -export(
     [
-        menu/0,
+        hide_spinner/0, menu/0,
         get_menu_elements/0,
         menu_element_id/1,
         full_title/1,
@@ -40,8 +40,10 @@ menu_element_id(#menu_element{module = Module}) ->
     list_to_atom("menu_" ++ atom_to_list(Module)).
 
 menu_event(#menu_element{module = Module} = MenuElement) ->
+    %ID = menu_element_id(MenuElement),
     #event{type = click,
-           actions = [#js_call{fname = "$Site.$trigger_menu",
+           actions = [#show{target = menu_spinner},
+                      #js_call{fname = "$Site.$trigger_menu",
                                args = [list_to_binary(atom_to_list(Module)),
                                        menu_element_id(MenuElement)]}]}.
 
@@ -51,12 +53,12 @@ full_title(#menu_element{title = Title}) ->
 -spec menu_items() -> list(#listitem{}).
 menu_items() ->
     MenuElements = menu:get_menu_elements(),
+
     [#listitem{
-            body = #link{
-                text = i18n:t(Title),
-                id = menu_element_id(MenuElement),
-                actions = [menu_event(MenuElement)]
-            }}
+            body = [#link{text = i18n:t(Title),
+                          id = menu_element_id(MenuElement),
+                          actions = [menu_event(MenuElement)]}]
+        }
         || #menu_element{title = Title} = MenuElement <- MenuElements].
 
 %
@@ -78,12 +80,20 @@ maybe_element_by_module(#menu_element{module = Module} = Element, Module) ->
 maybe_element_by_module(_, _) ->
     nothing.
 
+hide_spinner() ->
+    wf:wire(menu_spinner, #hide{}).
+
 %
 % Document entry points
 %
 
 menu() ->
     [
+        % spinner for when content is loading
+        #image{image = ?SPINNER_IMAGE_MENU,
+               id = menu_spinner,
+               style = ?HIDDEN},
+
         % menu elements
         #list{body = menu_items()}
     ].

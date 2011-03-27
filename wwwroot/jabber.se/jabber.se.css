@@ -80,6 +80,13 @@ ul.contact {
     color: #eb1b1b;
 }
 
+img.wfid_menu_spinner {
+    position: absolute;*/
+    margin-left: 6px;
+    bottom: 6px;
+    right: -16px;
+}
+
 div.inline_spinner_container {
     position: absolute;
     display: inline;

@@ -94,5 +94,6 @@
 
 -define(SPINNER_IMAGE, "/res/spinner.gif").
 -define(SMALL_SPINNER_IMAGE, "/res/spinner-small.gif").
+-define(SPINNER_IMAGE_MENU, "/res/spinner-menu.gif").
 
 -endif.
