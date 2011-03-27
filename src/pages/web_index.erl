@@ -71,10 +71,12 @@ get_content(Module, SubPath) ->
     end.
 
 do_get_content(Module, SubPath) ->
-    case catch Module:body(SubPath) of
-        #content{} = Content -> Content;
+    try
+        Module:body(SubPath)
+    catch
         {exception, _, _, _} -> content_error(exception);
-        {'EXIT', _}          -> content_error(error)
+        {'EXIT', _}          -> content_error(exit);
+        error:_              -> content_error(error)
     end.
 
 load_content(URL, Type) ->
