@@ -60,6 +60,7 @@
         state = draft,
         title = {[]},
         timestamp,
+        edited,
         tags = [],
         authors = [],
         body = {[]}

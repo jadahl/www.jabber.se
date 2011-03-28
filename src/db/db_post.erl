@@ -64,6 +64,7 @@ parse_helper({K, V}, P) ->
         state -> P#db_post{state = list_to_atom(binary_to_list(V))};
         title -> P#db_post{title = V};
         ts -> P#db_post{timestamp = list_to_integer(binary_to_list(V))};
+        edited -> P#db_post{edited = list_to_integer(binary_to_list(V))};
         tags -> P#db_post{tags = V};
         authors -> P#db_post{authors = V};
         body -> P#db_post{body = V};
@@ -134,6 +135,7 @@ render_post(#db_post{
         state = State,
         title = Title,
         timestamp = TimeStamp,
+        edited = Edited,
         tags = Tags,
         authors = Authors,
         body = Body} = Post) ->
@@ -144,15 +146,17 @@ render_post(#db_post{
         Id,
         Rev,
         post,
-        [
+        lists:flatten([
             {title, Title},
             {state, State},
             {ts, TimeStamp},
+            if Edited == undefined -> [];
+               true                -> {edited, Edited}
+            end,
             {tags, Tags},
             {authors, Authors},
             {body, Body}
-        ]
-   
+        ])
     }.
 
 %

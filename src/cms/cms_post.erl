@@ -215,7 +215,8 @@ event_save() ->
         with_locale_do(
             fun(Locale) ->
                 % save
-                do_save(Locale),
+                Id = do_save(Locale),
+                set_current_post(Id),
 
                 % update ui
                 cms_post_view:set_saved_label()
@@ -239,13 +240,15 @@ do_save(Locale, State) ->
     Post2 = db_post:set_body(wf:q(post_dialog_text_area), Locale, Post1),
     Post3 = db_post:set_state(State, Post2),
 
-    NewPost = Post3#db_post{
-        timestamp = unix_timestamp()
-    },
+    % If we are publishing then update the timestamp
+    Post4 = if State == public -> Post3#db_post{timestamp = unix_timestamp()};
+               true            -> Post3
+            end,
 
-    db_post:save_post(NewPost),
+    NewPost = Post4#db_post{edited = unix_timestamp()},
 
-    ok.
+    Doc = db_post:save_post(NewPost),
+    db_doc:get_id(Doc).
 
 event_discard() ->
     ?LOG_INFO("Discarding draft", []),
