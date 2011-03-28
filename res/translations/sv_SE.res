@@ -5,10 +5,10 @@
     {msg_id_admin_content, "Innehåll"},
     {msg_id_admin_post, "Skapa"},
     {msg_id_admin_title, "Hantera Innehåll"},
-    {msg_id_back, "[msg_id_back]"}, % not translated
+    {msg_id_back, "Bakåt"},
     {msg_id_by, "av"},
     {msg_id_cancel, "Avbryt"},
-    {msg_id_clear, "[msg_id_clear]"}, % not translated
+    {msg_id_clear, "Rensa"},
     {msg_id_close, "Stäng"},
     {msg_id_drafts_dialog_title, "Utkast"},
     {msg_id_drafts_empty, "Inga utkast..."},
@@ -48,26 +48,25 @@
     {msg_id_post_untitled, "(ingen titel)"},
     {msg_id_posts_empty, "Inga inlägg"},
     {msg_id_register, "Registrera"},
-    {msg_id_register_at_least, "[msg_id_register_at_least]"}, % not translated
-    {msg_id_register_email, "[msg_id_register_email]"}, % not translated
-    {msg_id_register_email_comment, "[msg_id_register_email_comment]"}, % not translated
-    {msg_id_register_exists, "[msg_id_register_exists]"}, % not translated
-    {msg_id_register_failed, "[msg_id_register_failed]"}, % not translated
-    {msg_id_register_internal_error, "[msg_id_register_internal_error]"}, % not translated
-    {msg_id_register_invalid_input, "[msg_id_register_invalid_input]"}, % not translated
-    {msg_id_register_match, "[msg_id_register_match]"}, % not translated
-    {msg_id_register_password, "[msg_id_register_password]"}, % not translated
-    {msg_id_register_pwd_confirm, "[msg_id_register_pwd_confirm]"}, % not translated
-    {msg_id_register_required, "[msg_id_register_required]"}, % not translated
-    {msg_id_register_success, "[msg_id_register_success]"}, % not translated
-    {msg_id_register_success_email_not_set, "[msg_id_register_success_email_not_set]"}, % not translated
-    {msg_id_register_success_msg_part1, "[msg_id_register_success_msg_part1]"}, % not translated
-    {msg_id_register_success_msg_part2, "[msg_id_register_success_msg_part2]"}, % not translated
-    {msg_id_register_success_note, "[msg_id_register_success_note]"}, % not translated
-    {msg_id_register_taken, "[msg_id_register_taken]"}, % not translated
-    {msg_id_register_username, "[msg_id_register_username]"}, % not translated
-    {msg_id_register_valid_email, "[msg_id_register_valid_email]"}, % not translated
-    {msg_id_reload, "Sidan behöver laddas om"},
-    {msg_id_reload_page, "Ladda om"},
+    {msg_id_register_at_least, "Lösenordet måste vara åtminstone 6 tecken långt."},
+    {msg_id_register_email, "E-mail "},
+    {msg_id_register_email_note, "(frivilligt, kommer ej publiceras)"},
+    {msg_id_register_failed, "Registreringen misslyckades"},
+    {msg_id_register_internal_error, "Internt fel"},
+    {msg_id_register_invalid_input, "Ogiltlig input"},
+    {msg_id_register_match, "Lösenorden är ej lika"},
+    {msg_id_register_password, "Lösenord: "},
+    {msg_id_register_pwd_confirm, "Bekräfta lösenord: "},
+    {msg_id_register_required, "Fyll i"},
+    {msg_id_register_success, "Kontot har registrerats"},
+    {msg_id_register_success_email_not_set, "Du angav ej någon E-mail-address. Det innebär att du ej kan begära ett nytt lösenord ifall du tappat port ditt befintliga. Ifall du vill kunna begära ett nytt lösenord måste du först ha registrerat en E-mail-address. Din registrerade E-mail-address kommer inte vara publik."},
+    {msg_id_register_success_msg_part1, "Kontot "},
+    {msg_id_register_success_msg_part2, " har registrerats. Du kan börja använda det direkt."},
+    {msg_id_register_success_note, "Notis:"},
+    {msg_id_register_taken, "Användarnamnet är upptaget"},
+    {msg_id_register_username, "Användarnamn: "},
+    {msg_id_register_valid_email, "Skriv in en giltlig E-mail-address"},
+    {msg_id_reload, "Ladda om"},
+    {msg_id_reload_page, "Sidan behöver laddas om"},
     {msg_id_unauthorized_request, "Åtkomst förbjuden"}
 ].
