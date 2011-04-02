@@ -38,7 +38,7 @@ main() ->
             web_error:main();
         true ->
             try
-                Body = Module:atom("/feed/" ++ wf:path_info()),
+                Body = Module:atom("/feed" ++ wf:path_info()),
                 wf:content_type("application/atom+xml"),
                 Body
             catch
