@@ -28,6 +28,7 @@
     [
         hide_spinner/0, menu/0,
         get_menu_elements/0,
+        element_by_path/1,
         menu_element_id/1,
         full_title/1,
         menu_element_to_module/1
@@ -41,6 +42,13 @@ menu_element_to_module(#menu_element{path = Path}) ->
     case config:content_enabled(Module) of
         true  -> Module;
         false -> undefined
+    end.
+
+element_by_path(Path) ->
+    I = #menu_element.path,
+    case lists:keysearch(Path, I, get_menu_elements()) of
+        {value, Element} -> Element;
+        _                -> undefined
     end.
 
 menu_element_id(#menu_element{path = Path}) ->

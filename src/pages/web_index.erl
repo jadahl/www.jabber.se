@@ -53,7 +53,7 @@
 load_error(Error, Type) when is_atom(Error) ->
     load_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
 load_error(Message, Type) ->
-    set_body(Message, ?T(msg_id_error_title), undefined, "error", Type).
+    set_body(Message, ?T(msg_id_error_title), "error", Type).
 
 content_error(Error) when is_atom(Error) ->
     content_error(io_lib:format(?T(msg_id_error_occured), [Error]));
@@ -84,7 +84,7 @@ load_content(URL, Type) ->
             #content{body = Body,
                      title = Title,
                      post_eval = PostEval} = get_content(Module, SubPath),
-            set_body(Body, Title, Module, URL, Type),
+            set_body(Body, Title, URL, Type),
             if is_function(PostEval) -> PostEval();
                true -> ok
             end;
@@ -116,8 +116,8 @@ cache_content() ->
 % Document body modification
 %
 
--spec set_body(iolist(), iolist(), module(), string(), load_type()) -> ok.
-set_body(Body, Title, Module, URL, Type) ->
+-spec set_body(iolist(), iolist(), string(), load_type()) -> ok.
+set_body(Body, Title, URL, Type) ->
     Animate = lists:member(Type, [trigger, history]),
     Event = #event{target = content_body, type = default},
 
@@ -131,13 +131,13 @@ set_body(Body, Title, Module, URL, Type) ->
                      args = [[config:title(), " - ", Title]]}),
 
     % if there is a menu element for this module, set it
-    case menu:get_element_by_module(Module) of
-        {just, MenuElement} ->
+    case menu:element_by_path(URL) of
+        undefined ->
+            ok;
+        MenuElement ->
             MenuElementID = menu:menu_element_id(MenuElement),
             wf:wire(#js_call{fname = "$Site.$menu_set_current",
-                             args = [MenuElementID]});
-        nothing ->
-            ok
+                             args = [MenuElementID]})
     end,
 
     % if this is an init call, initialize history, otherwise update history
