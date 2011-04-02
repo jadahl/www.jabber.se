@@ -37,7 +37,7 @@ start(_, _) ->
 init(_Args) ->
     {ok, {{one_for_one, 30, 60},
            [{Module, {Module, start, []},
-             permanent, brutal_kill, worker, [Module]}
+             permanent, 2000, worker, [Module]}
             || Module <- ?MODULES]}}.
 
 stop(Pid) ->
@@ -64,8 +64,10 @@ out(Arg) ->
         [{[$/ | Content], web_index}
          || Content <- [""|contents(Contents)]] ++
 
-        % Static files
         [
+            {"/feed", web_feed},
+
+            % Static files
             {"/res", static_file},
             {"/nitrogen", static_file},
             {"/jabber.se", static_file}

@@ -17,7 +17,7 @@
 %
 
 -module(cf_url).
--export([path/0, url/1, url/2]).
+-export([path/0, url/1, url/2, content_path_to_module/1]).
 
 path() ->
     [$/ | Path] = (wf_context:request_bridge()):path(),
@@ -52,3 +52,5 @@ url(Scheme, Path) ->
             Path
         ]).
 
+content_path_to_module(List) when is_list(List) ->
+    list_to_atom("content_" ++ List).

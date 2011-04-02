@@ -75,13 +75,13 @@
 -define(MENU_ELEMENTS,
     [
         #menu_element{
-            module = news,
+            path = "news",
             title = msg_id_news},
         #menu_element{
-            module = register,
+            path = "register",
             title = msg_id_register},
         #menu_element{
-            module = about,
+            path = "about",
             title = msg_id_about}
     ]).
 

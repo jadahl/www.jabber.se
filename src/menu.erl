@@ -30,21 +30,28 @@
         get_menu_elements/0,
         menu_element_id/1,
         full_title/1,
-        get_element_by_module/1, get_element_by_module/2
+        menu_element_to_module/1
     ]).
 
 get_menu_elements() ->
     ?MENU_ELEMENTS.
 
-menu_element_id(#menu_element{module = Module}) ->
-    list_to_atom("menu_" ++ atom_to_list(Module)).
+menu_element_to_module(#menu_element{path = Path}) ->
+    Module = list_to_atom("content_" ++ Path),
+    case config:content_enabled(Module) of
+        true  -> Module;
+        false -> undefined
+    end.
 
-menu_event(#menu_element{module = Module} = MenuElement) ->
+menu_element_id(#menu_element{path = Path}) ->
+    list_to_atom("menu_" ++ [if C == $/ -> $_; true -> C end || C <- Path]).
+
+menu_event(#menu_element{path = Path} = MenuElement) ->
     %ID = menu_element_id(MenuElement),
     #event{type = click,
            actions = [#show{target = menu_spinner},
                       #js_call{fname = "$Site.$trigger_menu",
-                               args = [list_to_binary(atom_to_list(Module)),
+                               args = [list_to_binary(Path),
                                        menu_element_id(MenuElement)]}]}.
 
 full_title(#menu_element{title = Title}) ->
@@ -60,25 +67,6 @@ menu_items() ->
                           actions = [menu_event(MenuElement)]}]
         }
         || #menu_element{title = Title} = MenuElement <- MenuElements].
-
-%
-% get_menu_element_by_module(Module) -> Result
-%   Module = atom()
-%   Result = #menu_element{} | none
-%
--spec get_element_by_module(module()) -> {just, #menu_element{}} | nothing.
-get_element_by_module(Module) ->
-    get_element_by_module(Module, menu:get_menu_elements()).
-
--spec get_element_by_module(module(), [#menu_element{}]) ->
-    {just, #menu_element{}} | nothing.
-get_element_by_module(Module, Elements) ->
-    utils:find_with(fun maybe_element_by_module/2, Module, Elements).
-
-maybe_element_by_module(#menu_element{module = Module} = Element, Module) ->
-    {just, Element};
-maybe_element_by_module(_, _) ->
-    nothing.
 
 hide_spinner() ->
     wf:wire(menu_spinner, #hide{}).

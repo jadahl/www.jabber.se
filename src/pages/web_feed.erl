@@ -26,13 +26,19 @@
 %
 
 main() ->
-    Module = list_to_atom(wf:path_info()),
+    Path = case wf:path_info() of
+        [$/ | Rest] -> Rest;
+        Result      -> Result
+    end,
+
+    Module = cf_url:content_path_to_module(Path),
+
     case config:content_enabled(Module) of
         false ->
             web_error:main();
         true ->
             try
-                Body = Module:atom("/web/feed/" ++ wf:path_info()),
+                Body = Module:atom("/feed/" ++ wf:path_info()),
                 wf:content_type("application/atom+xml"),
                 Body
             catch

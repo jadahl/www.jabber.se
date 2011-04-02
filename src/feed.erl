@@ -24,23 +24,26 @@
 -include("include/utils.hrl").
 -include("include/menu.hrl").
 
-get_feed_link(#menu_element{
-        title = Title,
-        module = Module}) ->
-    try
-        case Module:atom_url() of
-            {ok, AtomUrl} ->
-                [#ext_link{
-                        url = AtomUrl,
-                        type = "application/atom+xml",
-                        rel = "alternate",
-                        title = ?T(Title) ++ " atom feed"}];
-            _ ->
-                []
-        end
-    catch
-        error:undef ->
-            []
+get_feed_link(#menu_element{title = Title} = MenuElement) ->
+    case menu:menu_element_to_module(MenuElement) of
+        undefined ->
+            [];
+        Module ->
+            try
+                case Module:atom_url() of
+                    {ok, AtomUrl} ->
+                        [#ext_link{
+                                url = AtomUrl,
+                                type = "application/atom+xml",
+                                rel = "alternate",
+                                title = ?T(Title) ++ " atom feed"}];
+                    _ ->
+                        []
+                end
+            catch
+                error:undef ->
+                    []
+            end
     end.
 
 get_feed_links() ->

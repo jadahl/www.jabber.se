@@ -61,9 +61,6 @@ content_error(Message) ->
     #content{body = Message,
              title = ?T(msg_id_error_title)}.
 
-content_url_to_module(List) when is_list(List) ->
-    list_to_atom("content_" ++ List).
-
 get_content(Module, SubPath) ->
     case config:content_enabled(Module) of
         true  -> do_get_content(Module, SubPath);
@@ -82,8 +79,8 @@ do_get_content(Module, SubPath) ->
 
 load_content(URL, Type) ->
     case parse_url(URL) of
-        {[ModuleS | SubPath], _Params} ->
-            Module = content_url_to_module(ModuleS),
+        {[ContentPath | SubPath], _Params} ->
+            Module = cf_url:content_path_to_module(ContentPath),
             #content{body = Body,
                      title = Title,
                      post_eval = PostEval} = get_content(Module, SubPath),
@@ -105,8 +102,8 @@ cache_content() ->
     end,
 
     Content = case parse_url(URL) of
-        {[ModuleS | SubPath], _Params} ->
-            Module = content_url_to_module(ModuleS),
+        {[ContentPath | SubPath], _Params} ->
+            Module = cf_url:content_path_to_module(ContentPath),
             get_content(Module, SubPath);
         _ ->
             content_error('404')

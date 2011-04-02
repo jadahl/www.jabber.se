@@ -21,7 +21,7 @@
 
 -record(menu_element, {
         index,
-        module,
+        path,
         title
     }).
 

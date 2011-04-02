@@ -53,11 +53,8 @@ start() ->
 
     yaws:start_embedded("./wwwroot", SL, GL, Id),
 
-    {ok, application_controller:get_master(yaws)}.
+    {ok, spawn_link(fun() -> receive shutdown -> ok end end)}.
 
 stop() -> 
-	% Stop the Yaws server.
-	Pid = application_controller:get_master(yaws),
-	exit(Pid, kill),
 	ok.
 
