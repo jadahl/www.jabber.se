@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -317,6 +317,7 @@ change_locale(Locale, Id) ->
 %
 
 event_tag_alternatives() ->
+    ?LOG_INFO("tag_alternatives()", []),
     cms_post_view:tag_alternatives().
 
 event_remove_tag(ElementId, Tag) ->

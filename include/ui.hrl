@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -36,6 +36,8 @@
 -record(form, {?ELEMENT_BASE(element_form), action = "", method = "", controls = []}).
 -record(reset, {?ELEMENT_BASE(element_reset), text = "Reset", html_encode = true}).
 
+-record(expandable, {?ELEMENT_BASE(element_expandable), categories, init_category}).
+
 %
 % Actions
 %
@@ -55,7 +57,7 @@
 
 -record(focus, {?ACTION_BASE(action_jquery_cast)}).
 -record(select, {?ACTION_BASE(action_jquery_cast)}).
--record(jquery_cast, {?ACTION_BASE(action_jquery_cast), cast, arg}).
+-record(jquery_cast, {?ACTION_BASE(action_jquery_cast), cast, args}).
 
 -record(disable, {?ACTION_BASE(action_jquery_attr)}).
 -record(enable, {?ACTION_BASE(action_jquery_attr)}).

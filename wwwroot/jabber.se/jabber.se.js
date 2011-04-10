@@ -112,71 +112,178 @@ Site.prototype.$disable_forms = function(id) {
 
 Site.prototype.$enable_forms = function(id) {
     $(id + " :input").removeAttr("disabled");
-}
+};
 
 /*
  * State panel
  */
 
-Site.prototype.$state_panel_set = function(state_panel, key, animate, validate_group, callback) {
-    // validate
-    if (validate_group && Nitrogen.$validate_and_serialize(validate_group) == null)
-    {
-        return;
-    }
+(function($) {
+     $.fn.statePanelSet = function(key, options) {
+        var self = jQuery(this);
+        var defaults = {
+            animate: true
+        }
+        var options = $.extend(defaults, options);
 
-    // retrieve current and next panel state
-    var active = $(state_panel + " > .state_panel_active");
-    var next = $(state_panel + " > " + key);
+        var animate = options.animate;
+        var callback = options.callback;
+        var validate_group = options.validate_group;
 
-    // update active state
-    active.removeClass("state_panel_active");
-    next.addClass("state_panel_active");
+        // retrieve current active view
+        var active = self.find(".state_panel_active");
 
-    if (animate)
-    {
-        // animate transition
-        active.slideToggle('fast', function() {
+        if (!key)
+        {
+            active.removeClass("state_panel_active");
+
+            if (animate)
+            {
+                active.slideToggle('fast', callback);
+            }
+            else
+            {
+                active.hide();
+                if (callback)
+                {
+                    callback();
+                }
+            }
+            return;
+        }
+
+        if ((validate_group &&
+             Nitrogen.$validate_and_serialize(validate_group) == null) ||
+            !key)
+        {
+            return;
+        }
+
+        // retrieve next panel view
+        var next = self.find(key);
+
+        // update active state
+        active.removeClass("state_panel_active");
+        next.addClass("state_panel_active");
+
+        if (animate)
+        {
+            // animate transition
+            if (active.length > 0)
+            {
+                active.slideToggle('fast', function() {
+                        next.slideToggle('fast', callback);
+                    });
+            }
+            else
+            {
                 next.slideToggle('fast', callback);
-                });
+            }
+        }
+        else
+        {
+            active.hide();
+            next.show();
+            if (callback)
+            {
+                callback();
+            }
+        }
+    };
+
+    $.fn.statePanelShow = function(key, options) {
+        var self = jQuery(this);
+
+        var defaults = {
+            animate: true
+        }
+        var options = $.extend(defaults, options);
+
+        var animate = options.animate;
+        var callback = options.callback;
+
+        // retrieve the to be panel state
+        var panel = self;
+
+        if (panel.is(':visible'))
+        {
+            return;
+        }
+
+        var prev = self.find(".state_panel_active")
+        var active = self.find(key);
+
+        // update active state
+        active.addClass("state_panel_active");
+
+        if (animate)
+        {
+            // animate transition
+            panel.fadeIn('fast', function() { active.slideDown('fast', callback); });
+        }
+    };
+
+    $.fn.statePanelHide = function(options) {
+        var self = jQuery(this);
+        var defaults = {
+            animate: true,
+            hide_panel: true
+        }
+        var options = $.extend(defaults, options);
+
+        var animate = options.animate;
+        var hide_panel = options.hide_panel;
+        var callback = options.callback;
+        var state_panel = options.state_panel;
+
+        // retrieve current and next panel state
+        var panel = self;
+        var active = self.find(".state_panel_active");
+
+        // update active state
+        active.removeClass("state_panel_active");
+
+        if (animate)
+        {
+            // animate transition
+            active.slideUp('fast', hide_panel ?
+                function() {
+                    panel.fadeOut('fast', callback);
+                } : null);
+        }
+        else
+        {
+            active.hide();
+            if (hide_panel)
+            {
+                panel.hide();
+            }
+        }
+    };
+})(jQuery);
+
+/*
+ * Expandable
+ */
+
+Site.prototype.$expandable_toggle = function(id, link_id, key) {
+    var activeClass = "expandable_active";
+    var isActive = objs(link_id, id).hasClass(activeClass);
+
+    // Deactivate all other links
+    objs(".expandable_link", id).removeClass(activeClass);
+
+    // If previously inactive, activate
+    if (!isActive)
+    {
+        var newActive = objs(link_id, id);
+        newActive.addClass(activeClass);
+        objs(".wfid_exp_body", id).statePanelSet(key);
     }
     else
     {
-        active.hide();
-        next.show();
-        callback();
+        objs(".wfid_exp_body", id).statePanelSet();
     }
-}
-
-Site.prototype.$state_panel_show = function(key, state_panel, callback) {
-    // retrieve the to be panel state
-    var panel = $(state_panel);
-
-    if (panel.is(':visible'))
-    {
-        return;
-    }
-
-    var prev = $(state_panel + " > .state_panel_active");
-    var active = $(state_panel + " > " + key);
-
-    // update active state
-    active.addClass("state_panel_active");
-
-    // animate transition
-    panel.fadeIn('fast', function() { active.slideDown('fast', callback); });
-}
-
-Site.prototype.$state_panel_hide = function(state_panel, callback) {
-    // retrieve current and next panel state
-    var panel = $(state_panel);
-    var active = $(state_panel + " .state_panel_active");
-
-    // update active state
-    active.removeClass("state_panel_active");
-
-    // animate transition
-    active.slideUp('fast', function() { panel.fadeOut('fast', callback); });
 }
 
 /*

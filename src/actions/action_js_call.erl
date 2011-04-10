@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -17,7 +17,7 @@
 %
 
 -module(action_js_call).
--export([render_action/1]).
+-export([render_action/1, escape/1]).
 
 -include("include/ui.hrl").
 
@@ -27,7 +27,8 @@ render_action(#js_call{fname = FName, args = Args}) ->
     [FName, "(", utils:join(EscapedArgs, ","), ");"].
 
 escape({function, Actions})              -> ["function() { ", Actions, "}"];
-escape({list, List})                     -> [escape(Item) || Item <- List];
+escape({list, List})                     -> jlist(List);
+escape({List}) when is_list(List)        -> jproplist(List);
 escape(undefined)                        -> jkeyword(undefined);
 escape(true)                             -> jkeyword(true);
 escape(false)                            -> jkeyword(false);
@@ -37,6 +38,16 @@ escape(Integer) when is_integer(Integer) -> integer_to_list(Integer);
 escape(Float) when is_float(Float)       -> float_to_list(Float);
 escape(Binary) when is_binary(Binary)    -> jstr(Binary);
 escape(IOList) when is_list(IOList)      -> jstr(IOList).
+
+jlist(List) ->
+    ["[", utils:join([escape(Item) || Item <- List], ","), "]"].
+
+jproplist(List) -> ["{", utils:join(jproplist1(List), ","), "}"].
+
+jproplist1([]) -> [];
+jproplist1([{Key, Value} | Rest]) when is_atom(Key) ->
+    [[list_to_binary(atom_to_list(Key)), ": ", escape(Value)]
+     | jproplist1(Rest)].
 
 jkeyword(Atom) ->
     atom_to_list(Atom).

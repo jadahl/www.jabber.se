@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -41,7 +41,7 @@ render_element(#state_panel{
         id = Id,
         style = VisibleStyle,
         class = [state_panel, InlineClass, Class],
-        body = lists:map(fun ({Key, Value}) ->
+        body = lists:map(fun({Key, Value}) ->
                     IsInit = InitState == Key,
                     #panel{
                         id = Key,

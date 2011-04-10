@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -59,7 +59,7 @@ remove_tag(ElementId) ->
 
 tag_alternatives() ->
     % FIXME
-    wf:wire(#autocomplete{anchor = post_dialog_tag_input, alternatives = ["Foo", "Bar", "Baz"]}).
+    wf:wire(post_dialog_tag_input, #autocomplete{alternatives = ["Foo", "Bar", "Baz"]}).
 
 %
 % Saved label

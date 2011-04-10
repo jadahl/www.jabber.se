@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -22,19 +22,17 @@
 -include("include/ui.hrl").
 
 render_action(#autocomplete{
-        target = Target,
         method = Method,
         alternatives = Alternatives}) ->
     case Method of
         enable ->
+            Source = {list, [list_to_binary(A) || A <- Alternatives]},
             #jquery_cast{
-                target = Target,
                 cast = autocomplete,
-                arg = {[{source, [list_to_binary(A) || A <- Alternatives]}]}};
+                args = [{[{source, Source}]}]};
         destroy ->
             #jquery_cast{
-                target = Target,
                 cast = autocomplete,
-                arg = destroy}
+                args = ["destroy"]}
     end.
 

@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -21,27 +21,24 @@
 
 -include("include/ui.hrl").
 
-render_action(#select{
-        target = Target}) ->
-    #jquery_cast{
-        target = Target,
-        cast = select};
+render_action(#select{}) ->
+    #jquery_cast{cast = select};
 
-render_action(#focus{
-        target = Target}) ->
-    #jquery_cast{
-        target = Target,
-        cast = focus};
+render_action(#focus{}) ->
+    #jquery_cast{cast = focus};
 
 render_action(#jquery_cast{
         anchor = Anchor,
         target = Target,
         cast = Cast,
-        arg = Arg}) ->
+        args = Args}) ->
     JQueryCast = atom_to_list(Cast),
-    EscapedArg = case Arg of
+    EscapedArgs = case Args of
         undefined -> "";
-        _ -> couchbeam_mochijson2:encode(Arg)
+        _ -> utils:join([action_js_call:escape(Arg1) || Arg1 <- Args], ",")
     end,
-    wf:f("objs('~s', '~s').~s(~s);", [Target, Anchor, JQueryCast, EscapedArg]).
+    [wf:f("objs('~s', '~s').~s(",
+          [Target, Anchor, JQueryCast]),
+     EscapedArgs,
+     ");"].
 

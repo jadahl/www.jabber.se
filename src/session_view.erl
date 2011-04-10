@@ -176,7 +176,8 @@ logged_out() ->
 logged_in() ->
     % Update elements
     wf:wire(login_link, #fade{}),
-    wf:wire(#state_panel_set{
+    wf:wire(login_dialog, #state_panel_set{
+                anchor = page,
                 target = login_dialog,
                 animate = true,
                 key = success,

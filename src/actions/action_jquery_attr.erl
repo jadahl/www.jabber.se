@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -21,19 +21,15 @@
 
 -include("include/ui.hrl").
 
-render_action(#disable{
-        target = Target}) ->
+render_action(#disable{}) ->
     #jquery_attr{
-        target = Target,
         key = disabled,
         value = disabled};
 
-render_action(#enable{
-        target = Target}) ->
+render_action(#enable{}) ->
     #jquery_cast{
-        target = Target,
         cast = removeAttr,
-        arg = disabled};
+        args = ["disabled"]};
 
 render_action(#jquery_attr{
         anchor = Anchor,

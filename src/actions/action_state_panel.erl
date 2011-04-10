@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010 Jonas Ådahl
+%    Copyright (C) 2010-2011 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -17,7 +17,7 @@
 %
 
 -module(action_state_panel).
--export([render_action/1, set_panel/2, set_action/4, show_action/2, show_action/3, hide_action/1]).
+-export([render_action/1, set_panel/2]).
 
 -include("include/ui.hrl").
 
@@ -26,16 +26,15 @@
 %
 
 render_action(#state_panel_set{
-        target = Target,
         key = Key,
         animate = Animate,
         validate_group = ValidateGroup,
         actions = Actions}) ->
-    set_action(Key, Animate, ValidateGroup, Target, Actions);
-render_action(#state_panel_show{target = Target, key = Key, actions = Actions}) ->
-    show_action(Key, Target, Actions);
-render_action(#state_panel_hide{target = Target}) ->
-    hide_action(Target).
+    set_action(Key, Animate, ValidateGroup, Actions);
+render_action(#state_panel_show{key = Key, actions = Actions}) ->
+    show_action(Key, Actions);
+render_action(#state_panel_hide{}) ->
+    hide_action().
 
 %
 % API
@@ -44,15 +43,18 @@ render_action(#state_panel_hide{target = Target}) ->
 set_panel(Key, Target) ->
     wf:wire(Target, #state_panel_set{key = Key}).
 
-set_action(Key, Animate, ValidateGroup, Id) ->
-    set_action(Key, Animate, ValidateGroup, Id, []).
-set_action(Key, Animate, ValidateGroup, Id, Actions) ->
-    #site_cast{cast = state_panel_set, args = [Id, Key, Animate, ValidateGroup, {function, Actions}]}.
+set_action(Key, Animate, ValidateGroup, Actions) ->
+    Options = {[{animate, Animate},
+                {validate_group, ValidateGroup}
+                | if Actions == undefined -> [];
+                     true -> [{callback, {function, Actions}}]
+                  end]},
+    #jquery_cast{cast = statePanelSet,
+                 args = [Key, Options]}.
 
-show_action(Key, Id) ->
-    show_action(Key, Id, []).
-show_action(Key, Id, Actions) ->
-    #site_cast{cast = state_panel_show, args = [Key, Id, {function, Actions}]}.
+show_action(Key, Actions) ->
+    #jquery_cast{cast = statePanelShow,
+                 args = [Key, {[{callback, {function, Actions}}]}]}.
 
-hide_action(Id) ->
-    #js_call{fname = "$Site.$state_panel_hide", args = [Id]}.
+hide_action() ->
+    #jquery_cast{cast = statePanelHide}.
