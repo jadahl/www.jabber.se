@@ -21,7 +21,8 @@
         tag/1, add_tag/1, remove_tag/1, tag_alternatives/0,
         set_saved_label/0, set_save_failed_label/0,
         set_content/2, set_post_state/1,
-        body/2, wire_validators/0, title/0]).
+        body/2, wire_validators/0, title/0,
+        event/1]).
 
 -include_lib("nitrogen_core/include/wf.hrl").
 
@@ -93,6 +94,28 @@ set_content(Subject, Body) ->
     wf:set(post_dialog_text_area, drop_locale(Body)).
 
 %
+% Language dropdown
+%
+
+language_dropbox(Id, Languages, Message, Postback) ->
+    LoadingId = list_to_atom(atom_to_list(Id) ++ "_lang_loading"),
+    [#dropdown{id = Id,
+               style = ?INLINE,
+               postback = {cms_post, Postback, LoadingId},
+               delegate = ?MODULE,
+               actions = #event{type = change,
+                                actions = [#site_cast{cast = disable_forms,
+                                                      args = [edit_post_body]},
+                                           #show{target = LoadingId}]},
+               options = Languages},
+
+     " ",
+
+     #span{style = ?HIDDEN,
+           text = Message,
+           id = LoadingId}].
+
+%
 % Body
 %
 
@@ -115,33 +138,6 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
     #panel{
         id = edit_post_body,
         body = [
-            % language
-            #label{text = ?T(msg_id_post_dialog_language), style = ?BLOCK},
-            #panel{
-                style = ?BLOCK,
-                body = [
-                    #dropdown{
-                        id = post_dialog_language_drop_down,
-                        style = ?INLINE,
-                        postback = language,
-                        actions = #event{
-                            type = change,
-                            actions = [
-                                #site_cast{cast = disable_forms, args = [edit_post_body]},
-                                #show{target = language_loading}
-                            ]
-                        },
-                        delegate = cms_post,
-                        options = [
-                            #option{text = Language, value = LocaleTmp, selected = LocaleTmp == Locale} || {LocaleTmp, Language} <- i18n:enabled_languages()
-                        ] ++ [#option{text = ?T(msg_id_language_unspecified), value = undefined, selected = Locale == undefined}]
-                    },
-
-                    " ",
-
-                    #span{style = ?HIDDEN, text = ?T(msg_id_loading), id = language_loading}
-                ]},
-
             % subject
             #label{text = ?T(msg_id_post_dialog_subject), style = ?BLOCK},
             #textbox{id = post_dialog_subject_input, text = Subject, style = ?BLOCK, actions = EnableSaveButtonEvent},
@@ -187,7 +183,41 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
                 ],
                 visible = true,
                 init_state = button
-            },#br{},
+            },
+            #br{},
+
+            % tools
+            #label{text = ?T(msg_id_post_dialog_tools), style = ?BLOCK},
+            #expandable{categories =
+                [{translation, ?T(msg_id_post_dialog_translation),
+                  [#label{text = ?T(msg_id_post_dialog_translation_go_to), style = ?BLOCK},
+                   #panel{style = ?BLOCK,
+                          body = language_dropbox(post_dialog_language_drop_down,
+                                                  [#option{text = Language,
+                                                           value = LocaleTmp,
+                                                           selected = LocaleTmp == Locale}
+                                                   || {LocaleTmp, Language} <- i18n:enabled_languages()] ++
+                                                  [#option{text = ?T(msg_id_language_unspecified),
+                                                           value = undefined,
+                                                           selected = Locale == undefined}],
+                                                  ?T(msg_id_loading),
+                                                  language)},
+
+                   #hr{},
+
+                   #label{text = ?T(msg_id_post_dialog_translation_copy), style = ?BLOCK},
+                   #panel{body = language_dropbox(post_dialog_copy_lang_drop_down,
+                                                  [#option{text = ?T(msg_id_post_dialog_translation_select),
+                                                           value = none}
+                                                   |
+                                                   [#option{text = Language,
+                                                            value = LocaleTmp}
+                                                    || {LocaleTmp, Language} <- i18n:enabled_languages()] ++
+                                                   [#option{text = ?T(msg_id_language_unspecified),
+                                                           value = undefined}]],
+                                                  ?T(msg_id_copying),
+                                                  copy_lang)}]}]},
+            #br{},
 
             % content
             #label{text = ?T(msg_id_post_dialog_content), style = ?BLOCK},
@@ -252,4 +282,13 @@ wire_validators() ->
 
 title() ->
     ?T(msg_id_post_dialog_title).
+
+%
+% Element events
+%
+
+event({Module, Postback, LoadingId}) ->
+    wf:wire(edit_post_body, LoadingId, #hide{}),
+    wf:wire(#site_cast{cast = enable_forms, args = [edit_post_body]}),
+    Module:event(Postback).
 

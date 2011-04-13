@@ -103,6 +103,9 @@ event(discard) ->
 event(language) ->
     ?AUTH(event_language());
 
+event(copy_lang) ->
+    ?AUTH(event_copy_language());
+
 event(tag_alternatives) ->
     ?AUTH(event_tag_alternatives());
 
@@ -167,34 +170,29 @@ unix_timestamp() ->
     {Mega, Secs, _} = now(),
     Mega*1000000 + Secs.
 
--spec with_locale_do(fun((atom()) -> any())) -> any() | none().
-with_locale_do(Fun) ->
-    Locale = wf:q(post_dialog_language_drop_down),
+-spec with_locale_do(atom(), fun((atom()) -> any())) -> any() | none().
+with_locale_do(Id, Fun) ->
+    Locale = wf:q(Id),
     case Locale == "undefined" orelse i18n:is_lang(Locale) of
         true ->
             Fun(list_to_atom(Locale));
         _ ->
-            throw({invalid_locale, Locale})
+            ?LOG_ERROR("Invalid locale ~p", [Locale])
     end.
 
 event_publish() ->
     ?LOG_INFO("Publishing draft", []),
-    try
-        with_locale_do(
-            fun(Locale) ->
-                % publish and save
-                do_save(Locale, public),
+    with_locale_do(post_dialog_language_drop_down,
+        fun(Locale) ->
+            % publish and save
+            do_save(Locale, public),
 
-                % clear cache
-                unset_current_post(),
+            % clear cache
+            unset_current_post(),
 
-                % update ui
-                cms_admin_view:back()
-            end)
-    catch
-        {invalid_locale, Locale} ->
-            ?LOG_ERROR("Couldn't figure out locale (~p), not posting.", [Locale])
-    end.
+            % update ui
+            cms_admin_view:back()
+        end).
 
 event_unpublish() ->
     ?LOG_INFO("Unpublishing post", []),
@@ -211,20 +209,15 @@ event_unpublish() ->
 
 event_save() ->
     ?LOG_INFO("Saving draft", []),
-    try
-        with_locale_do(
-            fun(Locale) ->
-                % save
-                Id = do_save(Locale),
-                set_current_post(Id),
+    with_locale_do(post_dialog_language_drop_down,
+        fun(Locale) ->
+            % save
+            Id = do_save(Locale),
+            set_current_post(Id),
 
-                % update ui
-                cms_post_view:set_saved_label()
-            end)
-    catch
-        {invalid_locale, Locale} ->
-            ?LOG_ERROR("Couldn't figure out locale (~p), not saving.", [Locale])
-    end.
+            % update ui
+            cms_post_view:set_saved_label()
+        end).
 
 do_save(Locale) ->
     do_save(Locale, undefined).
@@ -280,23 +273,50 @@ event_discard() ->
 
 -spec event_language() -> any().
 event_language() ->
-    try
-        with_locale_do(
-            fun(Locale) ->
-                case current_post() of
-                    undefined ->
-                        ?LOG_WARNING("Trying to change unknown post to locale '~p'.", [Locale]);
-                    Id ->
-                        change_locale(Locale, Id)
+    with_locale_do(post_dialog_language_drop_down,
+        fun(Locale) ->
+            case current_post() of
+                undefined -> ok;
+                Id        -> change_locale(Locale, Id)
+            end
+        end).
+
+-spec event_copy_language() -> any().
+event_copy_language() ->
+    Fun = fun(Locale, NewLocale) ->
+        case current_post() of
+            undefined ->
+                ok;
+            Id ->
+                #db_post{title = Title,
+                         body = Body} = Post = db_post:get_post(Id),
+
+                % copy title
+                Post1 = case db_post:value_by_locale(Locale, Title) of
+                    {_, NewTitle} ->
+                        db_post:set_title(NewTitle, NewLocale, Post);
+                    nothing ->
+                        Post
                 end,
 
-                wf:wire(edit_post_body, language_loading, #hide{}),
-                wf:wire(#site_cast{cast = enable_forms, args = [edit_post_body]})
-            end)
-    catch
-        {invalid_locale, InvalidLocale} ->
-            ?LOG_WARNING("Trying to set post to invalid locale '~p'.", [InvalidLocale])
-    end.
+                % copy body
+                Post2 = case db_post:value_by_locale(Locale, Body) of
+                    {_, NewBody} ->
+                        db_post:set_body(NewBody, NewLocale, Post1);
+                    nothing ->
+                        Post1
+                end,
+
+                % save new post
+                db_post:save_post(Post2)
+        end
+    end,
+
+    with_locale_do(post_dialog_copy_lang_drop_down,
+        fun(NewLocale) ->
+            with_locale_do(post_dialog_language_drop_down,
+                fun(Locale) -> Fun(Locale, NewLocale) end)
+        end).
 
 -spec change_locale(atom(), binary()) -> any().
 change_locale(Locale, Id) ->
