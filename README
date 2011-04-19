@@ -6,16 +6,24 @@ To build:
 
 > cd lib/couchbeam
 > make
-> cd ../nitrogen
+> cd ../simple_bridge
+> make
+> cd ../nprocreg
+> make
+> cd ../nitrogen_core
 > make
 > cd ../..
 
- #2 Build web application
+ #2 Build web application:
 
 > make
 
+ #3 Configure
 
-To run:
+> cp etc/default-start.conf.sh etc/start.conf.sh
+> cp etc/default-cf.config etc/cf.config
+
+ #4 To run:
 
 > ./start.sh
 

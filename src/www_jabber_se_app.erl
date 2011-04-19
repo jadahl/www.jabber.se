@@ -27,7 +27,6 @@
 -define(PORT, 8000).
 
 start(_, _) ->
-    application:set_env(nitrogen, session_timeout, 1),
     case supervisor:start_link(?MODULE, []) of
         ignore    -> {error, ignore};
         {ok, Pid} -> {ok, Pid, Pid};
