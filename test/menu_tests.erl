@@ -24,20 +24,20 @@
 -define(MENU_ELEMENTS, 
     [
         #menu_element{
-            module = element1,
+            path = "element1",
             title = "Element 1"},
         #menu_element{
-            module = element2,
+            path = "element2",
             title = "Element 2"},
         #menu_element{
-            module = element3,
+            path = "element3",
             title = "Element 3"}
     ]).
 
 getters_test() ->
     MenuElements = ?MENU_ELEMENTS,
-    ?assert(nothing /= menu:get_element_by_module(element2, MenuElements)),
+    ?assert(undefined /= menu:element_by_path("element2", MenuElements)),
 
-    ?assert(nothing == menu:get_element_by_module(no_element, MenuElements)),
+    ?assert(undefined == menu:element_by_path("no_element", MenuElements)),
 
     ok.

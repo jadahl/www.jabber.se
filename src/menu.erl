@@ -28,7 +28,7 @@
     [
         hide_spinner/0, menu/0,
         get_menu_elements/0,
-        element_by_path/1,
+        element_by_path/1, element_by_path/2,
         menu_element_id/1,
         full_title/1,
         menu_element_to_module/1
@@ -45,8 +45,10 @@ menu_element_to_module(#menu_element{path = Path}) ->
     end.
 
 element_by_path(Path) ->
+    element_by_path(Path, get_menu_elements()).
+element_by_path(Path, MenuElements) ->
     I = #menu_element.path,
-    case lists:keysearch(Path, I, get_menu_elements()) of
+    case lists:keysearch(Path, I, MenuElements) of
         {value, Element} -> Element;
         _                -> undefined
     end.

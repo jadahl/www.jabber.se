@@ -5,3 +5,7 @@
 *.bak
 *.po
 *.mo
+rebar.config
+etc/cf.config
+etc/start.conf.sh
+

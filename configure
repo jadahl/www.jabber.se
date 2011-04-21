@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+FILES="Makefile.config etc/start.conf.sh etc/cf.config rebar.config"
+
+function copy_config()
+{
+    if [ ! -f $1 ];then
+	echo $1...
+	cp `dirname $1`/default-`basename $1` $1
+    fi
+}
+
+if [ "x$1" = "x-f" ];then
+    echo Removing $FILES...
+    for f in $FILES; do rm -f $f; done
+fi
+
+for f in $FILES;do
+    copy_config $f
+done
+
+echo done
