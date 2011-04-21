@@ -14,14 +14,13 @@ To build:
 > make
 > cd ../..
 
- #2 Build web application:
+ #2 Configure
+
+> ./configure
+
+ #3 Build web application:
 
 > make
-
- #3 Configure
-
-> cp etc/default-start.conf.sh etc/start.conf.sh
-> cp etc/default-cf.config etc/cf.config
 
  #4 To run:
 
