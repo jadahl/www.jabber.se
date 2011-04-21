@@ -4,6 +4,7 @@ all: compile app
 
 compile: 
 	mkdir -p ebin test_ebin
+	@[ -f rebar.config ] || { echo You need to run ./configure; exit 1; }
 	./rebar compile
 	
 clean:
