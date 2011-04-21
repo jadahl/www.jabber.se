@@ -16,6 +16,7 @@ erl \
     -pa lib/couchbeam/deps/lhttpc/ebin \
     $ADDITIONAL_PARAMS \
     -eval "application:start(mnesia)" \
+    -eval "application:start(nprocreg)" \
     -eval "application:start(nitrogen_core)" \
     -eval "application:start(www_jabber_se)"
 
