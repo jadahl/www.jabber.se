@@ -1,6 +1,6 @@
-.PHONY: all copmile test
+.PHONY: all compile test
 
-all: compile app
+all: compile
 
 compile: 
 	mkdir -p ebin test_ebin
@@ -9,9 +9,6 @@ compile:
 	
 clean:
 	./rebar clean
-
-app:
-	cp ./src/nitrogen.app.src ./ebin/nitrogen.app
 
 test:
 	./rebar eunit

@@ -8,4 +8,5 @@
 rebar.config
 etc/cf.config
 etc/start.conf.sh
-
+.eunit/
+logs/

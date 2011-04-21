@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-FILES="Makefile.config etc/start.conf.sh etc/cf.config rebar.config"
+FILES="etc/start.conf.sh etc/cf.config rebar.config"
 
 function copy_config()
 {
