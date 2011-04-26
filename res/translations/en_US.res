@@ -1,6 +1,7 @@
 [
     {language, "English"},
     {msg_id_about, "About"},
+    {msg_id_admin, "Admin"},
     {msg_id_admin_account, "Account"},
     {msg_id_admin_content, "Content"},
     {msg_id_admin_post, "Post"},

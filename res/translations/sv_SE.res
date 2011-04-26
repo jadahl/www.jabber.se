@@ -1,6 +1,7 @@
 [
     {language, "Svenska"},
     {msg_id_about, "Om"},
+    {msg_id_admin, "Admin"},
     {msg_id_admin_account, "Konto"},
     {msg_id_admin_content, "Innehåll"},
     {msg_id_admin_post, "Skapa"},

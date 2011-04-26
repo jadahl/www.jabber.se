@@ -125,7 +125,7 @@ login_link() ->
         id = login_link,
         style = Style,
         class = login_link,
-        text = ?T(msg_id_login),
+        text = ?T(msg_id_admin),
         actions = #event{
             type = click,
             actions = #state_panel_show{
