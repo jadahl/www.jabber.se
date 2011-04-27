@@ -17,7 +17,11 @@
 %
 
 -module(i18n).
--export([start/0, stop/0, get_language/0, update_language/0, set_language/1, t/1, t/2, alias/1,
+-export([
+        start/0, stop/0,
+        reload/0,
+        get_language/0, update_language/0, set_language/1,
+        t/1, t/2, alias/1,
         enabled_languages/0,
         read_dir/1, read_translations/0, is_lang/1,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
@@ -52,6 +56,9 @@ enabled_languages() ->
     {ok, Languages} = gen_server:call(?MODULE, enabled_languages),
     Languages.
 
+reload() ->
+    gen_server:call(?MODULE, reload_translations),
+    ok.
 %
 % Returns the new set language
 set_language(Lang) when is_list(Lang) ->
@@ -132,10 +139,11 @@ read_scan_parse(Filename, Lang) ->
     try
         {ok, Binary} = file:read_file(Filename),
         {value, Value, _} = eval(binary_to_list(Binary)),
-        {Lang, Value}
+        {Lang, dict:from_list(Value)}
     catch
         error:Error ->
             ?LOG_ERROR("Failed to read translation file '~s' due to '~p'", [Filename, Error]),
+            ?LOG_ERROR("Stack trace: ~p", [erlang:get_stacktrace()]),
             []
     end.
 
@@ -177,8 +185,7 @@ maybe_t(Id, Lang, State) ->
 %
 
 init(_Args) ->
-    Translations = read_translations(),
-    {ok, [{Lang, dict:from_list(Translation)} || {Lang, Translation} <- Translations]}.
+    {ok, read_translations()}.
 
 handle_call({translate, Id, Lang}, _From, State) ->
     Reply = case maybe_t(Id, Lang, State) of
@@ -212,6 +219,9 @@ handle_call(enabled_languages, _From, State) ->
             {error, Error}
     end,
     {reply, Reply, State};
+
+handle_call(reload_translations, _From, _State) ->
+    {reply, ok, read_translations()};
 
 handle_call(Request, From, State) ->
     ?LOG_WARNING("Unexpected call from ~p. Request = ~p, State = ~p", [From, Request, State]),
