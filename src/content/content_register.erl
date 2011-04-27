@@ -85,7 +85,7 @@ hostname() ->
     config:content(?MODULE, hostname).
 
 server_address() ->
-    config:content(?MODULE, hostname).
+    config:content(?MODULE, server).
 
 server_port() ->
     config:content(?MODULE, port).
