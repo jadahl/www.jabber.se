@@ -103,7 +103,7 @@ is_available(Username, Host) ->
     Path = url_path_encode(["api", "register", "is_registered"],
                            [{username, Username}, {host, Host}, {key, Key}]),
 
-    case rest:request_get(server_address(), server_port(), Path) of
+    case rest:request_get(hostname(), server_address(), server_port(), Path) of
         {error, _Error} ->
             ?LOG_ERROR("Error in username taken validator: ~p", [_Error]),
             session:env(),
@@ -127,7 +127,8 @@ try_register(Username, Password, Host, Email) ->
                 _  -> [{email, Email}]
             end
         ]},
-    case rest:request_post_json(server_address(), server_port(), Path, JSON) of
+    case rest:request_post_json(hostname(), server_address(), server_port(),
+                                Path, JSON) of
         {ok, Result} ->
             case Result of
                 {struct, [{K, V}]} ->

@@ -10,3 +10,6 @@
 [submodule "lib/nprocreg"]
 	path = lib/nprocreg
 	url = https://github.com/nitrogen/nprocreg.git
+[submodule "lib/ibrowse"]
+	path = lib/ibrowse
+	url = https://github.com/cmullaparthi/ibrowse.git

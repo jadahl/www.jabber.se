@@ -19,8 +19,8 @@
 -module(rest).
 
 -export([
-        request_get/3,
-        request_post_json/4
+        request_get/4,
+        request_post_json/5
     ]).
 
 -include("include/utils.hrl").
@@ -29,30 +29,50 @@
 
 -define(CONTENTTYPE_JSON, "application/json").
 
--spec request_get(string(), Port::1..65535, Path::string()) ->
+-spec request_get(Host::string(), Server:: string() | tuple(),
+                  Port::1..65535, Path::string()) ->
     {error, Reason::atom()} | {ok, term()}.
-request_get(Host, Port, Path) ->
-    case catch lhttpc:request(Host, Port, false, Path,
-            'GET', [], [], ?TIMEOUT, []) of
-        {ok, {{200, _}, Headers, Data}} ->
-            process_response(Headers, Data);
-        _R ->
-            {error, _R}
+request_get(Host, Server, Port, Path) ->
+    case ibrowse:send_req(url(Server, Port, Path),
+                          [], get, [],
+                          options(Host)) of
+        {ok, "200", Headers, Data} -> process_response(Headers, Data);
+        R -> {error, R}
     end.
 
--spec request_post_json(string(), Port::1..65535, Path::string(),
-                        JSON::term()) ->
+-spec request_post_json(Host::string(), Server:: string() | tuple(),
+                        Port::1..65535, Path::string(), JSON::term()) ->
     {error, Reason::atom()} | {ok, term()}.
-request_post_json(Host, Port, Path, JSON) ->
+request_post_json(Host, Server, Port, Path, JSON) ->
     Headers = [{"Content-Type", ?CONTENTTYPE_JSON}],
     Data = mochijson2:encode(JSON),
-    case catch lhttpc:request(Host, Port, false, Path,
-            'POST', Headers, Data, ?TIMEOUT, []) of
-        {ok, {_, InHeaders, InData}} ->
-            process_response(InHeaders, InData);
+    case ibrowse:send_req(url(Server, Port, Path),
+                          Headers,
+                          post, Data,
+                          options(Host)) of
+        {ok, "200", ResponseHeaders, ResponseData} ->
+            process_response(ResponseHeaders, ResponseData);
         R ->
             {error, R}
     end.
+
+options(Host) ->
+    [{host_header, Host},
+     {connect_timeout, ?TIMEOUT}].
+
+url(Server, Port, Path) ->
+    ServerS = if is_tuple(Server) -> ipt_to_list(Server);
+                 true             -> Server
+              end,
+
+    % only supports http currently:w
+    "http://" ++ ServerS ++ ":" ++
+    integer_to_list(Port) ++ Path.
+
+ipt_to_list(IPT) when is_tuple(IPT), tuple_size(IPT) == 8 ->
+    "[" ++ inet_parse:ntoa(IPT) ++ "]";
+ipt_to_list(IPT) when is_tuple(IPT), tuple_size(IPT) == 4 ->
+    inet_parse:ntoa(IPT).
 
 process_response(Headers, Data) ->
     case lists:keysearch("Content-Type", 1, Headers) of

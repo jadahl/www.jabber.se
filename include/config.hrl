@@ -68,7 +68,7 @@
 -define(CONTENT_CONFIG,
     [
         {content_register, [{hostname, "localhost"},
-                            {server, "localhost"},
+                            {server, {0, 0, 0, 0, 0, 0, 0, 1}},
                             {port, 8088},
                             {key, "abc123"}]}
     ]).
