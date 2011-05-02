@@ -72,6 +72,10 @@ out(Arg) ->
             {"/jabber.se", static_file}
         ]),
 
+    % Set default content type (default in nitrogen is "text/html").
+    wf:header("Content-Type", "text/html; charset=UTF-8"),
+
+    % Run nitrogen
     nitrogen:run().
 
 out(Arg, Module) -> out(Arg, Module, "").
