@@ -20,6 +20,7 @@
 
 -behaviour(gen_server).
 
+-include("include/utils.hrl").
 -include("include/menu.hrl").
 -include("include/config.hrl").
 
@@ -39,6 +40,7 @@
         default_content_url/0,
 
         read/1,
+        set/2,
 
         % content config helper functions
         content/2,
@@ -82,8 +84,16 @@ content_enabled(Module) ->
     lists:member(Module, read(enabled_content)).
 
 read(Config) ->
-    {ok, Value} = gen_server:call(?MODULE, {get, Config}),
-    Value.
+    case gen_server:call(?MODULE, {get, Config}) of
+        {ok, Value} ->
+            Value;
+        _Error ->
+            ?LOG_ERROR("Error when reading config '~w': ~p", [Config, _Error]),
+            undefined
+    end.
+
+set(Key, Value) ->
+    gen_server:call(?MODULE, {set, Key, Value}).
 
 %
 % gen_server callbacks
@@ -129,6 +139,9 @@ handle_call({get, Config}, _From, S) ->
     catch
         {not_found, Key} -> {reply, {error, {not_found, Key}}, S}
     end;
+handle_call({set, Key, Value}, _From, S) ->
+    set(Key, Value, S),
+    {reply, ok, S};
 handle_call(stop, _From, S) ->
     {stop, normal, S};
 handle_call(_Request, _From, S) ->
@@ -155,4 +168,7 @@ lookup(Key, State) ->
         [{Key, Value}] -> Value;
         _              -> throw({not_found, Key})
     end.
+
+set(Key, Value, State) ->
+    ets:insert(State#state.table, {Key, Value}).
 

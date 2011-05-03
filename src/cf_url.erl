@@ -23,10 +23,16 @@ path() ->
     [$/ | Path] = (wf_context:request_bridge()):path(),
     Path.
 
+%
+% Same as url/2 where Scheme is what scheme was used to the server.
+%
 url(Path) ->
     url((wf:request_bridge()):scheme(), Path).
 
-
+%
+% Render an URL given a scheme and a path. The URL will point at the server
+% where the function is called from.
+%
 url(Scheme, Path) ->
     Host = config:host(),
     Port = case Scheme of
@@ -36,19 +42,22 @@ url(Scheme, Path) ->
 
     lists:flatten(
         [
+            % scheme, such as https://
             case Scheme of
                 http  -> "http://";
                 https -> "https://"
             end,
 
+            % hostname, such as localhost
             Host,
 
-            case {Scheme, Port} of
-                {http, 80}   -> "";
-                {https, 443} -> "";
-                {_, _}       -> [$: | integer_to_list(Port)]
+            % port, if not hidden, such as :8000
+            case config:read(http_https_port_forward) of
+                true -> "";
+                _    -> [$: | integer_to_list(Port)]
             end,
 
+            % path, such as /foo
             Path
         ]).
 
