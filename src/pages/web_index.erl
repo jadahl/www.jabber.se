@@ -293,7 +293,7 @@ api_event(A, B, C) ->
 %
 
 main() ->
-    case (wf_context:request_bridge()):scheme() of
+    case cf_url:scheme() of
         http ->
             wf:status_code(302),
             wf:header("Location", cf_url:url(https, config:path() ++ cf_url:path())),

@@ -17,17 +17,29 @@
 %
 
 -module(cf_url).
--export([path/0, url/1, url/2, content_path_to_module/1]).
+-export([path/0, scheme/0, url/1, url/2, content_path_to_module/1]).
 
 path() ->
     [$/ | Path] = (wf_context:request_bridge()):path(),
     Path.
 
+scheme() ->
+    case config:read(https_tunneled) of
+        true ->
+            SSLPort = config:read(https_port),
+            case (wf_context:request_bridge()):port() of
+                SSLPort -> https;
+                _       -> http
+            end;
+        _ ->
+            (wf_context:request_bridge()):scheme()
+    end.
+
 %
 % Same as url/2 where Scheme is what scheme was used to the server.
 %
 url(Path) ->
-    url((wf:request_bridge()):scheme(), Path).
+    url(scheme(), Path).
 
 %
 % Render an URL given a scheme and a path. The URL will point at the server

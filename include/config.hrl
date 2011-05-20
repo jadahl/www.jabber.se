@@ -58,6 +58,7 @@
 -define(BASE_DIR, "/").
 
 -define(HTTP_HTTPS_PORT_FORWARD, false).
+-define(HTTPS_TUNNELED, false).
 -define(HTTP_PORT, 8000).
 -define(HTTPS_PORT, 8008).
 

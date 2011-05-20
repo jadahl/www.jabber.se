@@ -39,9 +39,14 @@ start() ->
 
     Normal = [{port, HTTPPort} | Base],
 
-    SSL = [{ssl, #ssl{keyfile = "server.key",
-                      certfile = "server.crt"}},
-           {port, HTTPSPort} | Base],
+    SSL = case config:read(https_tunneled) of
+            true ->
+                [];
+            _ ->
+                [{ssl, #ssl{keyfile = "server.key",
+                            certfile = "server.crt"}},
+                 {port, HTTPSPort}]
+        end ++ Base,
 
     SL = [[{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | Normal],
           [{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | SSL]],

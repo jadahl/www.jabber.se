@@ -110,6 +110,7 @@ init(_) ->
             {http_port, ?HTTP_PORT},
             {https_port, ?HTTPS_PORT},
             {http_https_port_forward, ?HTTP_HTTPS_PORT_FORWARD},
+            {https_tunneled, ?HTTPS_TUNNELED},
             {modules, ?MODULES},
             {enabled_content, ?ENABLED_CONTENT},
             {default_content_url, ?DEFAULT_CONTENT_URL},
