@@ -139,11 +139,6 @@ event_close() ->
 % Database document control
 %
 
-
-%
-% Database document control
-%
-
 empty_post() ->
     #db_post{
         authors = [wf:user()],
@@ -211,12 +206,19 @@ event_save() ->
     ?LOG_INFO("Saving draft", []),
     with_locale_do(post_dialog_language_drop_down,
         fun(Locale) ->
-            % save
-            Id = do_save(Locale),
-            set_current_post(Id),
+            try
+                % save
+                Id = do_save(Locale),
+                set_current_post(Id),
 
-            % update ui
-            cms_post_view:set_saved_label()
+                % update ui
+                cms_post_view:set_saved_label()
+            catch
+                _:_ = Error ->
+                    error_logger:error_report([{error, Error},
+                                               {st, erlang:get_stacktrace()}]),
+                    cms_post_view:set_save_failed_label()
+            end
         end).
 
 do_save(Locale) ->

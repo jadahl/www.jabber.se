@@ -44,9 +44,8 @@ start() ->
                 [];
             _ ->
                 [{ssl, #ssl{keyfile = "server.key",
-                            certfile = "server.crt"}},
-                 {port, HTTPSPort}]
-        end ++ Base,
+                            certfile = "server.crt"}}]
+        end ++ [{port, HTTPSPort} | Base],
 
     SL = [[{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | Normal],
           [{listen, {0, 0, 0, 0, 0, 0, 0, 0}} | SSL]],
