@@ -57,26 +57,28 @@ menu_element_id(#menu_element{path = Path}) ->
     list_to_atom("menu_" ++ [if C == $/ -> $_; true -> C end || C <- Path]).
 
 menu_event(#menu_element{path = Path} = MenuElement) ->
-    %ID = menu_element_id(MenuElement),
-    #event{type = click,
-           actions = [#show{target = menu_spinner},
-                      #js_call{fname = "$Site.$trigger_menu",
-                               args = [list_to_binary(Path),
-                                       menu_element_id(MenuElement)]}]}.
+    [#event{type = click,
+            actions = [#show{target = menu_spinner},
+                       #js_call{fname = "$Site.$trigger_menu",
+                                args = [list_to_binary(Path),
+                                        menu_element_id(MenuElement)]}]},
+     #event{actions = [#jquery_attr{key = href, value = <<"javascript:">>}]}].
 
 full_title(#menu_element{title = Title}) ->
     ?TITLE ++ " - " ++ ?T(Title).
 
+-spec menu_item(#menu_element{}) -> #listitem{}.
+menu_item(MenuElement) ->
+    #listitem{body =
+         #link{text = i18n:t(MenuElement#menu_element.title),
+               url = "/" ++ MenuElement#menu_element.path,
+               id = menu_element_id(MenuElement),
+               actions = [menu_event(MenuElement)]}}.
+
 -spec menu_items() -> list(#listitem{}).
 menu_items() ->
     MenuElements = menu:get_menu_elements(),
-
-    [#listitem{
-            body = [#link{text = i18n:t(Title),
-                          id = menu_element_id(MenuElement),
-                          actions = [menu_event(MenuElement)]}]
-        }
-        || #menu_element{title = Title} = MenuElement <- MenuElements].
+    [menu_item(MenuElement) || MenuElement <- MenuElements].
 
 hide_spinner() ->
     wf:wire(menu_spinner, #hide{}).

@@ -37,7 +37,7 @@ render_action(#jquery_attr{
         key = Key,
         value = Value}) ->
     KeyS = atom_to_list(Key),
-    ValueS = atom_to_list(Value),
+    ValueS = utils:to_string(Value),
     wf:f("objs('~s', '~s').attr('~s', '~s');", [Target, Anchor, KeyS, ValueS]).
 
 
