@@ -95,6 +95,7 @@ register_form() ->
                                        delegate = content_register},
                                #panel{class = inline_spinner_container,
                                       body = #image{image = ?SMALL_SPINNER_IMAGE,
+                                                    alt = "spinner",
                                                     class = inline_spinner,
                                                     style = ?HIDDEN,
                                                     id = register_spinner}}]}

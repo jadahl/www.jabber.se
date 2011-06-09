@@ -46,7 +46,9 @@ panel_login() ->
 
 panel_progress() ->
     [
-        #p{class = center, body = #image{image = ?SPINNER_IMAGE, id = login_spinner}}
+        #p{class = center, body = #image{image = ?SPINNER_IMAGE,
+                                         alt = "spinner",
+                                         id = login_spinner}}
     ].
 
 panel_success() ->

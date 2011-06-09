@@ -81,7 +81,7 @@ ul.contact {
 }
 
 img.wfid_menu_spinner {
-    position: absolute;*/
+    position: absolute;
     margin-left: 6px;
     bottom: 6px;
     right: -16px;
@@ -487,7 +487,7 @@ ul.admin_modules {
  * Blog content
  */
 
-p.blog_body {
+.blog_body {
     font-size: 14px;
 }
 

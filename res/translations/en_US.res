@@ -12,6 +12,7 @@
     {msg_id_clear, "Clear"},
     {msg_id_close, "Close"},
     {msg_id_copying, "Copying..."},
+    {msg_id_description, "Jabber.se is a not-for-profit public Jabber service in Sweden. It's open for anyone and completely free."},
     {msg_id_drafts_dialog_title, "Drafts"},
     {msg_id_drafts_empty, "No drafts..."},
     {msg_id_error_occured, "An error occurred: ~w"},
@@ -75,5 +76,6 @@
     {msg_id_register_valid_email, "Enter a valid email address"},
     {msg_id_reload, "Reload"},
     {msg_id_reload_page, "Page needs to be reloaded"},
-    {msg_id_unauthorized_request, "Unauthorized request"}
+    {msg_id_unauthorized_request, "Unauthorized request"},
+    {msg_id_unknown, "Unknown"}
 ].

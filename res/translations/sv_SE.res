@@ -12,6 +12,7 @@
     {msg_id_clear, "Rensa"},
     {msg_id_close, "Stäng"},
     {msg_id_copying, "Kopierar..."},
+    {msg_id_description, "Jabber.se är en ideell publik Jabbertjänst i Sverige. Den är öppen för vem som helst, och är helt gratis."},
     {msg_id_drafts_dialog_title, "Utkast"},
     {msg_id_drafts_empty, "Inga utkast..."},
     {msg_id_error_title, "Fel"},
@@ -75,5 +76,6 @@
     {msg_id_register_valid_email, "Skriv in en giltlig E-mail-address"},
     {msg_id_reload, "Ladda om"},
     {msg_id_reload_page, "Sidan behöver laddas om"},
-    {msg_id_unauthorized_request, "Åtkomst förbjuden"}
+    {msg_id_unauthorized_request, "Åtkomst förbjuden"},
+    {msg_id_unknown, "Okänd"}
 ].

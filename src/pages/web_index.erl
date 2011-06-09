@@ -32,6 +32,7 @@
         api_event/3,
 
         % template entry points
+        description/0,
         head/0,
         foot/0,
         dialogs/0,
@@ -53,11 +54,18 @@
 load_error(Error, Type) when is_atom(Error) ->
     load_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
 load_error(Message, Type) ->
-    set_body(Message, ?T(msg_id_error_title), "error", Type).
+    set_body(Message, ?T(msg_id_error_title), error, Type).
 
-content_error(Error) when is_atom(Error) ->
-    content_error(io_lib:format(?T(msg_id_error_occured), [Error]));
-content_error(Message) ->
+content_error(Error) ->
+    Message = if is_atom(Error) -> atom_to_list(Error);
+                 true           -> ?T(msg_id_unknown)
+              end,
+    content_error(Error, io_lib:format(?T(msg_id_error_occured), [Message])).
+content_error(Error, Message) ->
+    Stacktrace = erlang:get_stacktrace(),
+    error_logger:error_report([{message, lists:flatten(Message)},
+                               {error, Error},
+                               {stacktrace, Stacktrace}]),
     #content{body = Message,
              title = ?T(msg_id_error_title)}.
 
@@ -71,10 +79,7 @@ do_get_content(Module, SubPath) ->
     try
         Module:body(SubPath)
     catch
-        {exception, _, _, _} -> content_error(exception);
-        {'EXIT', _}          -> content_error(exit);
-        error:_              -> content_error(error);
-        throw:_              -> content_error(throw)
+        _:_ = Error -> content_error(Error)
     end.
 
 load_content(URL, Type) ->
@@ -320,6 +325,10 @@ main() ->
 %
 % Template entry points
 %
+
+description() ->
+    session:env(),
+    ?T(msg_id_description).
 
 head() ->
     feed:get_feed_links().

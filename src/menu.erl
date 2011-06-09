@@ -91,6 +91,7 @@ menu() ->
     [
         % spinner for when content is loading
         #image{image = ?SPINNER_IMAGE_MENU,
+               alt = "spinner",
                id = menu_spinner,
                style = ?HIDDEN},
 

@@ -123,7 +123,7 @@ post_to_html(#db_post{
             body=
             [
                 Title,
-                #p{class = blog_body, body = Body},
+                #panel{class = blog_body, body = Body},
                 #br{}
             ]
         }
