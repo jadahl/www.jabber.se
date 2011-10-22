@@ -1,5 +1,6 @@
 *.beam
 .*.swp
+.*.un~
 *.dump
 *.diff
 *.bak
@@ -10,3 +11,5 @@ etc/cf.config
 etc/start.conf.sh
 .eunit/
 logs/
+ebin/
+TAGS

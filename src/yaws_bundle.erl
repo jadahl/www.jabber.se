@@ -18,7 +18,7 @@
 
 -module(yaws_bundle).
 -include_lib("yaws/include/yaws.hrl").
--include_lib("simple_bridge/include/yaws_api.hrl").
+-include_lib("yaws/include/yaws_api.hrl").
 -export([start/0, stop/0]).
 
 -define(SITE_APP, www_jabber_se_app).

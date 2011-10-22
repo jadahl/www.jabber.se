@@ -17,8 +17,12 @@ erl \
     -pa lib/couchbeam/ebin \
     -pa lib/couchbeam/deps/lhttpc/ebin \
     -pa lib/ibrowse/ebin \
+    -pa lib/erlmarkdown/ebin \
     $ADDITIONAL_PARAMS \
     -eval "application:start(sasl)" \
+    -eval "application:start(crypto)" \
+    -eval "application:start(public_key)" \
+    -eval "application:start(ssl)" \
     -eval "application:start(mnesia)" \
     -eval "application:start(nprocreg)" \
     -eval "application:start(nitrogen_core)" \
