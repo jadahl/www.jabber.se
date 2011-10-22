@@ -22,6 +22,8 @@
 -define(COUCHDB_NAME, "jabber_se-cms").
 -define(DESIGN_NAME, "jabber_se").
 
+-define(DB_POST_DEFAULT_CONTENT_TYPE, <<"application/xhtml+xml">>).
+
 -define(DB_VIEWS,
     {[
             {<<"posts_pub_count">>, {[
@@ -63,6 +65,7 @@
         edited,
         tags = [],
         authors = [],
+        content_type = ?DB_POST_DEFAULT_CONTENT_TYPE,
         body = {[]}
     }).
 

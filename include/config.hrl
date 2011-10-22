@@ -89,7 +89,7 @@
 
 -define(CMS_ADMIN_MODULES,
     [
-        cms_post,
+        cms_compose,
         cms_drafts,
         cms_manage
     ]).

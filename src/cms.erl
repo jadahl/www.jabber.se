@@ -33,17 +33,17 @@
 body_single(Id) ->
     Post = db_post:get_post(Id),
     #db_post{title = Title} = Post,
-    [#h2{text = db_post:t(Title)}, cms_view:post_to_html(Post, true)].
+    [#h2{text = db_post:t(Title)}, cms_post_view:post_to_html(Post, true)].
 
 body(Title, View) ->
     Posts = db_post:get_posts_by_view(View),
     Title = ?T(msg_id_news),
-    [#h2{text = Title} | lists:map(fun cms_view:post_to_html/1, Posts)].
+    [#h2{text = Title} | lists:map(fun cms_post_view:post_to_html/1, Posts)].
 
 atom(URL, SubTitle, View) ->
     Contents = db_post:get_posts_by_view(View),
     [<<"<?xml version=\"1.0\" encoding=\"utf-8\" ?>">>,
-     cms_view:posts_to_atom(Contents, URL, config:title(), SubTitle)].
+     cms_post_view:posts_to_atom(Contents, URL, config:title(), SubTitle)].
 
 %
 % Events

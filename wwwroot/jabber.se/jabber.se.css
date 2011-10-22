@@ -14,6 +14,11 @@ body {
 
 a {
     text-decoration: none;
+    color: #5f5f5f;
+}
+
+a:hover {
+    color: #5f8f5f;
 }
 
 img {
@@ -632,10 +637,15 @@ a:hover.post_dialog_tag {
     background-color: rgba(50, 50, 50, 0.4);
     padding: 4px;
     margin-right: 2px;
+    border-top: solid 1px;
+    border-right: solid 1px;
+    border-left: solid 1px;
+    border-bottom: solid 1px;
+    border-color: #969696;
 }
 
 .wfid_edit_post_body .expandable_active {
-    background-color: rgba(50, 50, 50, 0.4);
+    background-color: rgba(90, 90, 90, 0.4);
 }
 
 .wfid_edit_post_body .wfid_exp_body .state_panel_alt {
@@ -644,6 +654,7 @@ a:hover.post_dialog_tag {
     -moz-border-radius-topright: 4px;
     -moz-border-radius-bottomright: 4px;
     -moz-border-radius-bottomleft: 4px;
+    border: solid 1px #969696;
 }
 
 /*

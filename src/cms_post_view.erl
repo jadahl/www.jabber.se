@@ -16,13 +16,37 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(cms_view).
--export([post_to_html/1, post_to_html/2, posts_to_atom/4]).
+-module(cms_post_view).
+-export([supported_content_type/1,
+         post_to_html/1, post_to_html/2, posts_to_atom/4]).
 
 -include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
 -include("include/db/db.hrl").
+
+%
+% Content types
+%
+
+supported_content_type(ContentType) ->
+    lists:member(utils:to_binary(ContentType),
+                 [<<"application/xhtml+xml">>,
+                  <<"text/markdown">>]).
+
+%
+% Body transformations
+%
+
+post_body_to_html(Post) ->
+    case Post#db_post.content_type of
+        <<"application/xhtml+xml">> ->
+            db_post:t(Post#db_post.body);
+        <<"text/markdown">> ->
+            markdown:conv(binary_to_list(db_post:t(Post#db_post.body)));
+        _ ->
+            "undefined"
+    end.
 
 %
 % Atom
@@ -41,10 +65,9 @@ post_to_atom_entry(#db_post{
         timestamp = Timestamp,
         authors = Authors,
         title = Titles,
-        body = Bodies,
-        tags = _Tag}) ->
+        tags = _Tag} = Post) ->
     Title = db_post:t(Titles),
-    Body = db_post:t(Bodies),
+    Body = post_body_to_html(Post),
 
     {entry,
         {[
@@ -92,11 +115,10 @@ post_to_html(Post) ->
 post_to_html(#db_post{
         authors = Authors,
         title = Titles,
-        body = Bodies,
         timestamp = Timestamp,
-        tags = _Tags}, Single) ->
+        tags = _Tags} = Post, Single) ->
 
-    Body = db_post:t(Bodies),
+    Body = post_body_to_html(Post),
 
     Title = case Single of
         true -> [];

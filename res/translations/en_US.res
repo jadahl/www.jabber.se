@@ -33,6 +33,8 @@
     {msg_id_post_date, "Date"},
     {msg_id_post_dialog_add_tag, "Add"},
     {msg_id_post_dialog_content, "Content:"},
+    {msg_id_post_dialog_content_type, "Content type"},
+    {msg_id_post_dialog_content_type_choose, "Choose content type"},
     {msg_id_post_dialog_discard, "Discard"},
     {msg_id_post_dialog_language, "Language"},
     {msg_id_post_dialog_publish, "Publish"},

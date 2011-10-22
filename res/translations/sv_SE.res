@@ -33,6 +33,8 @@
     {msg_id_post_date, "Datum"},
     {msg_id_post_dialog_add_tag, "Lägg till"},
     {msg_id_post_dialog_content, "Innehåll:"},
+    {msg_id_post_dialog_content_type, "Innehållstyp"},
+    {msg_id_post_dialog_content_type_choose, "Välj innehållstyp"},
     {msg_id_post_dialog_discard, "Kasta"},
     {msg_id_post_dialog_language, "Språk"},
     {msg_id_post_dialog_publish, "Publicera"},

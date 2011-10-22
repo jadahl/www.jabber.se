@@ -121,7 +121,7 @@ title_link(Title, Locale, Post, Delegate) ->
     end,
 
     #link{
-        delegate = cms_post,
+        delegate = cms_compose,
         postback = {open, Post#db_post.id, Locale, Delegate},
         text = LinkTitle,
         title = ?T(msg_id_post_open)

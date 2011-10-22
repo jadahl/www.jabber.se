@@ -29,7 +29,7 @@
         maybe_default_value/2, default_value/1,
         maybe_value_by_locale/2, value_by_locale/2, value_prefer_locale/2,
         set_title/3, set_body/3, set_state/2,
-        update_post/1, set_body/2, push_tag/2, pop_tag/2
+        update_post/1, edit_post/3, set_body/2, push_tag/2, pop_tag/2
     ]).
 
 -include("include/utils.hrl").
@@ -67,6 +67,7 @@ parse_helper({K, V}, P) ->
         edited -> P#db_post{edited = list_to_integer(binary_to_list(V))};
         tags -> P#db_post{tags = V};
         authors -> P#db_post{authors = V};
+        content_type -> P#db_post{content_type = V};
         body -> P#db_post{body = V};
 
         type -> P;
@@ -138,6 +139,7 @@ render_post(#db_post{
         edited = Edited,
         tags = Tags,
         authors = Authors,
+        content_type = ContentType,
         body = Body} = Post) ->
 
     check_post(Post),
@@ -155,6 +157,7 @@ render_post(#db_post{
             end,
             {tags, Tags},
             {authors, Authors},
+            {content_type, ContentType},
             {body, Body}
         ])
     }.
@@ -363,10 +366,13 @@ update_post(Post) ->
     NewDoc2 = db_doc:set_rev(db_doc:get_rev(CurrentDoc), NewDoc),
     ?DB_HANDLE_RESULT(db_controller:save_doc(NewDoc2)).
 
-set_body(NewBody, Key) ->
+edit_post(NewBody, EntryKey, Key) ->
     Doc = db_controller:open_doc(Key),
-    NewDoc = db_doc:edit_entry(body, NewBody, Doc),
+    NewDoc = db_doc:edit_entry(EntryKey, NewBody, Doc),
     ?DB_HANDLE_RESULT(db_controller:save_doc(NewDoc)).
+
+set_body(NewBody, Key) ->
+    edit_post(NewBody, body, Key).
 
 push_tag(NewTag, Key) ->
     Doc = db_controller:open_doc(Key),

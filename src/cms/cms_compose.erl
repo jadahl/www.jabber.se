@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(cms_post).
+-module(cms_compose).
 -export([selected/0, left/0, title/0, body/0, hook/0, event/1]).
 -behaviour(gen_cms_admin_module).
 
@@ -56,7 +56,7 @@ left() ->
     event_close().
 
 title() ->
-    cms_post_view:title().
+    cms_compose_view:title().
 
 body() ->
     Post = case current_post() of
@@ -69,13 +69,13 @@ body() ->
     body(Post).
 
 body(Post) ->
-    cms_post_view:body(Post, i18n:get_language()).
+    cms_compose_view:body(Post, i18n:get_language()).
 
 body(Post, Locale) ->
-    cms_post_view:body(Post, Locale).
+    cms_compose_view:body(Post, Locale).
 
 hook() ->
-    cms_post_view:wire_validators().
+    cms_compose_view:wire_validators().
 
 %
 % Events
@@ -113,7 +113,29 @@ event({remove_tag, Id, Tag}) ->
     ?AUTH(event_remove_tag(Id, Tag));
 
 event(add_tag) ->
-    ?AUTH(event_add_tag(wf:q(post_dialog_tag_input))).
+    ?AUTH(event_add_tag(wf:q(post_dialog_tag_input)));
+
+%
+% Content type events
+%
+
+event(set_content_type) ->
+    ContentType = wf:q(post_dialog_content_type_dropdown),
+
+    case cms_post_view:supported_content_type(ContentType) of
+        true ->
+            Post = case current_post() of
+                undefined ->
+                    new_post();
+                Id ->
+                    db_post:get_post(Id)
+            end,
+            NewPost = Post#db_post{content_type = ContentType},
+            db_post:save_post(NewPost);
+        false ->
+            ?LOG_WARNING("trying to set invalid content type '~p'",
+                         [ContentType])
+    end.
 
 %
 % Open / close
@@ -144,6 +166,11 @@ empty_post() ->
         authors = [wf:user()],
         timestamp = unix_timestamp()
     }.
+
+new_post() ->
+    Id = save_new_post(empty_post()),
+    set_current_post(Id),
+    Id.
 
 save_new_post(Post) ->
     Doc = db_post:save_post(Post),
@@ -199,7 +226,7 @@ event_unpublish() ->
             db_post:save_post(db_post:set_state(draft, Post)),
 
             % update ui
-            cms_post_view:set_post_state(draft)
+            cms_compose_view:set_post_state(draft)
     end.
 
 event_save() ->
@@ -212,12 +239,12 @@ event_save() ->
                 set_current_post(Id),
 
                 % update ui
-                cms_post_view:set_saved_label()
+                cms_compose_view:set_saved_label()
             catch
                 _:_ = Error ->
                     error_logger:error_report([{error, Error},
                                                {st, erlang:get_stacktrace()}]),
-                    cms_post_view:set_save_failed_label()
+                    cms_compose_view:set_save_failed_label()
             end
         end).
 
@@ -330,7 +357,7 @@ change_locale(Locale, Id) ->
     NewSubject = db_post:value_by_locale(Locale, Title),
     NewBody = db_post:value_by_locale(Locale, Body),
 
-    cms_post_view:set_content(NewSubject, NewBody),
+    cms_compose_view:set_content(NewSubject, NewBody),
 
     ok.
 
@@ -340,7 +367,7 @@ change_locale(Locale, Id) ->
 
 event_tag_alternatives() ->
     ?LOG_INFO("tag_alternatives()", []),
-    cms_post_view:tag_alternatives().
+    cms_compose_view:tag_alternatives().
 
 event_remove_tag(ElementId, Tag) ->
     ?LOG_INFO("remove_tag(~p, ~p)", [ElementId, Tag]),
@@ -350,7 +377,7 @@ event_remove_tag(ElementId, Tag) ->
         Id ->
             db_post:pop_tag(Tag, Id),
 
-            cms_post_view:remove_tag(ElementId)
+            cms_compose_view:remove_tag(ElementId)
     end.
 
 event_add_tag(Tag) ->
@@ -363,5 +390,5 @@ event_add_tag(Tag) ->
             db_post:push_tag(Tag, Id)
     end,
 
-    cms_post_view:add_tag(Tag).
+    cms_compose_view:add_tag(Tag).
 
