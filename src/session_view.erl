@@ -32,17 +32,20 @@
 %
 
 panel_login() ->
-    [
-        #h3{text = ?T(msg_id_login)},
-        #p{},
-        #label{text = ?T(msg_id_login_username)},
-        #textbox{id = login_username, class = login_input, next = login_password},
-        #p{},
-        #label{text = ?T(msg_id_login_password)},
-        #password{id = login_password, class = login_input, next = login_login},
-        #p{},
-        #panel{id = login_status, body = button_panel()}
-    ].
+    #form{autocomplete = "on",
+          controls = [#h3{text = ?T(msg_id_login)},
+                      #p{},
+                      #label{text = ?T(msg_id_login_username)},
+                      #textbox{id = login_username,
+                               class = login_input,
+                               next = login_password},
+                      #p{},
+                      #label{text = ?T(msg_id_login_password)},
+                      #password{id = login_password,
+                                class = login_input,
+                                next = login_login},
+                      #p{},
+                      #panel{id = login_status, body = button_panel()}]}.
 
 panel_progress() ->
     [

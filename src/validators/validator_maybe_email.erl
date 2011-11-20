@@ -25,6 +25,7 @@
 -include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/ui.hrl").
+-include("include/utils.hrl").
 
 render_action(Record)  ->
     TriggerPath= Record#maybe_email.trigger,
@@ -38,14 +39,17 @@ render_action(Record)  ->
     wf:f("v.add(Validate.Custom, {\
         against: function(values, args) {\
             if (values)\
-                return Validate.Email(values);
+                return Validate.Email(values);\
             else\
                 return true;\
         },\
         failureMessage: \"~s\"\
     });", [Text]).
 
-validate(_, undefined) -> true;
+validate(_, undefined) ->
+    true;
+validate(_, []) ->
+    true;
 validate(_, Value) ->
     case re:run(wf:to_list(Value), "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+") of
         {match, _} -> true;

@@ -56,6 +56,8 @@ Site.prototype.$trigger_menu = function(url, id) {
     page.menu_triggered(url);
 }
 
+Site.prototype.$update_history = Site.prototype.$trigger_menu;
+
 Site.prototype.$history_event = function(url, state) {
     // if state is null we we have not set the history entry,
     // thus it's a new entry meaning no page loading

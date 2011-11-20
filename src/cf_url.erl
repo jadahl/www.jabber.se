@@ -17,7 +17,8 @@
 %
 
 -module(cf_url).
--export([path/0, scheme/0, url/1, url/2, content_path_to_module/1]).
+-export([path/0, scheme/0, url/1, url/2, content_path_to_module/1,
+         url_path_encode/2]).
 
 path() ->
     [$/ | Path] = (wf_context:request_bridge()):path(),
@@ -75,3 +76,40 @@ url(Scheme, Path) ->
 
 content_path_to_module(List) when is_list(List) ->
     list_to_atom("content_" ++ List).
+
+
+-spec url_path_encode([string()], [{string(), string()}]) -> string().
+url_path_encode(Path, Params) ->
+    Buf1 = string:join([escape(P) || P <- Path], "/"),
+
+    Buf2 = if
+        Params == [] -> "";
+        true         -> [$? | param_encode(Params)]
+    end,
+
+    case Buf1 ++ Buf2 of
+        [] -> [];
+        Result -> [$/ | Result]
+    end.
+
+-spec param_encode([{string() | atom(), string()}]) -> string().
+param_encode(Params) ->
+    string:join([escape(Key) ++ "=" ++ escape(Value)
+            || {Key, Value} <- Params], "&").
+
+-spec escape(atom() | string()) -> string().
+escape(Atom) when is_atom(Atom) ->
+    escape(atom_to_list(Atom));
+escape(Binary) when is_binary(Binary) ->
+    escape(binary_to_list(Binary));
+escape([]) -> [];
+escape([C | Cs]) when (C >= $a andalso C =< $z);
+                      (C >= $A andalso C =< $Z);
+                      (C >= $0 andalso C =< $9);
+                      C == $.; C == $_; C == $-, C == $/ ->
+    [C | escape(Cs)];
+escape([C | Cs]) when C < 256 ->
+    [$% | httpd_util:integer_to_hexlist(C)] ++ escape(Cs);
+escape([C | Cs]) ->
+    escape(binary_to_list(unicode:characters_to_binary([C])) ++ Cs).
+

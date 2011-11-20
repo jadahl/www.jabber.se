@@ -33,7 +33,7 @@
 
 -record(pager, {?ELEMENT_BASE(element_pager), count = 1, init_page = 1, adapter}).
 
--record(form, {?ELEMENT_BASE(element_form), action = "", method = "", controls = []}).
+-record(form, {?ELEMENT_BASE(element_form), action = "", method = "", controls = [], autocomplete}).
 -record(reset, {?ELEMENT_BASE(element_reset), text = "Reset", html_encode = true}).
 
 -record(expandable, {?ELEMENT_BASE(element_expandable), categories, init_category}).

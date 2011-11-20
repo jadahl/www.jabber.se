@@ -52,8 +52,11 @@
     }).
 
 
-%-define(URL_BASE, "www.jabber.se").
+%-define(HOST, "www.jabber.se").
 -define(HOST, "localhost").
+
+%-define(DOMAIN, "jabber.se").
+-define(DOMAIN, "localhost").
 
 -define(BASE_DIR, "/").
 
@@ -64,14 +67,18 @@
 
 -define(DEFAULT_CONTENT_URL, "news").
 
--define(ENABLED_CONTENT, [content_about, content_news, content_register]).
+-define(ENABLED_CONTENT, [content_about,
+                          content_news,
+                          content_register,
+                          content_account]).
 
 -define(CONTENT_CONFIG,
     [
-        {content_register, [{hostname, "localhost"},
-                            {server, {0, 0, 0, 0, 0, 0, 0, 1}},
-                            {port, 8088},
-                            {key, "abc123"}]}
+        {cf_mod_restful, [{hostname, ?HOST},
+                          {server, {0, 0, 0, 0, 0, 0, 0, 1}},
+                          {port, 8088},
+                          {path, ["api"]},
+                          {key, "secret"}]}
     ]).
 
 -define(MENU_ELEMENTS,
@@ -82,6 +89,9 @@
         #menu_element{
             path = "register",
             title = msg_id_register},
+        #menu_element{
+            path = "account",
+            title = msg_id_account},
         #menu_element{
             path = "about",
             title = msg_id_about}

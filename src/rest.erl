@@ -50,14 +50,16 @@ request_post_json(Host, Server, Port, Path, JSON) ->
                           Headers,
                           post, Data,
                           options(Host)) of
-        {ok, "200", ResponseHeaders, ResponseData} ->
+        {ok, _, ResponseHeaders, ResponseData} ->
             process_response(ResponseHeaders, ResponseData);
+
         R ->
             {error, R}
     end.
 
 options(Host) ->
-    [{host_header, Host},
+    HostS = utils:to_string(Host),
+    [{host_header, HostS},
      {connect_timeout, ?TIMEOUT}].
 
 url(Server, Port, Path) ->

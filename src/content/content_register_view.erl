@@ -55,15 +55,15 @@ register_form() ->
     Body = [
         #panel{style = ?INLINE, body = [
             #form{controls = [
-                #label{text = ?T(msg_id_register_username),
+                #label{text = ?T(msg_id_form_username),
                        style = ?BLOCK},
                 #textbox{id = username},
                 #p{},
-                #label{text = ?T(msg_id_register_password),
+                #label{text = ?T(msg_id_form_password),
                        style = ?BLOCK},
                 #password{id = password, class = textbox},
                 #p{},
-                #label{text = ?T(msg_id_register_pwd_confirm),
+                #label{text = ?T(msg_id_form_confirm_password),
                        style = ?BLOCK},
                 #password{id = pwd_confirm, class = textbox},
                 #p{},
@@ -104,17 +104,17 @@ register_form() ->
     ],
 
     Validators = [
-        {username,    [#is_required{text = ?T(msg_id_register_required)},
+        {username,    [#is_required{text = ?T(msg_id_form_required)},
                        #custom{function = fun is_available_validator/2,
                                server_side_only = true,
                                text = ?T(msg_id_register_taken)}]},
-        {email,       [#maybe_email{text = ?T(msg_id_register_valid_email)}]},
-        {password,    [#is_required{text = ?T(msg_id_register_required)},
+        {email,       [#maybe_email{text = ?T(msg_id_form_valid_email)}]},
+        {password,    [#is_required{text = ?T(msg_id_form_required)},
                        #min_length{length = 6,
-                                   text = ?T(msg_id_register_at_least)}]},
-        {pwd_confirm, [#is_required{text = ?T(msg_id_register_required)},
+                                   text = ?T(msg_id_form_at_least)}]},
+        {pwd_confirm, [#is_required{text = ?T(msg_id_form_required)},
                        #confirm_password{password = password,
-                                         text = ?T(msg_id_register_match)}]}
+                                         text = ?T(msg_id_form_match)}]}
     ],
 
     {Body, Validators}.
@@ -123,13 +123,14 @@ register_form() ->
 % Validator
 
 is_available_validator(_A, Value) ->
-    content_register:is_available(Value, content_register:hostname()).
+    content_register:is_available(Value, config:host()).
 
 %
 % Internal
 %
 
 wire_validators(Validators) ->
+    state_handler:set_state(validators, []),
     [wf:wire(create_button, Input, 
             #validate{validators = InputValidators})
      || {Input, InputValidators} <- Validators].

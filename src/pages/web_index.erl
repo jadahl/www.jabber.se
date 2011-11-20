@@ -69,26 +69,26 @@ content_error(Error, Message) ->
     #content{body = Message,
              title = ?T(msg_id_error_title)}.
 
-get_content(Module, SubPath) ->
+get_content(Module, Path) ->
     case config:content_enabled(Module) of
-        true  -> do_get_content(Module, SubPath);
+        true  -> do_get_content(Module, Path);
         false -> content_error(not_allowed)
     end.
 
-do_get_content(Module, SubPath) ->
+do_get_content(Module, Path) ->
     try
-        Module:body(SubPath)
+        Module:body(Path)
     catch
         _:_ = Error -> content_error(Error)
     end.
 
 load_content(URL, Type) ->
-    case parse_url(URL) of
-        {[ContentPath | SubPath], _Params} ->
+    case local_path(URL) of
+        [ContentPath | _] = Path ->
             Module = cf_url:content_path_to_module(ContentPath),
             #content{body = Body,
                      title = Title,
-                     post_eval = PostEval} = get_content(Module, SubPath),
+                     post_eval = PostEval} = get_content(Module, Path),
             set_body(Body, Title, URL, Type),
             if is_function(PostEval) -> PostEval();
                true -> ok
@@ -106,10 +106,13 @@ cache_content() ->
         URL -> ok
     end,
 
-    Content = case parse_url(URL) of
-        {[ContentPath | SubPath], _Params} ->
+    {BasePath, []} = parse_path(config:path()),
+
+    Content = case local_path(URL) of
+        [ContentPath | _] = Path ->
+            ?LOG_INFO("base-path=~p, path=~p", [BasePath, Path]),
             Module = cf_url:content_path_to_module(ContentPath),
-            get_content(Module, SubPath);
+            get_content(Module, Path);
         _ ->
             content_error('404')
     end,
@@ -232,6 +235,11 @@ url_num_to_char(N1, N2) -> (hex(N1) * 16) + hex(N2).
 parse_url(URL) ->
     {Path, Rest} = parse_path(URL),
     {Path, parse_params(Rest)}.
+
+local_path(URL) ->
+    {FullPath, _Params} = parse_url(URL),
+    {BasePath, []} = parse_path(config:path()),
+    utils:drop_prefix(BasePath, FullPath).
 
 %
 % Hooks

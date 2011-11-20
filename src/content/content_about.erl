@@ -27,7 +27,7 @@
         body/1
     ]).
 
-body([]) ->
+body(_) ->
     #content{
         body = cms:body_single("page_about"),
         title = ?T(msg_id_about)}.

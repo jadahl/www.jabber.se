@@ -26,6 +26,7 @@
         sub_id/2,
         to_xml/1,
         log/5,
+        drop_prefix/2,
         join/2, range/1, range/2, just/1, find_with/3, forall/2,
         keyreplacewith/4, keyreplaceoraddwith/4,
         maybe_append/2
@@ -124,6 +125,10 @@ log(Level, Module, Line, Format, Args) ->
 %
 % Utility functions
 %
+
+drop_prefix([], List)               -> List;
+drop_prefix([I | Rest], [I | List]) -> drop_prefix(Rest, List);
+drop_prefix(_, _List)               -> no_match.
 
 join([], _) ->
     [];

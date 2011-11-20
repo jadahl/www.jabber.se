@@ -36,6 +36,7 @@
         menu/0,
         languages/0,
         host/0,
+        domain/0,
         path/0,
         default_content_url/0,
 
@@ -75,6 +76,7 @@ enabled_content()     -> read(enabled_content).
 menu()                -> read(menu).
 languages()           -> read(languages).
 host()                -> read(host).
+domain()              -> read(domain).
 path()                -> read(path).
 default_content_url() -> read(default_content_url).
 
@@ -106,6 +108,7 @@ init(_) ->
     ets:insert(Table, [
             {title, ?TITLE},
             {host, ?HOST},
+            {domain, ?DOMAIN},
             {path, ?BASE_DIR},
             {http_port, ?HTTP_PORT},
             {https_port, ?HTTPS_PORT},

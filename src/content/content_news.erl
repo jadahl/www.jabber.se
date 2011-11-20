@@ -25,11 +25,10 @@
 
 -define(CMS_VIEW, "news").
 
-body([]) ->
+body(_) ->
     Title = ?T(msg_id_news),
     #content{body = cms:body(Title, ?CMS_VIEW),
-             title = Title};
-body(_) -> [].
+             title = Title}.
 
 atom(URL) ->
     cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).

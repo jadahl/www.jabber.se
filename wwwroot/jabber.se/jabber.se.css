@@ -667,8 +667,33 @@ a:hover.post_dialog_tag {
     margin-right: 6px;
 }
 
+.body input.password {
+    width: 200px;
+    border: 1px solid #b4b4b4;
+    margin-right: 6px;
+}
+
 .body span.LV_invalid {
     color: #ef2323;
 }
 
+/*
+ * Account
+ */
 
+ul.account_menu {
+    margin-left: 0px;
+    padding-left: 0px;
+    width: 250px;
+    list-style: none;
+    font-size: 16px;
+}
+
+.account_menu a {
+    display: block;
+    padding: 10px 10px 10px 0px;
+}
+
+.account_menu a:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}

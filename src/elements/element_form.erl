@@ -21,10 +21,17 @@
 
 -include("include/ui.hrl").
 
-render_element(#form{action = Action, method = Method, controls = Controls}) ->
-    wf_tags:emit_tag(form, Controls, [
-        {action, Action} |
+render_element(#form{action = Action,
+                     autocomplete = Autocomplete,
+                     method = Method,
+                     controls = Controls}) ->
+    Body = [
+        {action, Action},
         if Method == undefined -> [];
            true                -> [{method, Method}]
+        end,
+        if Autocomplete == undefined -> [];
+           true                      -> [{autocomplete, Autocomplete}]
         end
-    ]).
+    ],
+    wf_tags:emit_tag(form, Controls, lists:flatten(Body)).
