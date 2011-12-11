@@ -6,6 +6,8 @@
 *.bak
 *.po
 *.mo
+*.key
+*.crt
 rebar.config
 etc/cf.config
 etc/start.conf.sh
