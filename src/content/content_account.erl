@@ -31,7 +31,7 @@ change_password() ->
     CurrentPassword = wf:q(current_password),
     NewPassword = wf:q(new_password),
 
-    Hostname = config:domain(),
+    Hostname = cf_config:domain(),
 
     case cf_mod_restful:change_password(Username,
                                         Hostname,
@@ -57,7 +57,7 @@ change_private_email() ->
     Password = wf:q(password),
     NewEmail = wf:q(new_email),
 
-    Hostname = config:domain(),
+    Hostname = cf_config:domain(),
 
     case cf_mod_restful:change_private_email(Username,
                                              Hostname,

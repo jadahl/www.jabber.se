@@ -34,12 +34,12 @@ start() ->
     GL = [{logdir, "./logs"},
           {cache_refresh_secs, 5}],
 
-    HTTPPort = config:read(http_port),
-    HTTPSPort = config:read(https_port),
+    HTTPPort = cf_config:read(http_port),
+    HTTPSPort = cf_config:read(https_port),
 
     Normal = [{port, HTTPPort} | Base],
 
-    SSL = case config:read(https_tunneled) of
+    SSL = case cf_config:read(https_tunneled) of
             true ->
                 [];
             _ ->

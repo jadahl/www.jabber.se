@@ -33,7 +33,7 @@ main() ->
 
     Module = cf_url:content_path_to_module(Path),
 
-    case config:content_enabled(Module) of
+    case cf_config:content_enabled(Module) of
         false ->
             web_error:main();
         true ->

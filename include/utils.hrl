@@ -26,6 +26,14 @@
 %
 
 %
+% Configuration
+%
+
+-define(CONF(Key), cf_config:read(Key)).
+-define(CONFM(Key), cf_config:read(?MODULE, Key)).
+
+
+%
 % ?T(Id) -> Text
 %
 

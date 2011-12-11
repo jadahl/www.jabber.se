@@ -32,10 +32,10 @@
 % Config
 %
 
-server_address() -> config:content(?MODULE, server).
-server_port() ->    config:content(?MODULE, port).
-path() ->           config:content(?MODULE, path).
-key() ->            config:content(?MODULE, key).
+server_address() -> cf_config:content(?MODULE, server).
+server_port() ->    cf_config:content(?MODULE, port).
+path() ->           cf_config:content(?MODULE, path).
+key() ->            cf_config:content(?MODULE, key).
 
 
 %

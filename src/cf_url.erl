@@ -25,9 +25,9 @@ path() ->
     Path.
 
 scheme() ->
-    case config:read(https_tunneled) of
+    case cf_config:read(https_tunneled) of
         true ->
-            SSLPort = config:read(https_port),
+            SSLPort = cf_config:read(https_port),
             case (wf_context:request_bridge()):port() of
                 SSLPort -> https;
                 _       -> http
@@ -47,10 +47,10 @@ url(Path) ->
 % where the function is called from.
 %
 url(Scheme, Path) ->
-    Host = config:host(),
+    Host = cf_config:host(),
     Port = case Scheme of
-        https -> config:read(https_port);
-        http  -> config:read(http_port)
+        https -> cf_config:read(https_port);
+        http  -> cf_config:read(http_port)
     end,
 
     lists:flatten(
@@ -65,7 +65,7 @@ url(Scheme, Path) ->
             Host,
 
             % port, if not hidden, such as :8000
-            case config:read(http_https_port_forward) of
+            case cf_config:read(http_https_port_forward) of
                 true -> "";
                 _    -> [$: | integer_to_list(Port)]
             end,

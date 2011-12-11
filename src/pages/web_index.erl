@@ -70,7 +70,7 @@ content_error(Error, Message) ->
              title = ?T(msg_id_error_title)}.
 
 get_content(Module, Path) ->
-    case config:content_enabled(Module) of
+    case cf_config:content_enabled(Module) of
         true  -> do_get_content(Module, Path);
         false -> content_error(not_allowed)
     end.
@@ -102,11 +102,11 @@ cached_content() ->
 
 cache_content() ->
     case cf_url:path() of
-        "" -> URL = config:default_content_url();
+        "" -> URL = cf_config:default_content_url();
         URL -> ok
     end,
 
-    {BasePath, []} = parse_path(config:path()),
+    {BasePath, []} = parse_path(cf_config:path()),
 
     Content = case local_path(URL) of
         [ContentPath | _] = Path ->
@@ -136,7 +136,7 @@ set_body(Body, Title, URL, Type) ->
 
     % set title
     wf:wire(#js_call{fname = "$Site.$set_title",
-                     args = [[config:title(), " - ", Title]]}),
+                     args = [[cf_config:title(), " - ", Title]]}),
 
     % if there is a menu element for this module, set it
     case menu:element_by_path(URL) of
@@ -149,7 +149,7 @@ set_body(Body, Title, URL, Type) ->
     end,
 
     % if this is an init call, initialize history, otherwise update history
-    Dir = utils:maybe_append(config:path(), $/),
+    Dir = utils:maybe_append(cf_config:path(), $/),
     case Type of
         init ->
             wf:wire(#js_call{fname = "$Site.$history_push_initial",
@@ -238,7 +238,7 @@ parse_url(URL) ->
 
 local_path(URL) ->
     {FullPath, _Params} = parse_url(URL),
-    {BasePath, []} = parse_path(config:path()),
+    {BasePath, []} = parse_path(cf_config:path()),
     utils:drop_prefix(BasePath, FullPath).
 
 %
@@ -309,7 +309,7 @@ main() ->
     case cf_url:scheme() of
         http ->
             wf:status_code(302),
-            wf:header("Location", cf_url:url(https, config:path() ++ cf_url:path())),
+            wf:header("Location", cf_url:url(https, cf_config:path() ++ cf_url:path())),
             "";
         https ->
             % HSTS, set to 7 days

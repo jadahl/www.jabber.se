@@ -43,7 +43,7 @@ body(Title, View) ->
 atom(URL, SubTitle, View) ->
     Contents = db_post:get_posts_by_view(View),
     [<<"<?xml version=\"1.0\" encoding=\"utf-8\" ?>">>,
-     cms_post_view:posts_to_atom(Contents, URL, config:title(), SubTitle)].
+     cms_post_view:posts_to_atom(Contents, URL, cf_config:title(), SubTitle)].
 
 %
 % Events

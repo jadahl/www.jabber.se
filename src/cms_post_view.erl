@@ -100,7 +100,7 @@ posts_to_atom(Contents, URL, Title, SubTitle) ->
             {[
                 {title, Title},
                 {subtitle, SubTitle},
-                {link, [{href, Proto ++ config:host() ++ URL}], []},
+                {link, [{href, Proto ++ cf_config:host() ++ URL}], []},
                 {updated, utils:time_to_iso8601(get_last_updated(Contents))},
                 {lists:map(fun post_to_atom_entry/1, Contents)}
             ]}}).

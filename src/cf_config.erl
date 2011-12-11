@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(config).
+-module(cf_config).
 
 -behaviour(gen_server).
 
@@ -41,6 +41,7 @@
         default_content_url/0,
 
         read/1,
+        read/2,
         set/2,
 
         % content config helper functions
@@ -57,6 +58,8 @@
         code_change/3,
         terminate/2
     ]).
+
+-define(DEFAULT_CONFIG_MODULES, []).
 
 -record(state, {
         table
@@ -85,6 +88,8 @@ content(Content, Key) -> read({c, Content, Key}).
 content_enabled(Module) ->
     lists:member(Module, read(enabled_content)).
 
+
+read(Module, Config) -> read({c, Module, Config}).
 read(Config) ->
     case gen_server:call(?MODULE, {get, Config}) of
         {ok, Value} ->
@@ -102,7 +107,7 @@ set(Key, Value) ->
 %
 
 init(_) ->
-    Table = ets:new(config, []),
+    Table = ets:new(cf_config, []),
 
     % Basic configuration
     ets:insert(Table, [
@@ -131,6 +136,14 @@ init(_) ->
             ||
             {Content, ContentConfig} <- ?CONTENT_CONFIG
         ])),
+
+    DC = [[{{c, M, K}, V} || {K, V} <- M:default_config()] || M <- ?DEFAULT_CONFIG_MODULES],
+    error_logger:info_report([{defaults, DC}]),
+
+    ets:insert(Table, lists:flatten(DC)),
+
+    error_logger:info_report([{config, ets:tab2list(Table)}]),
+
     {ok, #state{table = Table}}.
 
 handle_call({get, Config}, _From, S) ->

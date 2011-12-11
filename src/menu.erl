@@ -39,7 +39,7 @@ get_menu_elements() ->
 
 menu_element_to_module(#menu_element{path = Path}) ->
     Module = list_to_atom("content_" ++ Path),
-    case config:content_enabled(Module) of
+    case cf_config:content_enabled(Module) of
         true  -> Module;
         false -> undefined
     end.

@@ -65,7 +65,7 @@ event(create) ->
         undefined -> undefined;
         List -> list_to_binary(List)
     end,
-    Hostname = list_to_binary(config:domain()),
+    Hostname = list_to_binary(cf_config:domain()),
 
     case cf_mod_restful:register(Username, Hostname, Password, Email) of
         exists ->
