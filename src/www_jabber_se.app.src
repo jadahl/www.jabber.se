@@ -1,4 +1,18 @@
 {application, www_jabber_se, [
-	{description,  "Jabber.se"},
-	{mod, {www_jabber_se_app, []}}
+    {description,  "Jabber.se"},
+    {mod, {www_jabber_se_app, []}},
+    {applications, [kernel,
+                    stdlib,
+                    sasl,
+                    nprocreg,
+                    simple_bridge,
+                    nitrogen_core,
+                    crypto,
+                    public_key,
+                    ssl,
+                    couchbeam,
+                    ibrowse,
+                    markdown,
+                    gen_smtp,
+                    uuid]}
 ]}.

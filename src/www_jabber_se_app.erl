@@ -16,8 +16,11 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module (www_jabber_se_app).
--export ([start/2, stop/1, init/1, out/1, out/2, out/3]).
+-module(www_jabber_se_app).
+-export([
+        start/0, start/2, stop/1, init/1,
+        out/1, out/2, out/3
+    ]).
 -behaviour(application).
 -behaviour(supervisor).
 
@@ -26,18 +29,40 @@
 
 -define(PORT, 8000).
 
+start() ->
+    try
+        application:load(www_jabber_se),
+        {ok, Applications} = application:get_key(www_jabber_se, applications),
+        {Started, _, _} = lists:unzip3(application:which_applications()),
+        [ok = application:start(A) || A <- Applications -- Started],
+        ok = application:start(www_jabber_se)
+    catch
+        _:_ = Error ->
+            error_logger:error_report(["Error when starting www_jabber_se",
+                                       {error, Error},
+                                       {stacktrace, erlang:get_stacktrace()}])
+    end.
+
 start(_, _) ->
-    case supervisor:start_link(?MODULE, []) of
-        ignore    -> {error, ignore};
-        {ok, Pid} -> {ok, Pid, Pid};
-        Error     -> Error
+    try
+        case supervisor:start_link(?MODULE, []) of
+            ignore    -> {error, ignore};
+            {ok, Pid} -> {ok, Pid, Pid};
+            Error     -> error_logger:error_report(["Error when starting supervisor",
+                                                     {error, Error}])
+        end
+    catch
+        _:_ = Exception ->
+            error_logger:error_report(["Error when starting the application www_jabber_se",
+                                       {exception, Exception},
+                                       {stacktrace, erlang:get_stacktrace()}])
     end.
 
 init(_Args) ->
     {ok, {{one_for_one, 30, 60},
-           [{Module, {Module, start, []},
-             permanent, 2000, worker, [Module]}
-            || Module <- ?MODULES]}}.
+          [{Module, {Module, start, []},
+            permanent, 2000, worker, [Module]}
+           || Module <- ?MODULES]}}.
 
 stop(Pid) ->
     exit(Pid, shutdown).
