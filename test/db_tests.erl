@@ -29,10 +29,7 @@ close(_) ->
 
 start_stop_test() ->
     %?assert(init() =:= ok),
-    ?debugMsg("Initiated"),
-
     %?assert(close(ok) =:= ok),
-    ?debugMsg("Closed"),
 
     ok.
 
