@@ -26,6 +26,7 @@
         read_dir/1, read_translations/0, is_lang/1,
         init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3
     ]).
+
 -behaviour(gen_server).
 
 -include("include/utils.hrl").
@@ -71,6 +72,9 @@ set_language(Lang) when is_list(Lang) ->
     end;
 set_language(Lang) when is_atom(Lang) ->
     Lang2 = alias(Lang),
+    % Gettext
+    put(gettext_language, to_lc2(Lang)),
+    % Internal
     put(current_language, Lang2),
     Lang2.
 
@@ -105,6 +109,11 @@ alias(Lang) -> Lang.
 %
 % Internal
 %
+
+to_lc2(Atom) when is_atom(Atom) ->
+    to_lc2(atom_to_list(Atom));
+to_lc2([C1, C2, $_ | _Rest]) ->
+    [C1, C2].
 
 -spec is_lang(atom()|string()) -> boolean().
 is_lang(Atom) when is_atom(Atom) ->

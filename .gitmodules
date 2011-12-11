@@ -22,3 +22,6 @@
 	path = lib/erlmarkdown
 	url = https://github.com/hypernumbers/erlmarkdown.git
 	ignore = dirty
+[submodule "lib/gettext"]
+	path = lib/gettext
+	url = git@github.com:jadahl/gettext.git

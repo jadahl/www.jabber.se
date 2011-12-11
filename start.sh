@@ -5,6 +5,8 @@ cd `dirname $0`
 
 mkdir -p logs
 
+export GETTEXT_DIR=priv/gettext
+
 parameters="$(for l in $(ls lib);do echo -n " -pa lib/$l/ebin"; done)"
 
 erl \

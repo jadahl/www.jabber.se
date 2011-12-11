@@ -14,5 +14,6 @@
                     ibrowse,
                     markdown,
                     gen_smtp,
-                    uuid]}
+                    uuid,
+                    gettext]}
 ]}.

@@ -21,6 +21,8 @@
 
 -include("include/config.hrl").
 
+-include_lib("gettext/include/gettext.hrl").
+
 %
 % Utilities
 %
