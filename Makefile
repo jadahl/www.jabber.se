@@ -28,7 +28,7 @@ GETTEXT_DEPS=$(grep -s -l TXT `find src -name "*.erl"`)
 
 .PHONY: all compile test gettext $(GETTEXT_DEFAULT_POTFILE)
 
-all: compile gettext
+all: compile
 
 compile:
 	mkdir -p ebin test_ebin
