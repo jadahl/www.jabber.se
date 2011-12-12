@@ -25,3 +25,9 @@
 [submodule "lib/gettext"]
 	path = lib/gettext
 	url = git@github.com:jadahl/gettext.git
+[submodule "lib/erlang-uuid"]
+	path = lib/erlang-uuid
+	url = git://gitorious.org/avtobiff/erlang-uuid.git
+[submodule "lib/gen_smtp"]
+	path = lib/gen_smtp
+	url = https://github.com/Vagabond/gen_smtp.git

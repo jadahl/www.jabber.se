@@ -22,7 +22,9 @@
         is_registered/2,
         register/4,
         change_password/4,
-        change_private_email/4
+        force_change_password/3,
+        change_private_email/4,
+        get_private_email/2
     ]).
 
 -include("include/utils.hrl").
@@ -118,9 +120,20 @@ change_password(Username, Hostname, OldPassword, NewPassword) ->
                       Hostname,
                       ["register"],
                       [{username, Username},
-                                        {host, Hostname},
-                                        {old_password, OldPassword},
-                                        {new_password, NewPassword}]) of
+                       {host, Hostname},
+                       {old_password, OldPassword},
+                       {new_password, NewPassword}]) of
+        ok             -> ok;
+        {error, Error} -> {error, Error}
+    end.
+
+force_change_password(Username, Hostname, NewPassword) ->
+    case post_request(force_change_password,
+                      Hostname,
+                      ["register"],
+                      [{username, Username},
+                       {host, Hostname},
+                       {new_password, NewPassword}]) of
         ok             -> ok;
         {error, Error} -> {error, Error}
     end.
@@ -137,3 +150,19 @@ change_private_email(Username, Hostname, Password, NewEmail) ->
         {error, _} = Error -> Error
     end.
 
+get_private_email(Username, Hostname) ->
+    case get_request(get,
+                     Hostname,
+                     ["private_email"],
+                     [{username, Username},
+                      {host, Hostname}]) of
+        Email when is_binary(Email) ->
+            case validator_is_email:validate(tmp_group, Email) of
+                true -> Email;
+                _    -> {error, invalid}
+            end;
+        {error, _} = Error ->
+            Error;
+        _ ->
+            {error, error}
+    end.

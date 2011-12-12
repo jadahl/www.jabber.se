@@ -1,0 +1,22 @@
+Hej,
+
+Någon har gjort en förfrågan att återställa ett konto hos
+[[[service_name]]]. If detta ej var dig, du kan avbryta begäran genom att
+följa länken i slutet av det här E-brevet. Kontodetaljer följer.
+
+Konto: [[[account]]].
+
+För att fortsätta återställa kontot följ URL:en nedan.
+
+Fortsätt återställning: <[[[url]]]>.
+
+Ifall det ej var du som gjorde begäran kan du avbryta den genom att
+följa länken nedan.
+
+Avbryt återställningsbegäran: <[[[cancel]]]>.
+
+
+Vänliga hälsningar,
+
+[[[service_name]]]
+

@@ -1,0 +1,126 @@
+# Jabber.se PO file for English
+# Copyright (C) Jonas Ådahl
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: git\n"
+"POT-Creation-Date: 2006-07-01 16:45+0200\n"
+"PO-Revision-Date: 2011-12-12 21:50+0100\n"
+"Last-Translator: Jonas Ådahl <jadahl@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: sv\n"
+"X-Poedit-Country: Sweden\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+msgid "A new password for the account <span class=\"code\">$user$@$host$</span> has been set."
+msgstr "Ett nytt lösenord för kontot <span class=\"code\">$user$@$host$</span> har satts."
+
+msgid "Account"
+msgstr "Konto"
+
+msgid "Account recovery"
+msgstr "Kontoåterställning"
+
+msgid "Account:"
+msgstr "Konto:"
+
+msgid "An E-mail containing instrucions on how to complete the recovery proceduce has been sent to the address registered to the account <span class=\"code\">$user$@$host$</span>. Please check your inbox. It may take some time before the E-mail arrives. If after some time you still have not received any E-mail, first check your Spam directory. If did receive any recovery E-mail, please contact the administrator for help."
+msgstr "Ett E-brev med instruktioner för hur du begär nytt lösenord har skicktas till e-postadressen som registrerats till kontot <span class=\"code\">$user$@$host$</span>. Vänligen kolla din E-postlåda. Det kan ta en stund innan brevet kommer fram. Ifall du efter en tid fortfarande inte har mottagit det, kolla först din spamkatalog. Ifall du fortfarande ej har mottagit något E-brev vänligen kontakta administratören."
+
+msgid "Change password"
+msgstr "Ändra lösenord"
+
+msgid "Change private E-mail"
+msgstr "Ändra private E-postadress"
+
+msgid "Clear"
+msgstr "Rensa"
+
+msgid "Confirm password:"
+msgstr "Bekräfta lösenord:"
+
+msgid "Current password:"
+msgstr "Nuvarande lösenord:"
+
+msgid "E-mail address of the account <span class=\"code\">$user$@$host$</span> has been changed to <span class=\"code\">$email$</span>."
+msgstr "E-postadressen för kontot <span class=\"code\">$user$@$host$</span> har ändrats till <span class=\"code\">$email$</span>."
+
+msgid "E-mail sent"
+msgstr "E-brev skickat"
+
+msgid "Either the username, the password or both were incorrect."
+msgstr "Antingen så har användarnamnet eller lösenordet eller båda skirivits in felaktigt."
+
+msgid "Enter a valid E-mail address."
+msgstr "Skriv in en giltlig E-postadress."
+
+msgid "Failed"
+msgstr "Misslyckades"
+
+msgid "Failed to recover account"
+msgstr "Det gick inte att återställa kontot"
+
+msgid "Failed to recover the account <span class=\"code\">$user$@$host$</span>. Please contact the administrator for help."
+msgstr "Det gick inte att återställa kontot <span class=\"code\">$user$@$host$</span>. Vänligen kontakta administratören för hjälp."
+
+msgid "Failed to set new password. Contact the admistrator for help."
+msgstr "Misslyckades med att sätta nytt lösenord. Kontakta administratören för hjälp."
+
+msgid "Lost password"
+msgstr "Glömt lösenord"
+
+msgid "New E-mail:"
+msgstr "Ny E-postadress:"
+
+msgid "New password:"
+msgstr "Nytt lösenord:"
+
+msgid "Password changed"
+msgstr "Lösenordet har ändrats"
+
+msgid "Password must be at least $min$ characters long."
+msgstr "Lösenordet måste vara åtminstone $min$ tecken långt"
+
+msgid "Password set"
+msgstr "Lösenord satt"
+
+msgid "Password:"
+msgstr "Lösenord:"
+
+msgid "Passwords must match"
+msgstr "Lösenordet måste vara identiska"
+
+msgid "Recover your account"
+msgstr "Återställ ditt konto"
+
+msgid "Recovery E-mail already sent"
+msgstr "E-brev redan skickat"
+
+msgid "Recovery canceled"
+msgstr "Återställning avbruten"
+
+msgid "Recovery failed"
+msgstr "Återställning misslyckades"
+
+msgid "Recovery instructions has already been sent to the registered E-mail address of the account <span class=\"code\">$user$@$host$</span>. Please check your inbox and spam folder. If you have further issues, please contact the administrator."
+msgstr "Instruktioner för hur du skall gå till väga för att återställa kontot har redan skickats till den E-postadress som registrerats till kontot <span class=\"code\">$user$@$host$</span>. Vänligen kontrollera din E-postlåda samt din Spam-katalog. Ifall du fortfarande inte har mottagit något E-brev kontakta administratören."
+
+msgid "Required"
+msgstr "Fyll i"
+
+msgid "Submit"
+msgstr "Skicka"
+
+msgid "The account recovery session has timed out."
+msgstr "Kontoåterställningentiden har gått ut."
+
+msgid "The recovery of the account <span class=\"code\">$user$@$host$</span> has been canceled."
+msgstr "Återställningen av kontot  <span class=\"code\">$user$@$host$</span> har avbrutits."
+
+msgid "Username:"
+msgstr "Användarnamn:"
+

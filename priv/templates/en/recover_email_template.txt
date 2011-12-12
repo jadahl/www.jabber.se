@@ -1,0 +1,22 @@
+Hi,
+
+Someone has requested to recover an account at [[[service_name]]]. If this
+was not you, you may cancel the request by following the link in the end
+of this E-mail. The account details in question follows.
+
+Account: [[[account]]].
+
+To continue recovering your account following the URL below.
+
+Continue recovery: <[[[url]]]>.
+
+If this was not you, you can cancel the request by following the URL
+below.
+
+Cancel recovery request: <[[[cancel]]]>.
+
+
+Best regards,
+
+[[[service_name]]]
+

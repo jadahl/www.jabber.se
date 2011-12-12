@@ -41,6 +41,7 @@
         title/0,
         language/0,
 
+        load_error/2,
         content_error/1
     ]).
 

@@ -59,7 +59,12 @@
         terminate/2
     ]).
 
--define(DEFAULT_CONFIG_MODULES, []).
+-define(DEFAULT_CONFIG_MODULES, [
+        cf_mail,
+        cf_recover_password,
+        cf_template,
+        content_account
+    ]).
 
 -record(state, {
         table

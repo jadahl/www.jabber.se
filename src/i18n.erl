@@ -21,6 +21,7 @@
         start/0, stop/0,
         reload/0,
         get_language/0, update_language/0, set_language/1,
+        to_lc2/1,
         t/1, t/2, alias/1,
         enabled_languages/0,
         read_dir/1, read_translations/0, is_lang/1,
@@ -60,6 +61,11 @@ enabled_languages() ->
 reload() ->
     gen_server:call(?MODULE, reload_translations),
     ok.
+
+to_lc2(Atom) when is_atom(Atom) -> to_lc2(atom_to_list(Atom));
+to_lc2([_, _] = Lang)           -> Lang;
+to_lc2([C1, C2, $_ | _Rest])    -> [C1, C2].
+
 %
 % Returns the new set language
 set_language(Lang) when is_list(Lang) ->
@@ -109,11 +115,6 @@ alias(Lang) -> Lang.
 %
 % Internal
 %
-
-to_lc2(Atom) when is_atom(Atom) ->
-    to_lc2(atom_to_list(Atom));
-to_lc2([C1, C2, $_ | _Rest]) ->
-    [C1, C2].
 
 -spec is_lang(atom()|string()) -> boolean().
 is_lang(Atom) when is_atom(Atom) ->
