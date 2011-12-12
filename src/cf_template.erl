@@ -107,9 +107,9 @@ terminate(_Reason, _Cache) ->
 
 find_template_file(File, Lang) ->
     Dir = ?CONFM(dir),
-    Filenames = [lists:flatten(utils:join(Dir ++ [utils:to_string(Lang), File],
+    Filenames = [lists:flatten(cf_utils:join(Dir ++ [cf_utils:to_string(Lang), File],
                                           "/")),
-                 lists:flatten(utils:join(Dir ++ [i18n:to_lc2(Lang), File],
+                 lists:flatten(cf_utils:join(Dir ++ [cf_i18n:to_lc2(Lang), File],
                                           "/"))],
     try_template_file(Filenames).
 
@@ -152,7 +152,7 @@ parse1(Template, Map) ->
                                     [{scope, {Start + 3,
                                               Size - (Start + 3)}}]),
             KeyB = binary:part(Template, Start + 3, End - (Start + 3)),
-            Value = proplists:get_value(utils:to_atom(KeyB), Map, <<"undefined">>),
+            Value = proplists:get_value(cf_utils:to_atom(KeyB), Map, <<"undefined">>),
             [binary:part(Template, 0, Start),
              Value,
              parse1(binary:part(Template, End + 3, Size - (End + 3)), Map)];

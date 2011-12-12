@@ -47,7 +47,7 @@ is_available(Username, Host) ->
             not Result;
         _Error ->
             ?LOG_ERROR("Error in username taken validator: ~p", [_Error]),
-            session:env(),
+            cf_session:env(),
             content_register_view:on_failed(error),
             false
     end.
@@ -57,7 +57,7 @@ is_available(Username, Host) ->
 %
 
 event(create) ->
-    session:env(),
+    cf_session:env(),
 
     [Username, Password] = [
         list_to_binary(wf:q(Param)) || Param <- [username, password]],
@@ -79,10 +79,10 @@ event(create) ->
             content_register_view:on_failed(Reason)
     end;
 event(back) ->
-    session:env(),
+    cf_session:env(),
     content_register_view:on_back().
 
 event_invalid(create) ->
-    session:env(),
+    cf_session:env(),
     content_register_view:on_validation_failed().
 

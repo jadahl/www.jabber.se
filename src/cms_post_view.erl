@@ -30,7 +30,7 @@
 %
 
 supported_content_type(ContentType) ->
-    lists:member(utils:to_binary(ContentType),
+    lists:member(cf_utils:to_binary(ContentType),
                  [<<"application/xhtml+xml">>,
                   <<"text/markdown">>]).
 
@@ -73,7 +73,7 @@ post_to_atom_entry(#db_post{
         {[
             {title, [Title]},
             {id, [Id]},
-            {published, utils:time_to_iso8601(Timestamp)},
+            {published, cf_utils:time_to_iso8601(Timestamp)},
             {[{author, {[{name, [Author]}]}} || Author <- Authors]},
             {content, [{type, "xhtml"}], {[{'div', [{xmlns, "http://www.w3c.org/1999/xhtml"}], {[Body]}}]}}
         ]}}.
@@ -94,14 +94,14 @@ posts_to_atom(Contents, URL, Title, SubTitle) ->
         https -> "https://";
         _     -> "http://"
     end,
-    utils:to_xml({
+    cf_utils:to_xml({
             feed,
             [{xmlns, "http://www.w3.org/2005/Atom"}],
             {[
                 {title, Title},
                 {subtitle, SubTitle},
                 {link, [{href, Proto ++ cf_config:host() ++ URL}], []},
-                {updated, utils:time_to_iso8601(get_last_updated(Contents))},
+                {updated, cf_utils:time_to_iso8601(get_last_updated(Contents))},
                 {lists:map(fun post_to_atom_entry/1, Contents)}
             ]}}).
 
@@ -128,13 +128,13 @@ post_to_html(#db_post{
                 #br{},
                 #span{
                     class = cms_post_date,
-                    text = [" ", utils:ts_to_date_s(Timestamp), " "]
+                    text = [" ", cf_utils:ts_to_date_s(Timestamp), " "]
                 },
                 " ",
                 #span{class = cms_post_by,
                     text = ?T(msg_id_by) ++ " " ++
                     case Authors of
-                        [Author] -> utils:to_string(Author);
+                        [Author] -> cf_utils:to_string(Author);
                         _ -> "unknown"
                     end},
                 #br{}

@@ -35,7 +35,7 @@ render_action(#jquery_cast{
     JQueryCast = atom_to_list(Cast),
     EscapedArgs = case Args of
         undefined -> "";
-        _ -> utils:join([action_js_call:escape(Arg1) || Arg1 <- Args], ",")
+        _ -> cf_utils:join([action_js_call:escape(Arg1) || Arg1 <- Args], ",")
     end,
     [wf:f("objs('~s', '~s').~s(",
           [Target, Anchor, JQueryCast]),

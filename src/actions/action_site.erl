@@ -22,5 +22,5 @@
 -include("include/ui.hrl").
 
 render_action(#site_cast{cast = Cast, args = Args}) ->
-    CastS = utils:to_string(Cast),
+    CastS = cf_utils:to_string(Cast),
     #js_call{fname = "$Site.$" ++ CastS, args = Args}.

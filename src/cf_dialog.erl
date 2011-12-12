@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(dialog).
+-module(cf_dialog).
 -export([show/1, show/2]).
 
 -include("include/ui.hrl").

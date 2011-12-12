@@ -99,7 +99,7 @@ set_pager(New, Count, Adapter) ->
 
 -spec title_link(db_post:content(), db_post:post(), module()) -> #link{}.
 title_link(Titles, Post, Delegate) ->
-    case db_post:value_prefer_locale(i18n:get_language(), Titles) of
+    case db_post:value_prefer_locale(cf_i18n:get_language(), Titles) of
         nothing ->
             title_link(undefined, undefined, Post, Delegate);
         {Locale, Title} ->
@@ -137,7 +137,7 @@ remove_link(Post, CurrentPage, Delegate) ->
 show_date(undefined) ->
     ?T(msg_id_post_not_published);
 show_date(Timestamp) ->
-    utils:ts_to_date_s(Timestamp).
+    cf_utils:ts_to_date_s(Timestamp).
 
 no_posts_cell(Adapter) ->
     #tablerow{

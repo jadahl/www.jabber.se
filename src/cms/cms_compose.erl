@@ -69,7 +69,7 @@ body() ->
     body(Post).
 
 body(Post) ->
-    cms_compose_view:body(Post, i18n:get_language()).
+    cms_compose_view:body(Post, cf_i18n:get_language()).
 
 body(Post, Locale) ->
     cms_compose_view:body(Post, Locale).
@@ -195,7 +195,7 @@ unix_timestamp() ->
 -spec with_locale_do(atom(), fun((atom()) -> any())) -> any() | none().
 with_locale_do(Id, Fun) ->
     Locale = wf:q(Id),
-    case Locale == "undefined" orelse i18n:is_lang(Locale) of
+    case Locale == "undefined" orelse cf_i18n:is_lang(Locale) of
         true ->
             Fun(list_to_atom(Locale));
         _ ->

@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(i18n).
+-module(cf_i18n).
 -export([
         start/0, stop/0,
         reload/0,

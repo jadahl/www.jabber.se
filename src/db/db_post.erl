@@ -91,7 +91,7 @@ is_content({List}) when is_list(List) ->
         fun(Content) ->
             case Content of
                 {Lang, Body} ->
-                    case {Lang == undefined orelse i18n:is_lang(Lang), is_content_body(Body)} of
+                    case {Lang == undefined orelse cf_i18n:is_lang(Lang), is_content_body(Body)} of
                         {true, true} ->
                             true;
                         _ ->
@@ -170,7 +170,7 @@ open_post(Key) ->
     Key2 = case Key of
         {_, _} ->
             {db_doc:finalize_entry(Key)};
-        _ -> utils:to_binary(Key)
+        _ -> cf_utils:to_binary(Key)
     end,
 
     db_controller:open_doc(Key2).
@@ -182,7 +182,7 @@ get_draft_count(Username) ->
     get_post_count(Username, posts_draft_count).
 
 get_post_count(Username, ViewName) ->
-    ViewB = utils:to_binary(ViewName),
+    ViewB = cf_utils:to_binary(ViewName),
     UsernameB = list_to_binary(Username),
     View = db_controller:get_view(ViewB, [{<<"key">>, UsernameB}]),
     case db_doc:view_rows(View) of
@@ -199,16 +199,22 @@ get_posts_by(Username) when is_list(Username) ->
 get_posts_by(Username, StartIndex) ->
     get_posts_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
 get_posts_by(Username, StartIndex, PostsPerPage) ->
-    UsernameB = utils:to_binary(Username),
-    get_posts_by_view("posts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
+    UsernameB = cf_utils:to_binary(Username),
+    get_posts_by_view("posts_by",
+                      [{<<"startkey">>, [UsernameB, null]},
+                       {<<"endkey">>, [UsernameB, infinity]}
+                       | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 get_published_by(Username) when is_list(Username) ->
     get_published_by(Username, 0).
 get_published_by(Username, StartIndex) ->
     get_published_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
 get_published_by(Username, StartIndex, PostsPerPage) ->
-    UsernameB = utils:to_binary(Username),
-    get_posts_by_view("published_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
+    UsernameB = cf_utils:to_binary(Username),
+    get_posts_by_view("published_by",
+                      [{<<"startkey">>, [UsernameB, null]},
+                       {<<"endkey">>, [UsernameB, infinity]}
+                       | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 
 get_drafts_by(Username) when is_list(Username) ->
@@ -216,8 +222,11 @@ get_drafts_by(Username) when is_list(Username) ->
 get_drafts_by(Username, StartIndex) ->
     get_drafts_by(Username, StartIndex, ?DEFAULT_POSTS_PER_PAGE).
 get_drafts_by(Username, StartIndex, PostsPerPage) ->
-    UsernameB = utils:to_binary(Username),
-    get_posts_by_view("drafts_by", [{<<"startkey">>, [UsernameB, null]}, {<<"endkey">>, [UsernameB, infinity]} | db_utils:start_limit(StartIndex, PostsPerPage)]).
+    UsernameB = cf_utils:to_binary(Username),
+    get_posts_by_view("drafts_by",
+                      [{<<"startkey">>, [UsernameB, null]},
+                       {<<"endkey">>, [UsernameB, infinity]}
+                       | db_utils:start_limit(StartIndex, PostsPerPage)]).
 
 get_posts_by_view(ViewName) ->
     get_posts_by_view(ViewName, []).
@@ -246,7 +255,7 @@ save_posts(Posts, Db) ->
 
 -spec t(content()) -> binary().
 t(Values) ->
-    safe_value_prefer_locale(i18n:get_language(), Values).
+    safe_value_prefer_locale(cf_i18n:get_language(), Values).
 
 %
 % Simple function for getting any value hoping for the right locale
@@ -275,7 +284,7 @@ maybe_default_value(_, _) ->
 default_value(Value) when is_binary(Value) ->
     {undefined, Value};
 default_value({Values}) when is_list(Values) ->
-    utils:just(utils:find_with(fun maybe_default_value/2, none, Values)).
+    cf_utils:just(cf_utils:find_with(fun maybe_default_value/2, none, Values)).
 
 maybe_value_by_locale({Locale, _} = Value, Locale) ->
     {just, Value};
@@ -286,7 +295,7 @@ maybe_value_by_locale(_, _) ->
 
 -spec value_by_locale(locale(), content()) -> value() | nothing.
 value_by_locale(Locale, {Values}) when is_list(Values) ->
-    utils:just(utils:find_with(fun maybe_value_by_locale/2, Locale, Values));
+    cf_utils:just(cf_utils:find_with(fun maybe_value_by_locale/2, Locale, Values));
 value_by_locale(undefined, Value) when is_binary(Value) ->
     {undefined, Value};
 value_by_locale(_, _) ->
@@ -340,7 +349,7 @@ store_by_locale(Value, Locale, {Values}) when is_binary(Value) and is_atom(Local
 store_by_locale(Value, Locale, OtherValue) when is_binary(Value) and is_atom(Locale) and is_binary(OtherValue) ->
     {[{undefined, OtherValue}, {Locale, Value}]};
 store_by_locale(Value, Locale, {Values}) when is_list(Values) ->
-    store_by_locale(utils:to_binary(Value), utils:to_atom(Locale), {Values}).
+    store_by_locale(cf_utils:to_binary(Value), cf_utils:to_atom(Locale), {Values}).
 
 set_title(undefined, _, Post) -> Post;
 set_title(Title, Locale, Post) ->

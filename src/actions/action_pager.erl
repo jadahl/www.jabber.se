@@ -25,12 +25,13 @@
 %sub_id(Outer, Inner) ->
 %    lists:flatten([Outer, " > .wfid_", atom_to_list(Inner)]).
 
-render_action(#pager_set{target = _Target, new = New, count = Count, adapter = Adapter}) ->
+render_action(#pager_set{new = New, count = Count, adapter = Adapter}) ->
     #update{
         type = update,
         elements = [
             element_pager:prev(New, Count, Adapter),
-            [element_pager:num(Num, New, Count, Adapter) || Num <- utils:range(Count)],
+            [element_pager:num(Num, New, Count, Adapter)
+             || Num <- cf_utils:range(Count)],
             element_pager:next(New, Count, Adapter)
         ]
     }.

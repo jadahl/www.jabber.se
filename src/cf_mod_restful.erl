@@ -50,7 +50,7 @@ get_request(Function, Hostname, SubPath, Properties) ->
         cf_url:url_path_encode(path() ++ SubPath ++ [atom_to_list(Function)],
                                [{key, Key} | Properties]),
 
-    case rest:request_get(Hostname, server_address(), server_port(), Path) of
+    case cf_rest:request_get(Hostname, server_address(), server_port(), Path) of
         {ok, Value}    -> Value;
         {error, Error} -> {error, Error};
         Error          -> {error, Error}
@@ -63,7 +63,7 @@ post_request(Function, Hostname, SubPath, Properties) ->
                                []),
     JSON = {struct, [{key, Key} | Properties]},
 
-    case rest:request_post_json(Hostname, server_address(), server_port(),
+    case cf_rest:request_post_json(Hostname, server_address(), server_port(),
                                 Path, JSON) of
         {ok, Result} ->
             ?LOG_INFO("result = ~p", [Result]),

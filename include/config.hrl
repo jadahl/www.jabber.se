@@ -27,9 +27,9 @@
 -define(ENABLE_LOG_WARNING, true).
 -define(ENABLE_LOG_ERROR, true).
 
--define(MODULES, [cf_config, db_controller, i18n, yaws_bundle,
+-define(MODULES, [cf_config, db_controller, cf_i18n, yaws_bundle,
                   cf_template, cf_recover_password]).
--define(HOOKS, [session]).
+-define(HOOKS, [cf_session]).
 
 -define(TITLE, "Jabber.se").
 

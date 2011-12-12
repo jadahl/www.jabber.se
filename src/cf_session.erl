@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(session).
+-module(cf_session).
 -export([authenticated/0, event/1, env/0, language/1, page_init/0, unauthorized_request/0]).
 
 -include_lib("nitrogen_core/include/wf.hrl").
@@ -54,7 +54,7 @@ query_lang() ->
 cookie_lang() ->
     case wf:cookie("lang") of
         [] ->
-            wf:cookie("lang", i18n:update_language()),
+            wf:cookie("lang", cf_i18n:update_language()),
             cookie_init;
         Lang ->
             {lang, Lang}
@@ -68,7 +68,7 @@ cookie_lang() ->
 env_language() ->
     case cookie_lang() of
         {lang, Lang} ->
-            i18n:set_language(Lang);
+            cf_i18n:set_language(Lang);
         cookie_init ->
             case query_lang() of
                 {lang, Lang} ->
@@ -86,7 +86,7 @@ env() ->
 
 language(Lang) ->
     wf:cookie("lang", Lang),
-    i18n:set_language(Lang).
+    cf_i18n:set_language(Lang).
 
 %
 % Utils
@@ -100,7 +100,7 @@ authenticated() ->
 %
 
 event(do_login) ->
-    session:env(),
+    env(),
 
     case wf:user() of
         User when is_list(User) ->
@@ -110,10 +110,10 @@ event(do_login) ->
     end;
 
 event(do_logout) ->
-    session:env(),
+    env(),
 
     wf:clear_session(),
-    session_view:logged_out();
+    cf_session_view:logged_out();
 
 event(Event) ->
     ?LOG_WARNING("Unhandled event \"~p\".~n", [Event]).
@@ -124,7 +124,7 @@ event(Event) ->
 
 page_init() ->
     User = wf:user(),
-    session_view:page_init(User).
+    cf_session_view:page_init(User).
 
 %
 % Login
@@ -140,9 +140,9 @@ login() ->
             wf:user(Username),
 
             % Update view
-            session_view:logged_in();
+            cf_session_view:logged_in();
         _ ->
-            session_view:login_failed()
+            cf_session_view:login_failed()
     end.
 
 
@@ -180,5 +180,5 @@ authenticate1(Username, Password) ->
 %
 
 unauthorized_request() ->
-    session_view:unauthorized_request().
+    cf_session_view:unauthorized_request().
 

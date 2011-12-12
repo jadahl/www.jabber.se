@@ -24,7 +24,7 @@
 render_action(#js_call{fname = FName, args = Args}) ->
 
     EscapedArgs = lists:map(fun escape/1, Args),
-    [FName, "(", utils:join(EscapedArgs, ","), ");"].
+    [FName, "(", cf_utils:join(EscapedArgs, ","), ");"].
 
 escape({function, Actions})              -> ["function() { ", Actions, "}"];
 escape({list, List})                     -> jlist(List);
@@ -40,9 +40,9 @@ escape(Binary) when is_binary(Binary)    -> jstr(Binary);
 escape(IOList) when is_list(IOList)      -> jstr(IOList).
 
 jlist(List) ->
-    ["[", utils:join([escape(Item) || Item <- List], ","), "]"].
+    ["[", cf_utils:join([escape(Item) || Item <- List], ","), "]"].
 
-jproplist(List) -> ["{", utils:join(jproplist1(List), ","), "}"].
+jproplist(List) -> ["{", cf_utils:join(jproplist1(List), ","), "}"].
 
 jproplist1([]) -> [];
 jproplist1([{Key, Value} | Rest]) when is_atom(Key) ->

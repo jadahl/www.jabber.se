@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(menu).
+-module(cf_menu).
 -include_lib ("nitrogen_core/include/wf.hrl").
 
 -include("include/ui.hrl").
@@ -70,14 +70,14 @@ full_title(#menu_element{title = Title}) ->
 -spec menu_item(#menu_element{}) -> #listitem{}.
 menu_item(MenuElement) ->
     #listitem{body =
-         #link{text = i18n:t(MenuElement#menu_element.title),
+         #link{text = cf_i18n:t(MenuElement#menu_element.title),
                url = "/" ++ MenuElement#menu_element.path,
                id = menu_element_id(MenuElement),
                actions = [menu_event(MenuElement)]}}.
 
 -spec menu_items() -> list(#listitem{}).
 menu_items() ->
-    MenuElements = menu:get_menu_elements(),
+    MenuElements = get_menu_elements(),
     [menu_item(MenuElement) || MenuElement <- MenuElements].
 
 hide_spinner() ->

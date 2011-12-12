@@ -167,7 +167,7 @@ tags(TagElements) ->
 content_type_options(CurrentContentType) ->
     ContentTypes = [{"Markdown", <<"text/markdown">>},
                     {"XHTML", <<"application/xhtml+xml">>}],
-    Current = utils:to_binary(CurrentContentType),
+    Current = cf_utils:to_binary(CurrentContentType),
     [#option{text = Text, value = Type, selected = Current == Type}
      || {Text, Type} <- ContentTypes].
 
@@ -191,7 +191,7 @@ tools(Locale, Post) ->
                        ([#option{text = Lang,
                                 value = LocaleTmp,
                                 selected = LocaleTmp == Locale}
-                        || {LocaleTmp, Lang} <- i18n:enabled_languages()] ++
+                        || {LocaleTmp, Lang} <- cf_i18n:enabled_languages()] ++
                         [#option{text = ?T(msg_id_language_unspecified),
                                  value = undefined,
                                  selected = Locale == undefined}]),
@@ -208,7 +208,7 @@ tools(Locale, Post) ->
                                 value = none} |
                         ([#option{text = Lang,
                                   value = LocaleTmp}
-                          || {LocaleTmp, Lang} <- i18n:enabled_languages()] ++
+                          || {LocaleTmp, Lang} <- cf_i18n:enabled_languages()] ++
                          [#option{text = ?T(msg_id_language_unspecified),
                                  value = undefined}])],
                        ?T(msg_id_copying),

@@ -158,7 +158,7 @@ on_recovery_set_password_failed(_Error) ->
     update_account_body(NewContent).
 
 actions(Path, Function) ->
-    FullPath = utils:join(Path ++ [atom_to_list(Function)], $/),
+    FullPath = cf_utils:join(Path ++ [atom_to_list(Function)], $/),
 
     #event{type = click,
            actions = [#show{target = menu_spinner},

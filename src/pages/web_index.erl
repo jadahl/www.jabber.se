@@ -140,17 +140,17 @@ set_body(Body, Title, URL, Type) ->
                      args = [[cf_config:title(), " - ", Title]]}),
 
     % if there is a menu element for this module, set it
-    case menu:element_by_path(URL) of
+    case cf_menu:element_by_path(URL) of
         undefined ->
             ok;
         MenuElement ->
-            MenuElementID = menu:menu_element_id(MenuElement),
+            MenuElementID = cf_menu:menu_element_id(MenuElement),
             wf:wire(#js_call{fname = "$Site.$menu_set_current",
                              args = [MenuElementID]})
     end,
 
     % if this is an init call, initialize history, otherwise update history
-    Dir = utils:maybe_append(cf_config:path(), $/),
+    Dir = cf_utils:maybe_append(cf_config:path(), $/),
     case Type of
         init ->
             wf:wire(#js_call{fname = "$Site.$history_push_initial",
@@ -240,7 +240,7 @@ parse_url(URL) ->
 local_path(URL) ->
     {FullPath, _Params} = parse_url(URL),
     {BasePath, []} = parse_path(cf_config:path()),
-    utils:drop_prefix(BasePath, FullPath).
+    cf_utils:drop_prefix(BasePath, FullPath).
 
 %
 % Hooks
@@ -255,7 +255,7 @@ page_init_hooks() ->
 
 event({language, Lang}) ->
     % update cookie and set process dictionary
-    session:language(Lang),
+    cf_session:language(Lang),
 
     % reload content
     wf:wire(#js_call{fname = "$Site.$reload_content"}),
@@ -280,11 +280,11 @@ site_api() ->
 
 api_event(init_content, content, Args) ->
     ?LOG_INFO("init_content(~p)", [Args]),
-    session:env(),
+    cf_session:env(),
     page_init_hooks();
 api_event(Name, content, Args) ->
     ?LOG_INFO("~s(~p)", [Name, Args]),
-    session:env(),
+    cf_session:env(),
 
     case Args of
         [] ->
@@ -293,7 +293,7 @@ api_event(Name, content, Args) ->
             case Name of
                 menu_triggered ->
                     load_content(URL, trigger),
-                    menu:hide_spinner();
+                    cf_menu:hide_spinner();
                 history_load ->
                     load_content(URL, history)
             end
@@ -316,7 +316,7 @@ main() ->
             % HSTS, set to 7 days
             wf:header("Strict-Transport-Security", "max-age=604800"),
 
-            session:env(),
+            cf_session:env(),
 
             % site api
             site_api(),
@@ -336,11 +336,11 @@ main() ->
 %
 
 description() ->
-    session:env(),
+    cf_session:env(),
     ?T(msg_id_description).
 
 head() ->
-    feed:get_feed_links().
+    cf_feed:get_feed_links().
 
 page_title() ->
     ?TITLE.

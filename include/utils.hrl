@@ -39,7 +39,7 @@
 % ?T(Id) -> Text
 %
 
--define(T(Id), i18n:t(Id)).
+-define(T(Id), cf_i18n:t(Id)).
 
 %
 % CSS styles
@@ -105,14 +105,14 @@
 %
 % AUTH(Statement) -> Statement
 %
--define(AUTH(Statement), ?EITHER(session:authenticated(), (fun() -> session:env(), Statement end)(), session:unauthorized_request())).
+-define(AUTH(Statement), ?EITHER(cf_session:authenticated(), (fun() -> cf_session:env(), Statement end)(), cf_session:unauthorized_request())).
 
 %
 % Logging
 %
 
 % Generic macro
--define(LOG_GENERIC(Level, Format, Arg), utils:log(Level, ?MODULE, ?LINE, Format, Arg)).
+-define(LOG_GENERIC(Level, Format, Arg), cf_utils:log(Level, ?MODULE, ?LINE, Format, Arg)).
 
 % LOG_INFO macro
 -ifdef(ENABLE_LOG_INFO).

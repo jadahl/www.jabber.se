@@ -77,7 +77,7 @@ recover_password() ->
     Username = wf:q(username),
 
     Path = ?CONFM(recover_base_path),
-    Lang = i18n:get_language(),
+    Lang = cf_i18n:get_language(),
     Hostname = cf_config:domain(),
 
     case cf_mod_restful:get_private_email(Username, Hostname) of
@@ -139,16 +139,16 @@ recover_change_private_email() ->
     end.
 
 event(change_password) ->
-    session:env(),
+    cf_session:env(),
     change_password();
 event(recover_password) ->
-    session:env(),
+    cf_session:env(),
     recover_password();
 event(change_private_email) ->
-    session:env(),
+    cf_session:env(),
     change_private_email();
 event(recover_change_password) ->
-    session:env(),
+    cf_session:env(),
     recover_change_private_email();
 event(_Event) ->
     ?LOG_ERROR("Invalid event '~p'", [_Event]).

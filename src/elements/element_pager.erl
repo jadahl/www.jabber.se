@@ -69,7 +69,7 @@ render_element(#pager{id = Id, init_page = Init, count = Count, adapter = Adapte
                     prev(Init, Count, Adapter),
 
                     % 1, 2, 3, ...
-                    [num(Num, Init, Count, Adapter) || Num <- utils:range(Count)],
+                    [num(Num, Init, Count, Adapter) || Num <- cf_utils:range(Count)],
 
                     % ->
                     next(Init, Count, Adapter)

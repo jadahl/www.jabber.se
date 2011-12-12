@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(feed).
+-module(cf_feed).
 -export([get_feed_links/0]).
 
 -include("include/ui.hrl").
@@ -25,7 +25,7 @@
 -include("include/menu.hrl").
 
 get_feed_link(#menu_element{title = Title} = MenuElement) ->
-    case menu:menu_element_to_module(MenuElement) of
+    case cf_menu:menu_element_to_module(MenuElement) of
         undefined ->
             [];
         Module ->
@@ -47,5 +47,5 @@ get_feed_link(#menu_element{title = Title} = MenuElement) ->
     end.
 
 get_feed_links() ->
-    lists:flatmap(fun get_feed_link/1, menu:get_menu_elements()).
+    lists:flatmap(fun get_feed_link/1, cf_menu:get_menu_elements()).
 

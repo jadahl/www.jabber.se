@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(rest).
+-module(cf_rest).
 
 -export([
         request_get/4,
@@ -58,7 +58,7 @@ request_post_json(Host, Server, Port, Path, JSON) ->
     end.
 
 options(Host) ->
-    HostS = utils:to_string(Host),
+    HostS = cf_utils:to_string(Host),
     [{host_header, HostS},
      {connect_timeout, ?TIMEOUT}].
 

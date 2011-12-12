@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(session_view).
+-module(cf_session_view).
 -export([
         login_dialog/0, login_panel/0, admin_panel/0,
         logged_out/0, logged_in/0, login_failed/0, page_init/1,
@@ -85,7 +85,7 @@ button_panel() ->
             id = login_login,
             text = ?T(msg_id_login),
             actions = #event{type = click, actions = #state_panel_set{target = login_dialog, validate_group = login_login, key = progress}},
-            delegate = session,
+            delegate = cf_session,
             postback = do_login
         },
         " ",
@@ -122,7 +122,7 @@ login_dialog() ->
 %
 
 login_link() ->
-    Style = case session:authenticated() of
+    Style = case cf_session:authenticated() of
         true -> ?HIDDEN;
         false -> ""
     end,
@@ -168,7 +168,7 @@ admin_panel() ->
 
             #link{
                 text = ?T(msg_id_logout),
-                delegate = session,
+                delegate = cf_session,
                 postback = do_logout
             }
         ]
@@ -222,4 +222,4 @@ unauthorized_request() ->
         }
     },
     wf:wire(#site_cast{cast = overlay_inhibit_hide}),
-    dialog:show(Dialog).
+    cf_dialog:show(Dialog).

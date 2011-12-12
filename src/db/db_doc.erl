@@ -79,7 +79,7 @@ finalize_entry(S) when is_list(S) and is_integer(hd(S)) ->
 finalize_entry({K, V}) ->
     case finalize_value(V) of
         undefined -> [];
-        FValue -> [{utils:to_binary(K), FValue}]
+        FValue -> [{cf_utils:to_binary(K), FValue}]
     end.
 
 finalize_value(Value) ->
@@ -92,7 +92,7 @@ finalize_value(Value) ->
         [C | S] when is_number(C) and is_list(S) -> list_to_binary(Value);
         _ when is_list(Value) -> lists:map(fun finalize_value/1, Value);
         {Entry} when is_list(Entry) -> post_render(Entry);
-        {Key, SubValue} -> {utils:to_binary(Key), finalize_value(SubValue)};
+        {Key, SubValue} -> {cf_utils:to_binary(Key), finalize_value(SubValue)};
         _ -> erlang:error({finalize_invalid_value, Value})
     end.
 
@@ -117,7 +117,7 @@ view_rows({_, _, _, Rows}) -> Rows.
 %
 
 get_entry(Key, {Entries}) ->
-    case lists:keysearch(utils:to_binary(Key), 1, Entries) of
+    case lists:keysearch(cf_utils:to_binary(Key), 1, Entries) of
         {value, {_, Value}} -> Value;
         _ -> erlang:error({key_not_found, Key})
     end.
@@ -133,18 +133,29 @@ get_id(Doc) ->
 %
 
 edit_or_add_entry(Key, Value, {Entries}) ->
-    KeyB = utils:to_binary(Key),
-    {utils:keyreplaceoraddwith(KeyB, 1, fun(_) -> {KeyB, finalize_value(Value)} end, Entries)}.
+    KeyB = cf_utils:to_binary(Key),
+    {cf_utils:keyreplaceoraddwith(KeyB, 1, fun(_) ->
+                                               {KeyB, finalize_value(Value)}
+                                           end, Entries)}.
 
 edit_entry(Key, Value, {Entries}) ->
-    KeyB = utils:to_binary(Key),
-    {utils:keyreplacewith(KeyB, 1, fun(_) -> {KeyB, finalize_value(Value)} end, Entries)}.
+    KeyB = cf_utils:to_binary(Key),
+    {cf_utils:keyreplacewith(KeyB, 1, fun(_) ->
+                                          {KeyB, finalize_value(Value)}
+                                      end, Entries)}.
 
 push_to_entry(Key, Value, {Entries}) ->
-    {utils:keyreplacewith(utils:to_binary(Key), 1, fun({_, Values}) -> {Key, Values ++ [finalize_value(Value)]} end, Entries)}.
+    {cf_utils:keyreplacewith(cf_utils:to_binary(Key), 1,
+                             fun({_, Values}) ->
+                                 {Key, Values ++ [finalize_value(Value)]}
+                             end, Entries)}.
 
 pop_from_entry(Key, Value, {Entries}) ->
-    {utils:keyreplacewith(utils:to_binary(Key), 1, fun({_, Values}) -> {Key, Values -- [finalize_value(Value)]} end, Entries)}.
+    {cf_utils:keyreplacewith(cf_utils:to_binary(Key), 1,
+                             fun({_, Values}) ->
+                                 {Key, Values -- [finalize_value(Value)]}
+                             end, Entries)}.
 
 set_rev(Rev, Doc) ->
     edit_or_add_entry('_rev', Rev, Doc).
+

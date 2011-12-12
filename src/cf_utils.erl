@@ -16,7 +16,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
 
--module(utils).
+-module(cf_utils).
 -include_lib("nitrogen_core/include/wf.hrl").
 
 -include("include/utils.hrl").
@@ -43,7 +43,7 @@ ts_to_date_s(TS) when is_integer(TS) ->
     io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B", [Year, Month, Day]).
 
 ts_to_date(TS) ->
-    Ms = trunc(TS / 1000000), 
+    Ms = trunc(TS / 1000000),
     Now = {Ms, TS - (Ms * 1000000), 0},
     calendar:now_to_universal_time(Now).
 
@@ -54,7 +54,7 @@ ts_to_hour_min(TS) ->
     io_lib:format("~2.10.0B:~2.10.0B", [Hour, Minute]).
 
 time_to_iso8601(Time) ->
-    Ms = trunc(Time / 1000000), 
+    Ms = trunc(Time / 1000000),
     Now = {Ms, Time - (Ms * 1000000), 0},
     {{Year, Month, Day}, {Hour, Min, Sec}} = calendar:now_to_universal_time(Now),
     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ",
