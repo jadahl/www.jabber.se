@@ -19,7 +19,7 @@
 -module(web_feed).
 -include("include/utils.hrl").
 -include("include/menu.hrl").
--export([main/0]).
+-export([main/0, get_url/1]).
 
 %
 % Document entry points
@@ -48,3 +48,10 @@ main() ->
             end
     end.
 
+%
+% API
+%
+
+get_url(Module) ->
+    Path = cf_url:content_module_path(Module),
+    cf_url:url(cf_config:path() ++ "feed/" ++ Path).

@@ -18,7 +18,7 @@
 
 -module(content_news).
 
--export([body/1, atom/1]).
+-export([body/1, atom/1, atom_url/0]).
 
 -include("include/utils.hrl").
 -include("include/content.hrl").
@@ -32,4 +32,7 @@ body(_) ->
 
 atom(URL) ->
     cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).
+
+atom_url() ->
+    {ok, web_feed:get_url(?MODULE)}.
 

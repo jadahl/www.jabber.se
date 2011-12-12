@@ -18,6 +18,7 @@
 
 -module(cf_url).
 -export([path/0, scheme/0, url/1, url/2, content_path_to_module/1,
+         content_module_path/1,
          url_path_encode/2]).
 
 path() ->
@@ -77,6 +78,11 @@ url(Scheme, Path) ->
 content_path_to_module(List) when is_list(List) ->
     list_to_atom("content_" ++ List).
 
+content_module_path(Atom) ->
+    case atom_to_list(Atom) of
+        "content_" ++ Module -> Module;
+        _                    -> undefined
+    end.
 
 -spec url_path_encode([string()], [{string(), string()}]) -> string().
 url_path_encode(Path, Params) ->

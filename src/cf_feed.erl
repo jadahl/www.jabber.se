@@ -37,7 +37,7 @@ get_feed_link(#menu_element{title = Title} = MenuElement) ->
                                 type = "application/atom+xml",
                                 rel = "alternate",
                                 title = ?T(Title) ++ " atom feed"}];
-                    _ ->
+                    _R ->
                         []
                 end
             catch
