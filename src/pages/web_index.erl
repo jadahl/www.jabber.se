@@ -53,22 +53,19 @@
 
 -spec load_error(atom() | iolist(), load_type()) -> any().
 load_error(Error, Type) when is_atom(Error) ->
-    load_error(io_lib:format(?T(msg_id_error_occured), [Error]), Type);
+    load_error(?TXT("An error occurred"), Type);
 load_error(Message, Type) ->
-    set_body(Message, ?T(msg_id_error_title), error, Type).
+    set_body(Message, ?TXT("Error"), error, Type).
 
 content_error(Error) ->
-    Message = if is_atom(Error) -> atom_to_list(Error);
-                 true           -> ?T(msg_id_unknown)
-              end,
-    content_error(Error, io_lib:format(?T(msg_id_error_occured), [Message])).
+    content_error(Error, ?TXT("An error occurred")).
 content_error(Error, Message) ->
     Stacktrace = erlang:get_stacktrace(),
     error_logger:error_report([{message, lists:flatten(Message)},
                                {error, Error},
                                {stacktrace, Stacktrace}]),
     #content{body = Message,
-             title = ?T(msg_id_error_title)}.
+             title = ?TXT("Error")}.
 
 get_content(Module, Path) ->
     case cf_config:content_enabled(Module) of
@@ -337,7 +334,8 @@ main() ->
 
 description() ->
     cf_session:env(),
-    ?T(msg_id_description).
+    ?TXT("Jabber.se is a not-for-profit public Jabber service in Sweden. It's "
+         "open for anyone and completely free.").
 
 head() ->
     cf_feed:get_feed_links().

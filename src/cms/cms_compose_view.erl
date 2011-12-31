@@ -67,10 +67,10 @@ tag_alternatives() ->
 %
 
 set_saved_label() ->
-    set_saved_label(?T(msg_id_post_dialog_saved)).
+    set_saved_label(?TXT("Saved...")).
 
 set_save_failed_label() ->
-    set_saved_label(?T(msg_id_post_dialog_save_failed)).
+    set_saved_label(?TXT("Saving failed...")).
 
 set_saved_label(Text) ->
     wf:update(post_dialog_saved_message, Text).
@@ -120,7 +120,7 @@ language_dropdown(Id, Languages, Message, Postback) ->
 %
 
 tags(TagElements) ->
-    [#label{text = ?T(msg_id_post_dialog_tags), style = ?BLOCK},
+    [#label{text = ?TXT("Tags:"), style = ?BLOCK},
      #panel{id = post_dialog_tags, body = TagElements, style = ?INLINE},
      #state_panel{
          id = post_dialog_tag_panel,
@@ -128,7 +128,7 @@ tags(TagElements) ->
          bodies = [
              {button, #button{
                      id = post_dialog_add_tag_button,
-                     text = ?T(msg_id_post_dialog_add_tag),
+                     text = ?TXT("Add"),
                      postback = tag_alternatives,
                      actions = #event{type = click, actions = [
                              #state_panel_set{target = post_dialog_tag_panel,
@@ -173,7 +173,7 @@ content_type_options(CurrentContentType) ->
 
 tools(Locale, Post) ->
     ContentType = Post#db_post.content_type,
-    [#label{text = ?T(msg_id_post_dialog_tools), style = ?BLOCK},
+    [#label{text = ?TXT("Tools:"), style = ?BLOCK},
      #expandable{categories =
          [
 
@@ -182,8 +182,8 @@ tools(Locale, Post) ->
           %
 
           {translation,
-           ?T(msg_id_post_dialog_translation),
-           [#label{text = ?T(msg_id_post_dialog_translation_go_to),
+           ?TXT("Translation"),
+           [#label{text = ?TXT("Go to translation"),
                    style = ?BLOCK},
             #panel{style = ?BLOCK,
                    body = language_dropdown(
@@ -192,26 +192,26 @@ tools(Locale, Post) ->
                                 value = LocaleTmp,
                                 selected = LocaleTmp == Locale}
                         || {LocaleTmp, Lang} <- cf_i18n:enabled_languages()] ++
-                        [#option{text = ?T(msg_id_language_unspecified),
+                        [#option{text = ?TXT("(unspecified)"),
                                  value = undefined,
                                  selected = Locale == undefined}]),
-                       ?T(msg_id_loading),
+                       ?TXT("Loading..."),
                        language)},
 
             #hr{},
 
-            #label{text = ?T(msg_id_post_dialog_translation_copy),
+            #label{text = ?TXT("Copy translation to"),
                    style = ?BLOCK},
             #panel{body = language_dropdown(
                        post_dialog_copy_lang_drop_down,
-                       [#option{text = ?T(msg_id_post_dialog_translation_select),
+                       [#option{text = ?TXT("(select language)"),
                                 value = none} |
                         ([#option{text = Lang,
                                   value = LocaleTmp}
                           || {LocaleTmp, Lang} <- cf_i18n:enabled_languages()] ++
-                         [#option{text = ?T(msg_id_language_unspecified),
+                         [#option{text = ?TXT("(unspecified)"),
                                  value = undefined}])],
-                       ?T(msg_id_copying),
+                       ?TXT("Copying..."),
                        copy_lang)}]},
 
           %
@@ -219,8 +219,8 @@ tools(Locale, Post) ->
           %
 
           {content_type,
-           ?T(msg_id_post_dialog_content_type),
-           [#label{text = ?T(msg_id_post_dialog_content_type_choose), style = ?BLOCK},
+           ?TXT("Content type"),
+           [#label{text = ?TXT("Choose content type"), style = ?BLOCK},
             #panel{style = ?BLOCK,
                    body = #dropdown{id = post_dialog_content_type_dropdown,
                                     postback = set_content_type,
@@ -253,7 +253,7 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
         id = edit_post_body,
         body = [
             % subject
-            #label{text = ?T(msg_id_post_dialog_subject), style = ?BLOCK},
+            #label{text = ?TXT("Subject:"), style = ?BLOCK},
             #textbox{id = post_dialog_subject_input,
                      text = Subject,
                      style = ?BLOCK,
@@ -268,7 +268,7 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
             #br{},
 
             % content
-            #label{text = ?T(msg_id_post_dialog_content), style = ?BLOCK},
+            #label{text = ?TXT("Content:"), style = ?BLOCK},
             #textarea{id = post_dialog_text_area,
                       text = Body,
                       actions = EnableSaveButtonEvent},
@@ -283,7 +283,7 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
                     {public,
                         #button{
                             id = post_dialog_unpublish_button,
-                            text = ?T(msg_id_post_dialog_unpublish),
+                            text = ?TXT("Unpublish"),
                             actions = #event{type = click,
                                              actions = #disable{}},
                             postback = unpublish,
@@ -293,7 +293,7 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
                     {draft,
                         #button{
                             id = post_dialog_publish_button,
-                            text = ?T(msg_id_post_dialog_publish),
+                            text = ?TXT("Publish"),
                             actions = #event{type = click,
                                              actions = #disable{}},
                             postback = publish,
@@ -305,14 +305,14 @@ body(#db_post{tags = Tags, state = State} = Post, Locale) ->
 
             #button{
                 id = post_dialog_save_button,
-                text = ?T(msg_id_post_dialog_save),
+                text = ?TXT("Save"),
                 actions = #event{type = click, actions = #disable{}},
                 postback = save,
                 delegate = cms_compose},
 
             #button{
                 id = post_dialog_discard_button,
-                text = ?T(msg_id_post_dialog_discard),
+                text = ?TXT("Discard"),
                 postback = discard,
                 delegate = cms_compose},
 
@@ -333,7 +333,7 @@ wire_validators() ->
             ]}).
 
 title() ->
-    ?T(msg_id_post_dialog_title).
+    ?TXT("Compose").
 
 %
 % Element events

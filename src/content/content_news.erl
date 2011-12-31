@@ -26,12 +26,12 @@
 -define(CMS_VIEW, "news").
 
 body(_) ->
-    Title = ?T(msg_id_news),
+    Title = ?TXT("News"),
     #content{body = cms:body(Title, ?CMS_VIEW),
              title = Title}.
 
 atom(URL) ->
-    cms:atom(URL, ?T(msg_id_news), ?CMS_VIEW).
+    cms:atom(URL, ?TXT("News"), ?CMS_VIEW).
 
 atom_url() ->
     {ok, web_feed:get_url(?MODULE)}.

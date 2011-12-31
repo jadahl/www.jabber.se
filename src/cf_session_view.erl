@@ -33,14 +33,14 @@
 
 panel_login() ->
     #form{autocomplete = "on",
-          controls = [#h3{text = ?T(msg_id_login)},
+          controls = [#h3{text = ?TXT("Login")},
                       #p{},
-                      #label{text = ?T(msg_id_login_username)},
+                      #label{text = ?TXT("Username")},
                       #textbox{id = login_username,
                                class = login_input,
                                next = login_password},
                       #p{},
-                      #label{text = ?T(msg_id_login_password)},
+                      #label{text = ?TXT("Password")},
                       #password{id = login_password,
                                 class = login_input,
                                 next = login_login},
@@ -56,12 +56,12 @@ panel_progress() ->
 
 panel_success() ->
     [
-        #h3{class = center, text = ?T(msg_id_login_success)},
+        #h3{class = center, text = ?TXT("Login success")},
         #panel{
             class = center,
             body = #button{
                 id = login_dialog_close_button,
-                text = ?T(msg_id_close),
+                text = ?TXT("Close"),
                 actions = #event{type = click, actions = #state_panel_hide{target = login_dialog}}
             }
         }
@@ -69,7 +69,7 @@ panel_success() ->
 
 panel_fail() ->
     [
-        #h3{class = center, text = ?T(msg_id_login_fail)},
+        #h3{class = center, text = ?TXT("Login failed")},
         #panel{
             class = center,
             body = #button{
@@ -83,7 +83,7 @@ button_panel() ->
     [
         #button{
             id = login_login,
-            text = ?T(msg_id_login),
+            text = ?TXT("Login"),
             actions = #event{type = click, actions = #state_panel_set{target = login_dialog, validate_group = login_login, key = progress}},
             delegate = cf_session,
             postback = do_login
@@ -91,7 +91,7 @@ button_panel() ->
         " ",
         #button{
             id = login_cancel,
-            text = ?T(msg_id_cancel),
+            text = ?TXT("Cancel"),
             actions = #event{type = click, actions = #state_panel_hide{target = login_dialog}}
         }
     ].
@@ -130,7 +130,7 @@ login_link() ->
         id = login_link,
         style = Style,
         class = login_link,
-        text = ?T(msg_id_admin),
+        text = ?TXT("admin"),
         actions = #event{
             type = click,
             actions = #state_panel_show{
@@ -159,7 +159,7 @@ admin_panel() ->
         body = [
             #link{
                 class = admin_panel_button,
-                text = ?T(msg_id_admin_content),
+                text = ?TXT("Content"),
                 delegate = cms_admin,
                 postback = admin
             },
@@ -167,7 +167,7 @@ admin_panel() ->
             " | ",
 
             #link{
-                text = ?T(msg_id_logout),
+                text = ?TXT("Logout"),
                 delegate = cf_session,
                 postback = do_logout
             }
@@ -206,16 +206,16 @@ unauthorized_request() ->
     % display logged out dialog
     Dialog = #dialog{
         id = unauthorized_request_dialog,
-        title = ?T(msg_id_unauthorized_request),
+        title = ?TXT("Unauthorized request"),
         title_class = [center, warning],
         body = #panel{
             class = center,
             body = [
                 % TODO add ability to login
                 % TODO add reason: session timed out/other (?)
-                #p{body = ?T(msg_id_reload_page)},
+                #p{body = ?TXT("Page needs to be reloaded")},
                 #button{
-                    text = ?T(msg_id_reload),
+                    text = ?TXT("Reload"),
                     actions = #event{type = click, actions = #script{script = "location.reload();"}}
                 }
             ]

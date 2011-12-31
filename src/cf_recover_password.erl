@@ -106,7 +106,6 @@ handle_call({send_recovery_email, Username, Hostname, Email,
              RecoverPath, Lang},
             _From, State) ->
     try
-        
         Reply = case is_recovery_active(Username, Hostname, State) of
             true ->
                 {error, already_sent};
@@ -206,7 +205,7 @@ send_recovery_email_impl(Username, Hostname, Email, RecoverPath, Lang, State) ->
     URL = get_url(ID, RecoverPath),
     CancelURL = get_cancel_url(ID, RecoverPath),
 
-    Subject = ?TXT("Recover your account"),
+    Subject = ?TXT2("Recover your account", cf_i18n:to_lc2(Lang)),
     {ok, Message} = cf_template:parse_file(?CONFM(template), Lang,
                                            [{account, [Username, <<"@">>,
                                                        Hostname]},

@@ -24,10 +24,10 @@
 -include("include/db/db.hrl").
 
 title() ->
-    ?T(msg_id_drafts_dialog_title).
+    ?TXT("Drafts").
 
 no_posts_text() ->
-    ?T(msg_id_drafts_empty).
+    ?TXT("No drafts...").
 
 body(PostsFun, Adapter, Count) ->
     cms_manage_view:body(PostsFun, Adapter, Count).

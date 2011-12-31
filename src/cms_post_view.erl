@@ -132,7 +132,7 @@ post_to_html(#db_post{
                 },
                 " ",
                 #span{class = cms_post_by,
-                    text = ?T(msg_id_by) ++ " " ++
+                    text = ?TXT("by") ++ " " ++
                     case Authors of
                         [Author] -> cf_utils:to_string(Author);
                         _ -> "unknown"

@@ -29,10 +29,10 @@
 -type posts_provider() :: fun((integer(), integer()) -> list(#db_post{})).
 
 title() ->
-    ?T(msg_id_manage_dialog_title).
+    ?TXT("Manage").
 
 no_posts_text() ->
-    ?T(msg_id_posts_empty).
+    ?TXT("No posts...").
 
 %
 % Pager
@@ -110,11 +110,11 @@ title_link(Titles, Post, Delegate) ->
 title_link(Title, Locale, Post, Delegate) ->
     LinkTitle = case Title of
         undefined ->
-            ?T(msg_id_post_untitled);
+            ?TXT("(untitled)");
         _ ->
             case string:strip(binary_to_list(Title)) of
                 "" ->
-                    ?T(msg_id_post_untitled);
+                    ?TXT("(untitled)");
                 _ ->
                     Title
             end
@@ -124,7 +124,7 @@ title_link(Title, Locale, Post, Delegate) ->
         delegate = cms_compose,
         postback = {open, Post#db_post.id, Locale, Delegate},
         text = LinkTitle,
-        title = ?T(msg_id_post_open)
+        title = ?TXT("Edit post")
     }.
 
 remove_link(Post, CurrentPage, Delegate) ->
@@ -132,10 +132,10 @@ remove_link(Post, CurrentPage, Delegate) ->
         postback = {remove_post, Post#db_post.id, CurrentPage},
         delegate = Delegate,
         text = "✕",
-        title = ?T(msg_id_post_remove)}.
+        title = ?TXT("Remove post")}.
 
 show_date(undefined) ->
-    ?T(msg_id_post_not_published);
+    ?TXT("(not published)");
 show_date(Timestamp) ->
     cf_utils:ts_to_date_s(Timestamp).
 
@@ -184,9 +184,9 @@ panel(PostsFun, Adapter, PostCount) ->
             rows = [
                 #tablerow{
                     cells = [
-                        #tableheader{text = ?T(msg_id_post_title), class = title},
-                        #tableheader{text = ?T(msg_id_post_authors), class = authors},
-                        #tableheader{text = ?T(msg_id_post_date), class = date},
+                        #tableheader{text = ?TXT("Post content"), class = title},
+                        #tableheader{text = ?TXT("Authors"), class = authors},
+                        #tableheader{text = ?TXT("Date"), class = date},
                         #tableheader{class = remove}
                     ]
                 },

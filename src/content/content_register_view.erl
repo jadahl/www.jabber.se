@@ -39,13 +39,13 @@ body() ->
     Body = #panel{
         class = [register],
         body = [
-            #h2{text = ?T(msg_id_register)},
+            #h2{text = ?TXT("Register")},
             #panel{id = register_view, body = RegisterForm}
         ]},
 
     #content{
         body = Body,
-        title = ?T(msg_id_register),
+        title = ?TXT("Register"),
         post_eval =
             fun() ->
                 wire_validators(Validators)
@@ -55,29 +55,29 @@ register_form() ->
     Body = [
         #panel{style = ?INLINE, body = [
             #form{controls = [
-                #label{text = ?T(msg_id_form_username),
+                #label{text = ?TXT("Username: "),
                        style = ?BLOCK},
                 #textbox{id = username},
                 #p{},
-                #label{text = ?T(msg_id_form_password),
+                #label{text = ?TXT("Password:"),
                        style = ?BLOCK},
                 #password{id = password, class = textbox},
                 #p{},
-                #label{text = ?T(msg_id_form_confirm_password),
+                #label{text = ?TXT("Confirm password:"),
                        style = ?BLOCK},
                 #password{id = pwd_confirm, class = textbox},
                 #p{},
                 #panel{body = [
-                        #label{text = ?T(msg_id_register_email)},
-                        #label{text = ?T(msg_id_register_email_note),
+                        #label{text = ?TXT("E-mail ")},
+                        #label{text = ?TXT("(optional, not published)"),
                                class = small},
                         #label{text = ": "}
                     ]},
                 #textbox{id = email},
                 #p{},
                 #panel{body = [#reset{id = clear_button,
-                                      text = ?T(msg_id_clear)},
-                               #button{text = ?T(msg_id_register),
+                                      text = ?TXT("Clear")},
+                               #button{text = ?TXT("Register"),
                                        id = create_button,
                                        actions = #event{type = click,
                                                         actions = [
@@ -104,17 +104,18 @@ register_form() ->
     ],
 
     Validators = [
-        {username,    [#is_required{text = ?T(msg_id_form_required)},
+        {username,    [#is_required{text = ?TXT("Required")},
                        #custom{function = fun is_available_validator/2,
                                server_side_only = true,
-                               text = ?T(msg_id_register_taken)}]},
-        {email,       [#maybe_email{text = ?T(msg_id_form_valid_email)}]},
-        {password,    [#is_required{text = ?T(msg_id_form_required)},
+                               text = ?TXT("Username already taken")}]},
+        {email,       [#maybe_email{text = ?TXT("Enter a valid email address")}]},
+        {password,    [#is_required{text = ?TXT("Required")},
                        #min_length{length = 6,
-                                   text = ?T(msg_id_form_at_least)}]},
-        {pwd_confirm, [#is_required{text = ?T(msg_id_form_required)},
+                                   text = ?TXT("Password must be at least 6 "
+                                               "characters long.")}]},
+        {pwd_confirm, [#is_required{text = ?TXT("Required")},
                        #confirm_password{password = password,
-                                         text = ?T(msg_id_form_match)}]}
+                                         text = ?TXT("Passwords must match")}]}
     ],
 
     {Body, Validators}.
@@ -149,15 +150,15 @@ enable_form() ->
 
 on_failed(Reason) ->
     Message = case Reason of
-        exists -> ?T(msg_id_register_taken);
-        input  -> ?T(msg_id_register_invalid_input);
-        _      -> ?T(msg_id_register_internal_error)
+        exists -> ?TXT("Username already taken");
+        input  -> ?TXT("Invalid input");
+        _      -> ?TXT("Internal error")
     end,
 
     Body = [
-        #h3{text = ?T(msg_id_register_failed)},
+        #h3{text = ?TXT("Registration failed")},
         #p{body = Message},
-        #button{text = ?T(msg_id_back),
+        #button{text = ?TXT("Back"),
                 delegate = content_register,
                 postback = back}
     ],
@@ -168,7 +169,7 @@ on_validation_failed() ->
     enable_form().
 
 on_exists() ->
-    wf:wire(username, #validation_error{text = ?T(msg_id_register_taken)}),
+    wf:wire(username, #validation_error{text = ?TXT("Username already taken")}),
     enable_form().
 
 on_back() ->
@@ -178,13 +179,11 @@ on_back() ->
 
 success_body(Username, Hostname) ->
     [
-        #h3{text = ?T(msg_id_register_success)},
-        #p{body = [
-                ?T(msg_id_register_success_msg_part1),
-                #span{class = code,
-                      text = lists:flatten([Username, <<"@">>, Hostname])},
-                ?T(msg_id_register_success_msg_part2)
-            ]}
+        #h3{text = ?TXT("Account registered")},
+        #p{body = ?STXT("The account <span class=\"code\">$user$@$host</code> "
+                        "was successfully registered. You may start using it "
+                        "right away.",
+                        [{user, Username}, {host, Hostname}])}
     ].
 
 on_success(Username, Hostname) ->
@@ -193,9 +192,13 @@ on_success(Username, Hostname) ->
 on_email_not_set(Username, Hostname) ->
     Body = success_body(Username, Hostname) ++ [
         #span{class = warning, style = ?BLOCK,
-              text = ?T(msg_id_register_success_note)},
+              text = ?TXT("Note:")},
         #span{class = warning,
-              text = ?T(msg_id_register_success_email_not_set)}
+              text = ?TXT("You did not specify an E-mail address. This means "
+                          "you cannot request a new password in case you lost "
+                          "it. If you want to be able to, you need to register "
+                          "it in the future. The E-mail you register will not "
+                          "be public.")}
     ],
     set_body(Body).
 

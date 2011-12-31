@@ -41,10 +41,10 @@ back() ->
 
 show_dialog() ->
     Dialog = #dialog{id = ?DIALOG_ID},
-    cf_dialog:show(Dialog, fun() -> set_body_close(?T(msg_id_admin_title), body()) end).
+    cf_dialog:show(Dialog, fun() -> set_body_close(?TXT("Content Management"), body()) end).
 
 title() ->
-    ?T(msg_id_admin_title).
+    ?TXT("Content Management").
 
 body() ->
     #list{

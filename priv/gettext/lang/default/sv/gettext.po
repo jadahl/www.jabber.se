@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: git\n"
 "POT-Creation-Date: 2006-07-01 16:45+0200\n"
-"PO-Revision-Date: 2011-12-12 21:50+0100\n"
+"PO-Revision-Date: 2011-12-21 23:49+0100\n"
 "Last-Translator: Jonas Ådahl <jadahl@gmail.com>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -16,8 +16,26 @@ msgstr ""
 "X-Poedit-Country: Sweden\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
+msgid "(not published)"
+msgstr "(ej publicerad)"
+
+msgid "(optional, not published)"
+msgstr "(frivilligt, kommer ej publiceras)"
+
+msgid "(select language)"
+msgstr "(välj språk)"
+
+msgid "(unspecified)"
+msgstr "(ospecifierat)"
+
+msgid "(untitled)"
+msgstr "(ingen titel)"
+
 msgid "A new password for the account <span class=\"code\">$user$@$host$</span> has been set."
 msgstr "Ett nytt lösenord för kontot <span class=\"code\">$user$@$host$</span> har satts."
+
+msgid "About"
+msgstr "Om"
 
 msgid "Account"
 msgstr "Konto"
@@ -25,11 +43,29 @@ msgstr "Konto"
 msgid "Account recovery"
 msgstr "Kontoåterställning"
 
+msgid "Account registered"
+msgstr "Kontot har registrerats"
+
 msgid "Account:"
 msgstr "Konto:"
 
+msgid "Add"
+msgstr "Lägg till"
+
 msgid "An E-mail containing instrucions on how to complete the recovery proceduce has been sent to the address registered to the account <span class=\"code\">$user$@$host$</span>. Please check your inbox. It may take some time before the E-mail arrives. If after some time you still have not received any E-mail, first check your Spam directory. If did receive any recovery E-mail, please contact the administrator for help."
 msgstr "Ett E-brev med instruktioner för hur du begär nytt lösenord har skicktas till e-postadressen som registrerats till kontot <span class=\"code\">$user$@$host$</span>. Vänligen kolla din E-postlåda. Det kan ta en stund innan brevet kommer fram. Ifall du efter en tid fortfarande inte har mottagit det, kolla först din spamkatalog. Ifall du fortfarande ej har mottagit något E-brev vänligen kontakta administratören."
+
+msgid "An error occurred"
+msgstr "Ett fel inträffade"
+
+msgid "Authors"
+msgstr "Författare"
+
+msgid "Back"
+msgstr "Bakåt"
+
+msgid "Cancel"
+msgstr "Avbryt"
 
 msgid "Change password"
 msgstr "Ändra lösenord"
@@ -37,14 +73,53 @@ msgstr "Ändra lösenord"
 msgid "Change private E-mail"
 msgstr "Ändra private E-postadress"
 
+msgid "Choose content type"
+msgstr "Välj innehållstyp"
+
 msgid "Clear"
 msgstr "Rensa"
+
+msgid "Close"
+msgstr "Stäng"
+
+msgid "Compose"
+msgstr "Skapa"
 
 msgid "Confirm password:"
 msgstr "Bekräfta lösenord:"
 
+msgid "Content"
+msgstr "Innehåll"
+
+msgid "Content Management"
+msgstr "Hantera Innehåll"
+
+msgid "Content type"
+msgstr "Innehållstyp"
+
+msgid "Content:"
+msgstr "Innehåll:"
+
+msgid "Copy translation to"
+msgstr "Kopiera översättning till"
+
+msgid "Copying..."
+msgstr "Kopierar..."
+
 msgid "Current password:"
 msgstr "Nuvarande lösenord:"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Discard"
+msgstr "Kasta"
+
+msgid "Drafts"
+msgstr "Utkast"
+
+msgid "E-mail "
+msgstr "E-mail "
 
 msgid "E-mail address of the account <span class=\"code\">$user$@$host$</span> has been changed to <span class=\"code\">$email$</span>."
 msgstr "E-postadressen för kontot <span class=\"code\">$user$@$host$</span> har ändrats till <span class=\"code\">$email$</span>."
@@ -52,11 +127,20 @@ msgstr "E-postadressen för kontot <span class=\"code\">$user$@$host$</span> har
 msgid "E-mail sent"
 msgstr "E-brev skickat"
 
+msgid "Edit post"
+msgstr "Editera"
+
 msgid "Either the username, the password or both were incorrect."
 msgstr "Antingen så har användarnamnet eller lösenordet eller båda skirivits in felaktigt."
 
 msgid "Enter a valid E-mail address."
 msgstr "Skriv in en giltlig E-postadress."
+
+msgid "Enter a valid email address"
+msgstr "Skriv in en giltlig E-mail-address"
+
+msgid "Error"
+msgstr "Fel"
 
 msgid "Failed"
 msgstr "Misslyckades"
@@ -70,8 +154,38 @@ msgstr "Det gick inte att återställa kontot <span class=\"code\">$user$@$host$
 msgid "Failed to set new password. Contact the admistrator for help."
 msgstr "Misslyckades med att sätta nytt lösenord. Kontakta administratören för hjälp."
 
+msgid "Go to translation"
+msgstr "Gå till översättning"
+
+msgid "Internal error"
+msgstr "Internt fel"
+
+msgid "Invalid input"
+msgstr "Ogiltlig input"
+
+msgid "Jabber.se is a not-for-profit public Jabber service in Sweden. It's open for anyone and completely free."
+msgstr "Jabber.se är en ideell publik Jabbertjänst i Sverige. Den är öppen för vem som helst, och är helt gratis."
+
+msgid "Loading..."
+msgstr "Laddar..."
+
+msgid "Login"
+msgstr "Logga in"
+
+msgid "Login failed"
+msgstr "Försök igen"
+
+msgid "Login success"
+msgstr "Inloggad"
+
+msgid "Logout"
+msgstr "Logga ut"
+
 msgid "Lost password"
 msgstr "Glömt lösenord"
+
+msgid "Manage"
+msgstr "Hantera"
 
 msgid "New E-mail:"
 msgstr "Ny E-postadress:"
@@ -79,11 +193,32 @@ msgstr "Ny E-postadress:"
 msgid "New password:"
 msgstr "Nytt lösenord:"
 
+msgid "News"
+msgstr "Nyheter"
+
+msgid "No drafts..."
+msgstr "Inga utkast..."
+
+msgid "No posts..."
+msgstr "Inga inlägg"
+
+msgid "Note:"
+msgstr "Notis:"
+
+msgid "Page needs to be reloaded"
+msgstr "Sidan behöver laddas om"
+
+msgid "Password"
+msgstr "Lösenord"
+
 msgid "Password changed"
 msgstr "Lösenordet har ändrats"
 
 msgid "Password must be at least $min$ characters long."
 msgstr "Lösenordet måste vara åtminstone $min$ tecken långt"
+
+msgid "Password must be at least 6 characters long."
+msgstr "Lösenordet måste vara åtminstone 6 tecken långt."
 
 msgid "Password set"
 msgstr "Lösenord satt"
@@ -93,6 +228,12 @@ msgstr "Lösenord:"
 
 msgid "Passwords must match"
 msgstr "Lösenordet måste vara identiska"
+
+msgid "Post content"
+msgstr "Titel"
+
+msgid "Publish"
+msgstr "Publicera"
 
 msgid "Recover your account"
 msgstr "Återställ ditt konto"
@@ -109,11 +250,41 @@ msgstr "Återställning misslyckades"
 msgid "Recovery instructions has already been sent to the registered E-mail address of the account <span class=\"code\">$user$@$host$</span>. Please check your inbox and spam folder. If you have further issues, please contact the administrator."
 msgstr "Instruktioner för hur du skall gå till väga för att återställa kontot har redan skickats till den E-postadress som registrerats till kontot <span class=\"code\">$user$@$host$</span>. Vänligen kontrollera din E-postlåda samt din Spam-katalog. Ifall du fortfarande inte har mottagit något E-brev kontakta administratören."
 
+msgid "Register"
+msgstr "Registrera"
+
+msgid "Registration failed"
+msgstr "Registreringen misslyckades"
+
+msgid "Reload"
+msgstr "Ladda om"
+
+msgid "Remove post"
+msgstr "Ta bort"
+
 msgid "Required"
 msgstr "Fyll i"
 
+msgid "Save"
+msgstr "Spara"
+
+msgid "Saved..."
+msgstr "Sparad..."
+
+msgid "Saving failed..."
+msgstr "Kunde inte spara..."
+
+msgid "Subject:"
+msgstr "Ämne"
+
 msgid "Submit"
 msgstr "Skicka"
+
+msgid "Tags:"
+msgstr "Taggar"
+
+msgid "The account <span class=\"code\">$user$@$host</code> was successfully registered. You may start using it right away."
+msgstr "Kontot <span class=\"code\">$user$@$host</code> har registrerats. Du kan börja använda det direkt."
 
 msgid "The account recovery session has timed out."
 msgstr "Kontoåterställningentiden har gått ut."
@@ -121,6 +292,38 @@ msgstr "Kontoåterställningentiden har gått ut."
 msgid "The recovery of the account <span class=\"code\">$user$@$host$</span> has been canceled."
 msgstr "Återställningen av kontot  <span class=\"code\">$user$@$host$</span> har avbrutits."
 
+msgid "Tools:"
+msgstr "Verktyg:"
+
+msgid "Translation"
+msgstr "Översättningar"
+
+msgid "Unauthorized request"
+msgstr "Åtkomst förbjuden"
+
+msgid "Unpublish"
+msgstr "Avpublicera"
+
+msgid "Username"
+msgstr "Användarnamn"
+
+msgid "Username already taken"
+msgstr "Användarnamnet är upptaget"
+
 msgid "Username:"
 msgstr "Användarnamn:"
 
+msgid "Username: "
+msgstr "Användarnamn: "
+
+msgid "You did not specify an E-mail address. This means you cannot request a new password in case you lost it. If you want to be able to, you need to register it in the future. The E-mail you register will not be public."
+msgstr "Du angav ej någon E-mail-address. Det innebär att du ej kan begära ett nytt lösenord ifall du tappat port ditt befintliga. Ifall du vill kunna begära ett nytt lösenord måste du först ha registrerat en E-mail-address. Din registrerade E-mail-address kommer inte vara publik."
+
+msgid "admin"
+msgstr "admin"
+
+msgid "by"
+msgstr "av"
+
+#~ msgid "Unknown"
+#~ msgstr "Okänd"

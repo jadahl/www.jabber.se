@@ -37,7 +37,7 @@ body_single(Id) ->
 
 body(Title, View) ->
     Posts = db_post:get_posts_by_view(View),
-    Title = ?T(msg_id_news),
+    Title = ?TXT("News"),
     [#h2{text = Title} | lists:map(fun cms_post_view:post_to_html/1, Posts)].
 
 atom(URL, SubTitle, View) ->
