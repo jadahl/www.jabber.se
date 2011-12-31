@@ -104,8 +104,6 @@ cache_content() ->
         URL -> ok
     end,
 
-    {BasePath, []} = parse_path(cf_config:path()),
-
     Content = case local_path(URL) of
         [ContentPath | _] = Path ->
             Module = cf_url:content_path_to_module(ContentPath),
@@ -274,7 +272,7 @@ site_api() ->
     [wf:wire(API) || API <- APIs],
     ok.
 
-api_event(init_content, content, Args) ->
+api_event(init_content, content, _Args) ->
     cf_session:env(),
     page_init_hooks();
 api_event(Name, content, Args) ->

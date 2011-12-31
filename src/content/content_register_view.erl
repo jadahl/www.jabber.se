@@ -180,7 +180,7 @@ on_back() ->
 success_body(Username, Hostname) ->
     [
         #h3{text = ?TXT("Account registered")},
-        #p{body = ?STXT("The account <span class=\"code\">$user$@$host</code> "
+        #p{body = ?STXT("The account <span class=\"code\">$user$@$host$</span> "
                         "was successfully registered. You may start using it "
                         "right away.",
                         [{user, Username}, {host, Hostname}])}
