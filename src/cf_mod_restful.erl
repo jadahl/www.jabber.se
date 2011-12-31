@@ -66,7 +66,6 @@ post_request(Function, Hostname, SubPath, Properties) ->
     case cf_rest:request_post_json(Hostname, server_address(), server_port(),
                                 Path, JSON) of
         {ok, Result} ->
-            ?LOG_INFO("result = ~p", [Result]),
             case Result of
                 {struct, [{K, V}]} when is_binary(K), is_binary(V) ->
                     {list_to_atom(binary_to_list(K)),
@@ -77,7 +76,6 @@ post_request(Function, Hostname, SubPath, Properties) ->
                     {error, invalid}
             end;
         {error, Reason} ->
-            ?LOG_INFO("reason = ~p", [Reason]),
             {error, Reason}
     end.
 

@@ -108,7 +108,6 @@ cache_content() ->
 
     Content = case local_path(URL) of
         [ContentPath | _] = Path ->
-            ?LOG_INFO("base-path=~p, path=~p", [BasePath, Path]),
             Module = cf_url:content_path_to_module(ContentPath),
             get_content(Module, Path);
         _ ->
@@ -276,11 +275,9 @@ site_api() ->
     ok.
 
 api_event(init_content, content, Args) ->
-    ?LOG_INFO("init_content(~p)", [Args]),
     cf_session:env(),
     page_init_hooks();
 api_event(Name, content, Args) ->
-    ?LOG_INFO("~s(~p)", [Name, Args]),
     cf_session:env(),
 
     case Args of

@@ -48,9 +48,14 @@ send(From, FromName, To, Subject, Message) ->
              || {Key, Value} <- Headers],
             <<"\r\n">>, Message],
 
+    error_logger:info_report(["Sending E-mail",
+                              {from, From},
+                              {from_name, FromName},
+                              {to, To},
+                              {subject, Subject}]),
+
     case gen_smtp_client:send_blocking({From, [To], Body}, Options) of
         _B when is_binary(_B) ->
-            error_logger:info_report([{smtp_reply, _B}]),
             ok;
         {error, Reason, _Msg} ->
             error_logger:error_report([{error_in, {?MODULE, send}},

@@ -143,11 +143,8 @@ init(_) ->
         ])),
 
     DC = [[{{c, M, K}, V} || {K, V} <- M:default_config()] || M <- ?DEFAULT_CONFIG_MODULES],
-    error_logger:info_report([{defaults, DC}]),
 
     ets:insert(Table, lists:flatten(DC)),
-
-    error_logger:info_report([{config, ets:tab2list(Table)}]),
 
     {ok, #state{table = Table}}.
 
