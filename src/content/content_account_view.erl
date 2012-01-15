@@ -92,7 +92,7 @@ on_recover_password_set(Username, Hostname) ->
 
 on_change_private_email_success(Username, Hostname, Email) ->
     NewContent = [
-        #h3{text = "Changed"},
+        #h3{text = ?TXT("Changed")},
         #p{body = ?STXT("E-mail address of the account "
                         "<span class=\"code\">$user$@$host$</span> "
                         "has been changed to "

@@ -394,6 +394,11 @@ msgstr ""
 "Publish"
 
 msgid ""
+"Recover your account"
+msgstr ""
+"Recover your account"
+
+msgid ""
 "Recovery E-mail already sent"
 msgstr ""
 "Recovery E-mail already sent"

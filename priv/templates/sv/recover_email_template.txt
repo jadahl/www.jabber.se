@@ -1,7 +1,7 @@
 Hej,
 
 Någon har gjort en förfrågan att återställa ett konto hos
-[[[service_name]]]. If detta ej var dig, du kan avbryta begäran genom att
+[[[service_name]]]. If detta ej var dig kan du avbryta begäran genom att
 följa länken i slutet av det här E-brevet. Kontodetaljer följer.
 
 Konto: [[[account]]].

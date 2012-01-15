@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: git\n"
 "POT-Creation-Date: 2006-07-01 16:45+0200\n"
-"PO-Revision-Date: 2011-12-31 19:05+0100\n"
+"PO-Revision-Date: 2012-01-04 21:13+0100\n"
 "Last-Translator: Jonas Ådahl <jadahl@gmail.com>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -119,7 +119,7 @@ msgid "Drafts"
 msgstr "Utkast"
 
 msgid "E-mail "
-msgstr "E-mail "
+msgstr "E-post "
 
 msgid "E-mail address of the account <span class=\"code\">$user$@$host$</span> has been changed to <span class=\"code\">$email$</span>."
 msgstr "E-postadressen för kontot <span class=\"code\">$user$@$host$</span> har ändrats till <span class=\"code\">$email$</span>."
@@ -137,7 +137,7 @@ msgid "Enter a valid E-mail address."
 msgstr "Skriv in en giltlig E-postadress."
 
 msgid "Enter a valid email address"
-msgstr "Skriv in en giltlig E-mail-address"
+msgstr "Skriv in en giltlig E-postaddress"
 
 msgid "Error"
 msgstr "Fel"
@@ -235,6 +235,9 @@ msgstr "Titel"
 msgid "Publish"
 msgstr "Publicera"
 
+msgid "Recover your account"
+msgstr "Återställ ditt konto"
+
 msgid "Recovery E-mail already sent"
 msgstr "E-brev redan skickat"
 
@@ -314,7 +317,7 @@ msgid "Username: "
 msgstr "Användarnamn: "
 
 msgid "You did not specify an E-mail address. This means you cannot request a new password in case you lost it. If you want to be able to, you need to register it in the future. The E-mail you register will not be public."
-msgstr "Du angav ej någon E-mail-address. Det innebär att du ej kan begära ett nytt lösenord ifall du tappat port ditt befintliga. Ifall du vill kunna begära ett nytt lösenord måste du först ha registrerat en E-mail-address. Din registrerade E-mail-address kommer inte vara publik."
+msgstr "Du angav ej någon Epostaddress. Det innebär att du ej kan begära ett nytt lösenord ifall du tappat port ditt befintliga. Ifall du vill kunna begära ett nytt lösenord måste du först ha registrerat en E-mail-address. Din registrerade E-mail-address kommer inte vara publik."
 
 msgid "admin"
 msgstr "admin"

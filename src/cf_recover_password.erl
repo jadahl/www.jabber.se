@@ -198,7 +198,7 @@ terminate(_Reason, _State) ->
     ok.
 
 send_recovery_email_impl(Username, Hostname, Email, RecoverPath, Lang, State) ->
-    FromAdress = ?CONFM(from_address),
+    FromAddress = ?CONFM(from_address),
     FromName = cf_config:title(),
 
     ID = generate_id(),
@@ -212,8 +212,8 @@ send_recovery_email_impl(Username, Hostname, Email, RecoverPath, Lang, State) ->
                                             {service_name, cf_config:title()},
                                             {url, URL},
                                             {cancel, CancelURL}]),
-
-    ok = cf_mail:send(FromAdress, FromName, Email, Subject, Message),
+    
+    ok = cf_mail:send(FromAddress, FromName, Email, Subject, Message),
 
     TS = now_s(),
     Session = #session{timestamp = TS,

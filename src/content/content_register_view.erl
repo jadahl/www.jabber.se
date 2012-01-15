@@ -124,7 +124,7 @@ register_form() ->
 % Validator
 
 is_available_validator(_A, Value) ->
-    content_register:is_available(Value, cf_config:host()).
+    content_register:is_available(Value, cf_config:domain()).
 
 %
 % Internal
