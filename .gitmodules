@@ -4,30 +4,33 @@
 	ignore = dirty
 [submodule "lib/nitrogen_core"]
 	path = lib/nitrogen_core
-	url = https://github.com/jadahl/nitrogen_core.git
+	url = git://github.com/jadahl/nitrogen_core.git
 	ignore = dirty
 [submodule "lib/simple_bridge"]
 	path = lib/simple_bridge
-	url = https://github.com/jadahl/simple_bridge.git
+	url = git://github.com/jadahl/simple_bridge.git
 	ignore = dirty
 [submodule "lib/nprocreg"]
 	path = lib/nprocreg
-	url = https://github.com/nitrogen/nprocreg.git
+	url = git://github.com/nitrogen/nprocreg.git
 	ignore = dirty
 [submodule "lib/ibrowse"]
 	path = lib/ibrowse
-	url = https://github.com/cmullaparthi/ibrowse.git
+	url = git://github.com/cmullaparthi/ibrowse.git
 	ignore = dirty
 [submodule "lib/erlmarkdown"]
 	path = lib/erlmarkdown
-	url = https://github.com/hypernumbers/erlmarkdown.git
+	url = git://github.com/hypernumbers/erlmarkdown.git
 	ignore = dirty
 [submodule "lib/gettext"]
 	path = lib/gettext
-	url = git@github.com:jadahl/gettext.git
+	url = git://github.com/jadahl/gettext.git
+	ignore = dirty
 [submodule "lib/erlang-uuid"]
 	path = lib/erlang-uuid
 	url = git://gitorious.org/avtobiff/erlang-uuid.git
+	ignore = dirty
 [submodule "lib/gen_smtp"]
 	path = lib/gen_smtp
-	url = https://github.com/Vagabond/gen_smtp.git
+	url = git://github.com/Vagabond/gen_smtp.git
+	ignore = dirty
