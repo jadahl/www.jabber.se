@@ -27,8 +27,13 @@
         body/1
     ]).
 
-body(_) ->
-    #content{
-        body = cms:body_single("page_about"),
-        title = ?TXT("About")}.
+body(["about"]) ->
+    body1("page_about");
+body(["about" | _] = Path) ->
+    Id = cf_utils:join(Path, "/"),
+    body1(Id).
 
+body1(Id) ->
+    #content{
+        body = cms:body_single(Id),
+        title = ?TXT("About")}.
