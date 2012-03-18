@@ -30,6 +30,7 @@
         % API
         parse_file/3,
         parse/2,
+        linkify/2,
 
         % gen_server
         init/1,
@@ -44,6 +45,8 @@
 -behaviour(gen_cf_config).
 
 -include("include/utils.hrl").
+-include("include/ui.hrl").
+-include_lib("nitrogen_core/include/wf.hrl").
 
 %
 % gen_cf_config
@@ -125,6 +128,26 @@ try_template_file([Filename | Filenames]) ->
 % API
 %
 
+linkify(Template, NoScript) when is_list(Template) ->
+    linkify(list_to_binary(Template), NoScript);
+linkify(Template, NoScript) ->
+    Linkify = case NoScript of
+        true ->
+            fun(Id, Title) ->
+                    #link{text = Title,
+                          url = cf_url:path(Id)}
+            end;
+        _ ->
+            fun(Id, Title) ->
+                    JSCall = #js_call{fname = "$Site.$trigger_menu",
+                                                        args = [Id]},
+                    Actions = #event{type = click,
+                                     actions = JSCall},
+                    #link{text = Title, actions = Actions}
+            end
+    end,
+    do_linkify(Template, Linkify).
+
 parse_file(File, Lang, Map) ->
     case gen_server:call(?MODULE, {get_template, File, Lang}) of
         {ok, Template} -> parse(Template, Map);
@@ -148,7 +171,7 @@ parse1(Template, Map) ->
     Size = size(Template),
     case binary:match(Template, <<"[[[">>) of
         {Start, _Len} ->
-            {End, _} = binary:match(Template, <<"]]]">>, 
+            {End, _} = binary:match(Template, <<"]]]">>,
                                     [{scope, {Start + 3,
                                               Size - (Start + 3)}}]),
             KeyB = binary:part(Template, Start + 3, End - (Start + 3)),
@@ -160,3 +183,31 @@ parse1(Template, Map) ->
             [Template]
     end.
 
+process_link(Link, Regex, Linkify) ->
+    case re:run(Link, Regex) of
+        {match, [_, IdRange, StringRange]} ->
+            {IdStart, IdLen} = IdRange,
+            {StringStart, StringLen} = StringRange,
+            Id = binary:part(Link, IdStart, IdLen),
+            String = binary:part(Link, StringStart, StringLen),
+            Linkify(Id, String);
+        _ ->
+            Link
+    end.
+
+do_linkify(Template, Linkify) ->
+    {ok, Regex} = re:compile("^([a-z_/]+),\\s+(.*)$"),
+    Size = size(Template),
+    case binary:match(Template, <<"{{{">>) of
+        {Start, _Len} ->
+            {End, _} = binary:match(Template, <<"}}}">>,
+                                    [{scope, {Start + 3,
+                                              Size - (Start + 3)}}]),
+            Link = binary:part(Template, Start + 3, End - (Start + 3)),
+            Value = process_link(Link, Regex, Linkify),
+            [binary:part(Template, 0, Start),
+             Value,
+             do_linkify(binary:part(Template, End + 3, Size - (End + 3)), Linkify)];
+        nomatch ->
+            [Template]
+    end.

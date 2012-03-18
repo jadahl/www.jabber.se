@@ -1,5 +1,6 @@
 {application, www_jabber_se, [
     {description,  "Jabber.se"},
+    {vsn, "git"},
     {mod, {www_jabber_se_app, []}},
     {applications, [kernel,
                     stdlib,

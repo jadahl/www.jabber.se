@@ -17,7 +17,7 @@
 %
 
 -module(cf_url).
--export([path/0, scheme/0, url/1, url/2, content_path_to_module/1,
+-export([path/0, path/1, scheme/0, url/1, url/2, content_path_to_module/1,
          content_module_path/1,
          url_path_encode/2]).
 
@@ -37,6 +37,9 @@ scheme() ->
             (wf_context:request_bridge()):scheme()
     end.
 
+path(Path) ->
+    list_to_binary([cf_config:read(path), Path]).
+
 %
 % Same as url/2 where Scheme is what scheme was used to the server.
 %
@@ -54,26 +57,25 @@ url(Scheme, Path) ->
         http  -> cf_config:read(http_port)
     end,
 
-    lists:flatten(
-        [
-            % scheme, such as https://
-            case Scheme of
-                http  -> "http://";
-                https -> "https://"
-            end,
+    [
+        % scheme, such as https://
+        case Scheme of
+            http  -> "http://";
+            https -> "https://"
+        end,
 
-            % hostname, such as localhost
-            Host,
+        % hostname, such as localhost
+        Host,
 
-            % port, if not hidden, such as :8000
-            case cf_config:read(http_https_port_forward) of
-                true -> "";
-                _    -> [$: | integer_to_list(Port)]
-            end,
+        % port, if not hidden, such as :8000
+        case cf_config:read(http_https_port_forward) of
+            true -> "";
+            _    -> [$: | integer_to_list(Port)]
+        end,
 
-            % path, such as /foo
-            Path
-        ]).
+        % path, such as /foo
+        Path
+    ].
 
 content_path_to_module(List) when is_list(List) ->
     list_to_atom("content_" ++ List).

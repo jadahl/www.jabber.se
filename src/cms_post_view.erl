@@ -43,7 +43,8 @@ post_body_to_html(Post) ->
         <<"application/xhtml+xml">> ->
             db_post:t(Post#db_post.body);
         <<"text/markdown">> ->
-            markdown:conv(binary_to_list(db_post:t(Post#db_post.body)));
+            S = markdown:conv(binary_to_list(db_post:t(Post#db_post.body))),
+            cf_template:linkify(S, get(noscript) == true);
         _ ->
             "undefined"
     end.
@@ -90,6 +91,9 @@ get_last_updated(Contents) ->
         end, 0, Contents).
 
 posts_to_atom(Contents, URL, Title, SubTitle) ->
+    % Generate HTML without javascript links
+    put(noscript, true),
+
     Proto = case (wf_context:request_bridge()):scheme() of
         https -> "https://";
         _     -> "http://"
