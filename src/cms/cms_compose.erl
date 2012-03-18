@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010-2011 Jonas Ådahl
+%    Copyright (C) 2010-2012 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -135,7 +135,14 @@ event(set_content_type) ->
         false ->
             ?LOG_WARNING("trying to set invalid content type '~p'",
                          [ContentType])
-    end.
+    end;
+
+%
+% Advanced events
+%
+
+event(set_post_id) ->
+    ?AUTH(event_set_post_id(wf:q(new_post_id))).
 
 %
 % Open / close
@@ -392,3 +399,35 @@ event_add_tag(Tag) ->
 
     cms_compose_view:add_tag(Tag).
 
+%
+% Advanced utilities
+%
+
+event_set_post_id(NewId) when NewId == "" orelse NewId == undefined ->
+    cms_compose_view:set_post_id_failed();
+event_set_post_id(NewIdS) ->
+    NewId = list_to_binary(NewIdS),
+
+    try
+        case current_post() of
+            undefined ->
+                NewPost = (empty_post())#db_post{id = NewId},
+                NewId = save_new_post(NewPost);
+            NewId ->
+                % already set
+                ok;
+            Id ->
+
+                Post = db_post:get_post(Id),
+                NewPost = Post#db_post{id = NewId},
+                NewId = save_new_post(NewPost),
+                db_controller:delete_doc_by_id(Id)
+        end,
+
+        cms_compose_view:set_post_id_success()
+    catch
+        _:_ = Error ->
+            error_logger:error_report([{error, Error},
+                    {st, erlang:get_stacktrace()}]),
+            cms_compose_view:set_post_id_failed()
+    end.

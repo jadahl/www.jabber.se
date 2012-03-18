@@ -1,6 +1,6 @@
 %
 %    Jabber.se Web Application
-%    Copyright (C) 2010-2011 Jonas Ådahl
+%    Copyright (C) 2010-2012 Jonas Ådahl
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,10 @@
         set_saved_label/0, set_save_failed_label/0,
         set_content/2, set_post_state/1,
         body/2, wire_validators/0, title/0,
-        event/1]).
+        event/1,
+
+        set_post_id_failed/0,
+        set_post_id_success/0]).
 
 -include_lib("nitrogen_core/include/wf.hrl").
 
@@ -172,6 +175,10 @@ content_type_options(CurrentContentType) ->
      || {Text, Type} <- ContentTypes].
 
 tools(Locale, Post) ->
+    Id = case Post#db_post.id of
+        undefined -> "";
+        CurrentId -> CurrentId
+    end,
     ContentType = Post#db_post.content_type,
     [#label{text = ?TXT("Tools:"), style = ?BLOCK},
      #expandable{categories =
@@ -225,7 +232,29 @@ tools(Locale, Post) ->
                    body = #dropdown{id = post_dialog_content_type_dropdown,
                                     postback = set_content_type,
                                     delegate = cms_compose,
-                                    options = content_type_options(ContentType)}}]}]}].
+                                    options = content_type_options(ContentType)}}]},
+
+          {advanced,
+           ?TXT("Advanced"),
+           [#label{text = ?TXT("Set post ID value"), style = ?BLOCK},
+            #textbox{style = ?INLINE,
+                     id = new_post_id,
+                     text = Id,
+                     actions = #event{type = enterkey,
+                                      target = set_post_id_button,
+                                      actions = #disable{}},
+                     postback = set_post_id,
+                     delegate = cms_compose},
+            " ",
+            #button{style = ?INLINE,
+                    text = ?TXT("Set"),
+                    id = set_post_id_button,
+                    actions = #event{type = click,
+                                     actions = #disable{}},
+                    postback = set_post_id,
+                    delegate = cms_compose},
+            " ",
+            #span{id = set_post_id_status}]}]}].
 
 body(#db_post{tags = Tags, state = State} = Post, Locale) ->
 
@@ -344,3 +373,14 @@ event({Module, Postback, LoadingId}) ->
     wf:wire(#site_cast{cast = enable_forms, args = [edit_post_body]}),
     Module:event(Postback).
 
+%
+% Advanced edition options
+%
+
+set_post_id_failed() ->
+    wf:wire(set_post_id_button, #enable{}),
+    wf:update(set_post_id_status, ?TXT("Failed")).
+
+set_post_id_success() ->
+    wf:wire(set_post_id_button, #enable{}),
+    wf:update(set_post_id_status, ?TXT("Done")).
