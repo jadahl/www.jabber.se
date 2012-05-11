@@ -1,0 +1,15 @@
+Feedback page (request features, other ideas, voting on ideas?)
+What servers have TLS encryption set up
+  - privacy concerns regarding having a public list,
+  - set of default, like gmail.com, jabber.org, jabber.no, etc?
+  - checking servers on your roster
+  - access via REST, can add new features to mod_restful
+A link to a status online/offline image that users can link to
+  - need integrated UI, control via (new? or admin) REST API
+  - exists a plugin for ejabberd
+Support page
+  - send support requests,
+  - anonymous Javascript based group chat client joining
+    help@conference.jabber.se or something?
+Web based Jabber client
+  - pure Javascript or Javascript+Erlang?
